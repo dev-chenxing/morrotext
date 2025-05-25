@@ -1,0 +1,13 @@
+- What are the stats (including value, stat boost, type) of iron dagger, rusty sword, chainmail, steel armor, magic amulet, crown of wisdom, ancient relic?
+- New quest started: "undefined"
+- Write the quest data in Darkwood Forest: slay_goblins
+
+- [ ] Class-based character progression
+- [ ] 5+ locations with unique quests
+- [ ] 3+ enemy types with combat
+- [ ] 5+ interactive NPCs
+- [ ] 20+ items with procedural generation
+- [ ] Multiple quest lines
+- [ ] 3 distinct endings based on player choices
+- [ ] Save/load functionality
+- [ ] 2+ hours of gameplay with branching storylines
