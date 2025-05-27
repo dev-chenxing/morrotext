@@ -8,6 +8,9 @@ import { startCombat } from './combat.js';
 import { talkToNPC } from './dialogue.js';
 import { ITEMS } from './items.js';
 import { QUESTS, startQuest } from './quests.js';
+import { CLASSES } from './classes.js';
+import { createEnemy } from './combat.js';
+
 
 // Display ASCII title
 console.log(chalk.yellow(figlet.textSync('Terminal RPG')));
@@ -112,6 +115,12 @@ export async function showQuests(player) {
     return showQuests(player);
 }
 
+function getRandomEnemy(locationEnemies) {
+    const enemyTypes = locationEnemies;
+    const totalWeight = enemyTypes.length;
+    const selected = enemyTypes[Math.floor(Math.random() * totalWeight)];
+    return createEnemy(selected);
+}
 
 export async function enterLocation(player, location) {
     console.log(chalk.cyan(`\n=== ${location.name} ===`));
@@ -139,13 +148,14 @@ export async function enterLocation(player, location) {
         const questKey = location.quests.find(q =>
             action.includes(QUESTS[q].title)
         );
-        await startQuest(player, QUESTS[questKey]);
+        startQuest(player, QUESTS[questKey]);
         return enterLocation(player, location);
     }
 
     // Random encounter check for dangerous areas
-    if (location.name === 'Darkwood Forest' && Math.random() > 0.6) {
-        await startCombat(player, createEnemy('goblin'));
+    if (location.enemies && Math.random() > 0.6) {
+        const enemy = getRandomEnemy(location.enemies);
+        await startCombat(player, enemy);
     }
 
     return showMainMenu(player);
@@ -177,9 +187,20 @@ function checkEndings() {
 
 // Initialize game
 async function startGame() {
+
+    const classChoices = Object.keys(CLASSES).map(key => ({
+        name: CLASSES[key].displayName,
+        value: key
+    }));
+
     const { name, className } = await inquirer.prompt([
         { type: 'input', name: 'name', message: 'Enter your name:' },
-        { type: 'list', name: 'className', message: 'Choose class:', choices: ['warrior', 'mage', 'rogue'] }
+        {
+            type: 'list',
+            name: 'className',
+            message: 'Choose class:',
+            choices: classChoices
+        }
     ]);
 
     const player = new Player(name, className);

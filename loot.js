@@ -3,19 +3,22 @@ import { ITEMS } from "./items.js";
 
 const lootTable = {
     common: [
-        ITEMS.health_potion,
-        ITEMS.iron_dagger,
-        ITEMS.rusty_sword
+        ITEMS.health_potion.id,
+        ITEMS.holy_water.id,
+        ITEMS.mana_potion.id
     ],
     rare: [
-        ITEMS.steel_sword,
-        ITEMS.chainmail,
-        ITEMS.steel_armor,
-        ITEMS.magic_amulet
+        ITEMS.steel_sword.id,
+        ITEMS.chainmail.id,
+        ITEMS.steel_armor.id,
+        ITEMS.magic_amulet.id,
+        ITEMS.mace.id
     ],
     epic: [
-        ITEMS.dragon_slayer,
-        ITEMS.crown_of_wisdom,
+        ITEMS.dragon_slayer.id,
+        ITEMS.crown_of_wisdom.id,
+        ITEMS.divine_armor.id,
+        ITEMS.seraphim_staff.id
     ]
 };
 
@@ -25,5 +28,5 @@ export function generateLoot() {
         roll < 0.3 ? 'rare' : 'common';
 
     const pool = lootTable[rarity];
-    return pool[Math.floor(Math.random() * pool.length)].name;
+    return pool[Math.floor(Math.random() * pool.length)];
 }

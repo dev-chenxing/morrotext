@@ -53,6 +53,16 @@ export const npcDialogues = {
                 { text: 'Maybe later', action: 'leave' }
             ]
         }
+    },
+    priest: {
+        initial: {
+            question: "The light guides you, child. How may the church assist?",
+            options: [
+                { text: 'Receive blessing (50 gold)', action: 'blessing' },
+                { text: 'Learn holy prayer', action: 'prayer' },
+                { text: 'Leave', action: 'leave' }
+            ]
+        }
     }
 };
 

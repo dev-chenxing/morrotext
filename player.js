@@ -1,27 +1,37 @@
+import { CLASSES } from './classes.js';
+
 export class Player {
     constructor(name, className) {
         this.name = name;
-        this.class = className;
         this.level = 1;
-        this.maxHp = 100;
-        this.hp = 100;
+
+        this.class = className;
+        Object.assign(this, CLASSES[className].stats);
+        this.inventory = [...CLASSES[className].startingItems];
+
         this.gold = 50;
-        this.inventory = [];
         this.activeQuests = [];
         this.equipment = {
             weapon: null,
             armor: null
         };
-        this.setClassStats();
     }
 
-    setClassStats() {
-        const classes = {
-            warrior: { attack: 15, defense: 10 },
-            mage: { attack: 20, defense: 5 },
-            rogue: { attack: 12, defense: 8 }
-        };
-        Object.assign(this, classes[this.class]);
+    // Cleric-specific method
+    divineHeal() {
+        const { manaCost, healMultiplier } = CLASSES.cleric.abilities.divineHeal;
+
+        if (this.mana >= manaCost) {
+            this.mana -= manaCost;
+            const healAmount = Math.min(this.magic * healMultiplier, this.maxHp - this.hp);
+            this.hp += healAmount;
+
+            console.log(chalk.yellow(`Divine healing restored ${healAmount} HP!`));
+            return healAmount;
+        }
+
+        console.log(chalk.red("Not enough mana for healing!"));
+        return 0;
     }
 
     equipItem(item) {

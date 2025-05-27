@@ -1,6 +1,7 @@
-- What are the stats (including value, stat boost, type) of iron dagger, rusty sword, chainmail, steel armor, magic amulet, crown of wisdom, ancient relic?
-- New quest started: "undefined"
-- Write the quest data in Darkwood Forest: slay_goblins
+- Mage should have abilities as well
+- Implement forest_warden NPC dialogue in `dialogue.js`
+- implement exp
+- implement weapon required level
 
 - [ ] Class-based character progression
 - [ ] 5+ locations with unique quests

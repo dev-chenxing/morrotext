@@ -1,6 +1,22 @@
 import chalk from 'chalk';
 import inquirer from 'inquirer';
 import { generateLoot } from './loot.js';
+import { CLASSES } from './classes.js';
+import { ITEMS } from './items.js';
+
+function getActionChoices(player) {
+    let choices = [
+        'Attack',
+        'Use Item'
+    ]
+
+    if (player.class === 'cleric') {
+        const healCost = CLASSES.cleric.abilities.divineHeal.manaCost;
+        choices.push(`Divine Heal (${healCost} mana)`);
+    }
+
+    return choices
+}
 
 export async function startCombat(player, enemy) {
     console.log(chalk.red(`\nA wild ${enemy.name} appears!`));
@@ -10,11 +26,7 @@ export async function startCombat(player, enemy) {
             type: 'list',
             name: 'action',
             message: 'Choose your action:',
-            choices: [
-                'Attack',
-                'Use Item',
-                ...(player.class === 'rogue' ? ['Flee'] : [])
-            ]
+            choices: getActionChoices(player)
         });
 
         switch (action) {
@@ -42,12 +54,12 @@ export async function startCombat(player, enemy) {
                 }
                 break;
 
-            case 'Flee':
-                if (Math.random() > 0.7) {
-                    console.log(chalk.blue('Escaped successfully!'));
-                    return;
+            case 'Divine Heal':
+                if (player.divineHeal()) {
+                    // Healing doesn't trigger enemy attack
+                    console.log(chalk.cyan(`\n${player.name}: ${player.hp}HP`));
+                    continue;
                 }
-                console.log(chalk.red('Failed to escape!'));
                 break;
         }
 
@@ -55,28 +67,57 @@ export async function startCombat(player, enemy) {
         console.log(chalk.cyan(`\n${player.name}: ${player.hp}HP`));
         console.log(chalk.cyan(`${enemy.name}: ${enemy.hp}HP\n`));
     }
+
+    // Victory handling
     if (player.hp > 0) {
-        console.log(chalk.green(`\nVictory! Gained ${enemy.gold} gold!`));
-        player.gold += enemy.gold;
-        const loot = generateLoot();
-        console.log(chalk.blue(`Found ${loot}!`));
-        player.inventory.push(loot);
+        gold = enemy.gold();
+        console.log(chalk.green(`\nVictory! Gained ${gold} gold!`));
+        player.gold += gold;
+
+        // Enemy-specific loot drops
+        if (enemy.loot) {
+            enemy.loot.forEach(itemId => {
+                if (Math.random() < 0.65) {
+                    const item = ITEMS[itemId];
+                    player.inventory.push(itemId);
+                    console.log(chalk.blue(`Found ${item.name}!`));
+                }
+            });
+        }
+
+        // Procedural loot generation
+        const lootId = generateLoot();
+        const proceduralItem = ITEMS[lootId];
+        player.inventory.push(lootId);
+        console.log(chalk.blue(`Found ${proceduralItem.name}!`));
+
     } else {
         console.log(chalk.red('\nGAME OVER'));
         process.exit();
     }
 }
 
+
+// Enemy data
+export const ENEMIES = {
+    goblin: {
+        name: 'Goblin',
+        hp: 45,
+        attack: 12,
+        defense: 6,
+        loot: ['rusty_dagger', 'goblin_ear'],
+        gold: () => Math.floor(Math.random() * 16) + 10 // Returns 10-25 gold
+    },
+    goblin_shaman: {
+        name: 'Goblin Shaman',
+        hp: 65,
+        attack: 18,
+        defense: 8,
+        loot: ['mana_essence', 'bone_charm'],
+        gold: () => Math.floor(Math.random() * 21) + 30 // Returns 30-50 gold
+    }
+};
+
 export function createEnemy(type) {
-    const enemies = {
-        goblin: {
-            name: 'Goblin',
-            hp: 30,
-            attack: 8,
-            defense: 4,
-            gold: 25
-        },
-        // Add more enemies...
-    };
-    return { ...enemies[type] };
+    return { ...ENEMIES[type] };
 }

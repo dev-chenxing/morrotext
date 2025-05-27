@@ -7,8 +7,9 @@ export const locations = {
     },
     forest: {
         name: 'Darkwood Forest',
-        description: 'A dense forest teeming with monsters.',
+        description: 'A dense forest teeming with goblins.',
         quests: ['slay_goblins'],
-        npcs: ['hermit']
+        npcs: ['hermit', 'forest_warden'],
+        enemies: ['goblin', 'goblin', 'goblin', 'goblin_shaman'], // 3:1 spawn ratio
     }
 };
