@@ -5,10 +5,20 @@ import { locations } from "./world.js";
 import { Player } from "./player.js";
 import { saveGame } from "./save.js";
 import { startCombat } from "./combat.js";
-import { talkToNPC } from "./dialogue.js";
+import { talkToNPC, getNPCName } from "./dialogue.js";
 import { ITEMS } from "./items.js";
 import { CLASSES, EXP_LEVELS } from "./classes.js";
 import { createEnemy } from "./combat.js";
+
+process.on("uncaughtException", error => {
+  if (error instanceof Error && error.name === "ExitPromptError") {
+    console.log("❌ Game Exit");
+    process.exit();
+  } else {
+    // Rethrow unknown errors
+    throw error;
+  }
+});
 
 // Display ASCII title
 console.log(chalk.yellow(figlet.textSync("Terminal RPG")));
@@ -151,7 +161,7 @@ export async function enterLocation(player, location) {
     name: "action",
     message: "What would you like to do?",
     choices: [
-      ...location.npcs.map(npc => `Talk to ${npc}`),
+      ...location.npcs.map(npcKey => `Talk to ${getNPCName(npcKey)}`),
       // ...location.quests.map(quest => QUESTS[quest].title),
       "Return to Main Menu"
     ]

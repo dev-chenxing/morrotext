@@ -1,6 +1,4 @@
-- Talk to forest_warden. npc forest_warden should have display name
 - implement the dialogue action: start_quest, blessing, prayer, get_advice, get_lore
-- ctrl-c to exit
 - for `showQuests` to properly display quest objectives, each objective needs description. `selected.objectives.forEach((step, i) => console.log(`${i + 1}. ${step} ${i < selected.progress ? "✓" : ""}`));`
 - Player name does not accept empty string
 - give the attack randomness
