@@ -1,20 +1,35 @@
 export const CLASSES = {
-    warrior: {
-        displayName: "Warrior",
-        stats: { attack: 15, defense: 10, hp: 120 },
-        startingItems: ['iron_sword', 'leather_armor']
-    },
-    mage: {
-        displayName: "Mage",
-        stats: { attack: 20, defense: 5, hp: 80, mana: 150 },
-        startingItems: ['oak_staff', 'mana_potion']
-    },
-    cleric: {
-        displayName: "Cleric",
-        stats: { attack: 8, defense: 12, hp: 100, mana: 100 },
-        startingItems: ['mace', 'holy_symbol'],
-        abilities: {
-            divineHeal: { manaCost: 30, healMultiplier: 2 }
-        }
+  warrior: {
+    displayName: "Warrior",
+    stats: { attack: 15, defense: 10, hp: 120 },
+    startingItems: ["iron_sword", "leather_armor"]
+  },
+  mage: {
+    displayName: "Mage",
+    stats: { attack: 8, defense: 5, hp: 80, magic: 20, mana: 150 },
+    startingItems: ["oak_staff", "mana_potion"],
+    abilities: {
+      fireball: {
+        manaCost: 40,
+        damageMultiplier: 2.5,
+        description: "Hurl a fiery projectile (40 mana)"
+      }
     }
+  },
+  cleric: {
+    displayName: "Cleric",
+    stats: { attack: 8, defense: 12, hp: 100, magic: 20, mana: 100 },
+    startingItems: ["mace", "holy_symbol"],
+    abilities: {
+      divineHeal: { manaCost: 30, healMultiplier: 2 }
+    }
+  }
 };
+
+export const EXP_LEVELS = [
+  0, // Level 1
+  100, // Level 2
+  250, // Level 3
+  450, // Level 4
+  700 // Level 5
+];

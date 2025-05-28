@@ -1,7 +1,14 @@
-- Mage should have abilities as well
-- Implement forest_warden NPC dialogue in `dialogue.js`
-- implement exp
-- implement weapon required level
+- Talk to forest_warden. npc forest_warden should have display name
+- implement the dialogue action: start_quest, blessing, prayer, get_advice, get_lore
+- ctrl-c to exit
+- for `showQuests` to properly display quest objectives, each objective needs description. `selected.objectives.forEach((step, i) => console.log(`${i + 1}. ${step} ${i < selected.progress ? "✓" : ""}`));`
+- Player name does not accept empty string
+- give the attack randomness
+- mana_essence, bone_charm
+- ```Tav: 40HP
+Goblin Shaman: -5HP``` This battle display is pretty bad. First, no space between number and HP. Second, HP should not go under 0 
+- Implement EXP gain from quest completion
+- Use Item in battle does nothing it seems
 
 - [ ] Class-based character progression
 - [ ] 5+ locations with unique quests
