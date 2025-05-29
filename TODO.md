@@ -1,4 +1,3 @@
-- for `showQuests` to properly display quest objectives, each objective needs description. `selected.objectives.forEach((step, i) => console.log(`${i + 1}. ${step} ${i < selected.progress ? "✓" : ""}`));`
 - Player name should not accept empty string
 - give the attack value randomness
 - mana_essence, bone_charm

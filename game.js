@@ -220,20 +220,32 @@ function checkEndings() {
 
 // Initialize game
 async function startGame() {
+
+  let name = '';
+  while (!name.trim()) {
+    const response = await inquirer.prompt({
+      type: 'input',
+      name: 'name',
+      message: 'Enter your name:',
+      validate: input =>
+        input.trim() !== '' || 'Name cannot be empty!'
+    });
+    name = response.name.trim();
+  }
+
   const classChoices = Object.keys(CLASSES).map(key => ({
     name: CLASSES[key].displayName,
     value: key
   }));
 
-  const { name, className } = await inquirer.prompt([
-    { type: "input", name: "name", message: "Enter your name:" },
+  const className = await inquirer.prompt(
     {
       type: "list",
       name: "className",
       message: "Choose class:",
       choices: classChoices
     }
-  ]);
+  );
 
   const player = new Player(name, className);
   await showMainMenu(player);
