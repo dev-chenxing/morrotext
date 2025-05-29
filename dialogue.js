@@ -69,7 +69,7 @@ export const npcDialogues = {
     }
   },
   hermit: {
-    name: "Hermet",
+    name: "Hermit",
     dialogues: {
       initial: {
         question: "The ancient ruins are dangerous... but the artifact must be recovered!",
@@ -135,9 +135,13 @@ async function handleDialogueAction(player, action, data, npcKey) {
         player.gold -= item.value;
         player.inventory.push(item.id);
 
-        return `You bought ${item.name}!`;
+        return {
+          message: `You bought ${item.name}!`
+        };
       }
-      return "Not enough gold!";
+      return {
+        message: "Not enough gold!"
+      };
 
     case "rest":
       if (player.gold >= data.cost) {
@@ -174,21 +178,36 @@ async function handleDialogueAction(player, action, data, npcKey) {
           ...QUESTS[data.quest],
           progress: 0
         });
-        return `Quest started: "${QUESTS[data.quest].title}"`;
+        return {
+          message: `Quest started: "${QUESTS[data.quest].title}"`,
+          exit: false
+        };
       }
-      return "Quest already active!";
+      return {
+        message: "Quest already active!",
+        exit: false
+      };
 
     case "blessing":
       if (player.gold >= 50) {
         player.gold -= 50;
         player.blessed = true;
-        return chalk.yellow("Holy blessing shines upon you!");
+        return {
+          message: chalk.yellow("Holy blessing shines upon you!"),
+          exit: true
+        };
       }
-      return chalk.red("Not enough gold for blessing!");
+      return {
+        message: chalk.red("Not enough gold for blessing!"),
+        exit: false
+      };
 
     case "prayer":
       player.mana = Math.min(player.maxMana, player.mana + 50);
-      return chalk.blue("Divine energy renews your spirit!");
+      return {
+        message: chalk.blue("Divine energy renews your spirit!"),
+        exit: true
+      };
 
     case "leave":
       return { message: "Come back anytime!", exit: true };

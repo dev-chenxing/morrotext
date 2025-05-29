@@ -191,7 +191,7 @@ async function showTravelMenu(player) {
   });
 
   const selectedLocation = Object.values(locations).find(loc => loc.name === destination);
-  console.log(chalk.yellow(`\nTraveling to ${destination}...\n`));
+  console.log(chalk.yellow(`\nTraveling to ${destination}...`));
   await enterLocation(player, selectedLocation);
 }
 
