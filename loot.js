@@ -16,7 +16,6 @@ const lootTable = {
     ],
     epic: [
         ITEMS.dragon_slayer.id,
-        ITEMS.crown_of_wisdom.id,
         ITEMS.divine_armor.id,
         ITEMS.seraphim_staff.id
     ]

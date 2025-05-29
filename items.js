@@ -21,6 +21,14 @@ export const ITEMS = {
     effect: { mana: 30 },
     value: 35
   },
+  mana_essence: {
+    id: 'mana_essence',
+    name: 'Mana Essence',
+    type: 'consumable',
+    description: 'A glowing crystal that pulses with arcane energy',
+    value: 75,
+    effect: { mana: 50 }
+  },
 
   // Weapons
   rusty_dagger: {
@@ -133,6 +141,14 @@ export const ITEMS = {
     stats: { defense: 10, magic: 10, hp: 50 },
     value: 500
   },
+  bone_charm: {
+    id: 'bone_charm',
+    name: 'Bone Charm',
+    type: 'accessory',
+    description: 'A talisman carved from ancient bones, radiating dark power',
+    stats: { magic: 3, luck: 2 },
+    value: 120,
+  },
 
   // Quest Items
   goblin_ear: {
@@ -141,5 +157,5 @@ export const ITEMS = {
     type: "quest",
     value: 5,
     description: "Proof of goblin slaying"
-  }
+  },
 };

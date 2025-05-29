@@ -103,10 +103,6 @@ export async function startCombat(player, enemy) {
 
     // Victory handling
     if (player.hp > 0) {
-        const expGained = enemy.exp;
-        player.addExp(expGained);
-        console.log(chalk.cyan(`Gained ${expGained} experience!`));
-
         const gold = enemy.gold();
         console.log(chalk.green(`\nVictory! Gained ${gold} gold!`));
         player.gold += gold;
@@ -127,6 +123,10 @@ export async function startCombat(player, enemy) {
         const proceduralItem = ITEMS[lootId];
         player.inventory.push(lootId);
         console.log(chalk.blue(`Found ${proceduralItem.name}!`));
+
+        const expGained = enemy.exp;
+        player.addExp(expGained);
+        console.log(chalk.cyan(`Gained ${expGained} experience!`));
     } else {
         console.log(chalk.red("\nGAME OVER"));
         process.exit();
