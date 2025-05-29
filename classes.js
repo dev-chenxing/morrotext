@@ -21,10 +21,10 @@ export const CLASSES = {
   },
   cleric: {
     displayName: "Cleric",
-    stats: { attack: 8, defense: 12, hp: 100, magic: 20, mana: 100 },
+    stats: { attack: 8, defense: 12, hp: 100, magic: 15, mana: 100, luck: 5 },
     startingItems: ["mace", "holy_symbol"],
     abilities: {
-      divineHeal: { manaCost: 30, healMultiplier: 2 }
+      divineHeal: { manaCost: 30, healMultiplier: 2, description: "Heal wounds with divine light (30 mana)" }
     }
   }
 };

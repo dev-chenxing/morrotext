@@ -1,5 +1,3 @@
-- Player name should not accept empty string
-- give the attack value randomness
 - mana_essence, bone_charm
 - ```Tav: 40HP
 Goblin Shaman: -5HP``` This battle display is pretty bad. First, no space between number and HP. Second, HP should not go under 0 

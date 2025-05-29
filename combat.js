@@ -8,16 +8,16 @@ function getActionChoices(player) {
     let choices = ["Attack", "Use Item"];
 
     if (player.class === "mage") {
-        const { manaCost, damageMultiplier } = CLASSES.mage.abilities.fireball;
+        const { description } = CLASSES.mage.abilities.fireball;
         choices.push({
-            name: `Fireball (${manaCost} mana) - ${player.magic * damageMultiplier} damage`,
+            name: description,
             value: "fireball"
         });
     }
 
     if (player.class === "cleric") {
-        const healCost = CLASSES.cleric.abilities.divineHeal.manaCost;
-        choices.push({ name: `Divine Heal (${healCost} mana)`, value: "divineHeal" });
+        const { description } = CLASSES.cleric.abilities.divineHeal;
+        choices.push({ name: description, value: "divineHeal" });
     }
 
     return choices;
