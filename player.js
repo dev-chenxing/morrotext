@@ -13,6 +13,8 @@ export class Player {
     Object.assign(this, CLASSES[className].stats);
     this.maxHp = this.hp;
 
+    this.luck = CLASSES[className].stats.luck || 5;
+
     this.equipment = {
       weapon: null,
       armor: null

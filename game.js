@@ -238,7 +238,7 @@ async function startGame() {
     value: key
   }));
 
-  const className = await inquirer.prompt(
+  const { className } = await inquirer.prompt(
     {
       type: "list",
       name: "className",

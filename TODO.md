@@ -7,6 +7,7 @@ Goblin Shaman: -5HP``` This battle display is pretty bad. First, no space betwee
 - Use Item in battle does nothing it seems
 - implement the priestess: blessing, prayer
 - implement the ruins
+- implement luck
 
 - [ ] Class-based character progression
 - [ ] 5+ locations with unique quests
