@@ -49,6 +49,13 @@ function updateCombatStatus(player, enemy) {
     console.log(chalk.cyan(`${enemy.name}: ${formatHealth(enemy)}`));
 }
 
+function applyDamage(target, damage) {
+    const newHP = Math.max(0, target.hp - damage);
+    const actualDamage = target.hp - newHP;
+    target.hp = newHP;
+    return actualDamage;
+}
+
 export async function startCombat(player, enemy) {
     console.log(chalk.red(`\nA wild ${enemy.name} appears!`));
 
@@ -65,14 +72,14 @@ export async function startCombat(player, enemy) {
         switch (action) {
             case "Attack":
                 const { damage: playerDmg, isCrit: playerCrit } = calculateDamage(player, enemy);
-                enemy.hp -= playerDmg;
+                applyDamage(enemy, playerDmg);
                 console.log(chalk.red(
                     `You deal ${playerDmg} damage${playerCrit ? ' CRITICAL HIT!' : ''}!`
                 ));
 
                 // Enemy counterattack
                 const { damage: enemyDmg, isCrit: enemyCrit } = calculateDamage(enemy, player);
-                player.hp -= enemyDmg;
+                applyDamage(player, enemyDmg);
                 console.log(chalk.yellow(
                     `${enemy.name} deals ${enemyDmg} damage${enemyCrit ? ' CRITICAL HIT!' : ''}!`
                 ));
