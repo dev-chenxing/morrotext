@@ -38,8 +38,21 @@ function calculateDamage(attacker, defender) {
     return { damage, isCrit };
 }
 
+function formatHealth(entity) {
+    // Prevent negative HP and add space before HP
+    const currentHP = Math.max(0, entity.hp);
+    return `${currentHP} HP`;
+}
+
+function updateCombatStatus(player, enemy) {
+    console.log(chalk.cyan(`\n${player.name}: ${formatHealth(player)}`));
+    console.log(chalk.cyan(`${enemy.name}: ${formatHealth(enemy)}`));
+}
+
 export async function startCombat(player, enemy) {
     console.log(chalk.red(`\nA wild ${enemy.name} appears!`));
+
+    updateCombatStatus(player, enemy);
 
     while (player.hp > 0 && enemy.hp > 0) {
         const { action } = await inquirer.prompt({
@@ -97,8 +110,7 @@ export async function startCombat(player, enemy) {
         }
 
         // Combat status update
-        console.log(chalk.cyan(`\n${player.name}: ${player.hp}HP`));
-        console.log(chalk.cyan(`${enemy.name}: ${enemy.hp}HP\n`));
+        updateCombatStatus(player, enemy);
     }
 
     // Victory handling
