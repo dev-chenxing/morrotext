@@ -1,12 +1,12 @@
-- ```Tav: 40HP
-Goblin Shaman: -5HP``` This battle display is pretty bad. First, no space between number and HP. Second, HP should not go under 0 
 - Implement EXP gain from quest completion
-- Use Item in battle does nothing it seems
-- implement the priestess: blessing, prayer
+- handle Item usage in battle and in `showInventory`, remember DRY.
+- implement the priestess, not the dialogue, I mean place her in the game
+- test: blessing, prayer
 - implement the ruins
 - implement luck
 - the inventory does not stack the same item, please fix it.
 - implement the stat boost of items
+- the Use Item menu in battle display the item id instead of name
 
 - [ ] Class-based character progression
 - [ ] 5+ locations with unique quests

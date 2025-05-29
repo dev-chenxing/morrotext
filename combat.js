@@ -95,7 +95,6 @@ export async function startCombat(player, enemy) {
 
                 if (item !== "Cancel") {
                     // Handle item usage logic
-                    return startCombat(player, enemy); // Refresh combat state
                 }
                 break;
 

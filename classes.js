@@ -31,8 +31,8 @@ export const CLASSES = {
 
 export const EXP_LEVELS = [
   0, // Level 1
-  100, // Level 2
-  250, // Level 3
-  450, // Level 4
-  700 // Level 5
+  200, // Level 2
+  500, // Level 3
+  900, // Level 4
+  1400 // Level 5
 ];
