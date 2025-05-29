@@ -46,9 +46,25 @@ export const npcDialogues = {
       rumor: {
         question: "They say the ancient ruins north of town hold powerful artifacts... but also terrible dangers.",
         options: [
-          { text: "Ask about artifacts", action: "artifact_info" },
-          { text: "Return", action: "leave" }
+          { text: "Tell me more about the artifact", action: "artifact_info" },
+          { text: "That's enough", action: "leave" }
+
         ]
+      },
+      artifact_info: {
+        question: "Word is the Hermit knows about such things. Strange lights come from the ruins at night...",
+        options: [
+          { text: "Where can I find this Hermit?", action: "hermit_location" },
+          { text: "What kind of relic is it?", action: "relic_details" }
+        ]
+      },
+      hermit_location: {
+        question: "He lives in a shack deep in Darkwood Forest. But beware - the way is dangerous!",
+        options: [{ text: "I'll take my chances", action: "leave" }]
+      },
+      relic_details: {
+        question: "Some say it's a crown that grants wisdom, others a sword that slays dragons. Who knows?",
+        options: [{ text: "Fascinating...", action: "leave" }]
       }
     }
   },
@@ -90,11 +106,11 @@ export const npcDialogues = {
           },
           {
             text: "Any advice?",
-            action: "get_advice"
+            action: "advice"
           },
           {
             text: "What's happening here?",
-            action: "get_lore"
+            action: "lore"
           }
         ]
       },
@@ -110,8 +126,8 @@ export const npcDialogues = {
   }
 };
 
-async function handleDialogueAction(player, data, currentDialogue) {
-  const action = data.action;
+async function handleDialogueAction(player, action, data, npcKey) {
+  const npc = npcDialogues[npcKey];
   switch (action) {
     case "buy":
       const item = ITEMS[data.itemId];
@@ -127,16 +143,29 @@ async function handleDialogueAction(player, data, currentDialogue) {
       if (player.gold >= data.cost) {
         player.gold -= data.cost;
         player.hp = player.maxHp;
-        return chalk.green("You rest fully and recover all HP!");
+        return {
+          message: chalk.green("You rest fully and recover all HP!"),
+          exit: true
+        };
       }
-      return chalk.red("Not enough gold for a room!");
+      return {
+        message: chalk.red("Not enough gold for a room!"),
+        exit: false
+      };
 
-    case "rumor":
-      currentDialogue = dialogue.rumor;
-      break;
 
-    case "artifact_info":
-      return chalk.yellow("The old ones sealed away something powerful...\nMaybe the Hermit in the forest knows more?");
+    case 'rumor':
+    case 'artifact_info':
+    case 'hermit_location':
+    case 'relic_details':
+    case 'more_rumors':
+    case 'advice':
+    case 'lore':
+      // These are handled through dialogue state transitions
+      return {
+        nextState: action,
+        message: npc.dialogues[action]?.question || "I've nothing more to say."
+      };
 
     case "start_quest":
       if (!player.activeQuests.some(q => q.key === data.quest)) {
@@ -161,40 +190,62 @@ async function handleDialogueAction(player, data, currentDialogue) {
       player.mana = Math.min(player.maxMana, player.mana + 50);
       return chalk.blue("Divine energy renews your spirit!");
 
-    case "get_advice":
-      return chalk.italic("Focus your attacks - overwhelmed foes fight poorly");
-
-    case "get_lore":
-      return chalk.green("Ancient texts speak of a sealed evil beneath these woods...");
-
     case "leave":
-      return "Come back anytime!";
+      return { message: "Come back anytime!", exit: true };
 
     default:
-      return "...";
+      return {
+        message: "Safe travels, adventurer!",
+        exit: true
+      };
   }
 }
 
 export async function talkToNPC(npcKey, player) {
   const npc = npcDialogues[npcKey];
-  let currentDialogue = npc.dialogues.initial;
+
+  if (!npc) {
+    console.log(chalk.red(`NPC ${npcKey} not found!`));
+    return;
+  }
+  let currentState = 'initial';
 
   console.log(chalk.cyan(`\n=== ${npc.name} ===`));
 
   while (true) {
+
+    const dialogue = npc.dialogues[currentState];
+    if (!dialogue) break;
+    const choices = dialogue.options.map(opt => ({
+      name: opt.text,
+      value: { action: opt.action, data: opt }
+    }));
+
     const { choice } = await inquirer.prompt({
       type: "list",
       name: "choice",
-      message: currentDialogue.question,
-      choices: currentDialogue.options.map(opt => opt.text)
+      message: dialogue.question,
+      choices
     });
 
-    const option = currentDialogue.options.find(opt => opt.text === choice);
-    const result = await handleDialogueAction(player, option, currentDialogue);
+    const result = await handleDialogueAction(
+      player,
+      choice.action,
+      choice.data,
+      npcKey
+    );
 
-    console.log(chalk.yellow(`\n${result}\n`));
+    if (result.nextState) {
+      currentState = result.nextState;
+    } else if (result.message) {
+      console.log(chalk.yellow(`\n${result.message}`));
+    }
 
-    if (option.action === "start_quest" || !option.action.includes("get_")) {
+    if (result.exit) {
+      break;
+    }
+
+    if (choice.action === "start_quest") {
       break;
     }
   }

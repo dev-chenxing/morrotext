@@ -169,8 +169,7 @@ export async function enterLocation(player, location) {
 
   if (action.startsWith("Talk to")) {
     const npc = action.replace("Talk to ", "").toLowerCase();
-    const result = await talkToNPC(npc, player);
-    console.log(result);
+    await talkToNPC(npc, player);
     return enterLocation(player, location);
   }
 

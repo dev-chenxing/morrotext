@@ -135,12 +135,6 @@ export const ITEMS = {
   },
 
   // Quest Items
-  ancient_relic: {
-    id: "ancient_relic",
-    name: "Ancient Relic",
-    type: "quest",
-    value: 0
-  },
   goblin_ear: {
     id: "goblin_ear",
     name: "Goblin Ear",

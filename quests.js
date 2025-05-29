@@ -22,7 +22,7 @@ export const QUESTS = {
   investigate_ruins: {
     title: "Investigate the Ancient Ruins",
     objectives: [
-      { type: "collect", item: "ancient_artifact", count: 1 },
+      { type: "collect", item: "crown_of_widsom", count: 1 },
       { type: "return", target: "town" }
     ],
     reward: { gold: 200, items: [ITEMS.ancient_relic] }
