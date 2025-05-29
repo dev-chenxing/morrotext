@@ -122,21 +122,34 @@ async function handleEquipment(player, item) {
 }
 
 export async function showQuests(player) {
+
+  if (player.activeQuests.length === 0) {
+    console.log(chalk.yellow('\nNo active quests!'));
+    return showMainMenu(player);
+  }
+
   const { quest } = await inquirer.prompt({
     type: "list",
     name: "quest",
     message: "Active Quests:",
-    choices: [...player.activeQuests.map(q => `${q.title} (${q.progress}/${q.objectives.length})`), "Return"]
+    choices: [
+      ...player.activeQuests.map(q => ({
+        name: `${q.title} [${q.progress}/${q.objectives.length}]`,
+        value: q
+      })),
+      { name: 'Return', value: null }
+    ]
   });
 
-  if (quest === "Return") return showMainMenu(player);
+  if (!quest) return showMainMenu(player);
 
-  const selected = player.activeQuests.find(q => quest.startsWith(q.title));
-  console.log(chalk.yellow(`\n${selected.title}`));
-  console.log(`Steps:`);
-  selected.objectives.forEach((step, i) => console.log(`${i + 1}. ${step} ${i < selected.progress ? "✓" : ""}`));
+  console.log(chalk.cyan(`\n=== ${quest.title} ===`));
+  quest.objectives.forEach((obj, i) => {
+    const status = i < quest.progress ? chalk.green('✓') : chalk.gray('◻');
+    console.log(`${i + 1}. ${status} ${obj.description}`);
+  });
 
-  return showQuests(player);
+  await showQuests(player);
 }
 
 function getRandomEnemy(locationEnemies) {
