@@ -59,13 +59,23 @@ export async function showMainMenu(player) {
 
 function showPlayerStats(player) {
   console.log(chalk.blue("\n=== Character Stats ==="));
-  console.log(`Name: ${player.name}`);
-  console.log(`Class: ${player.class}`);
-  console.log(`Level: ${player.level}`);
-  console.log(`EXP: ${player.exp}/${EXP_LEVELS[player.level]}`);
-  console.log(`HP: ${player.hp}/${player.maxHp}`);
-  console.log(`Mana: ${player.mana}`);
-  console.log(`Gold: ${player.gold}\n`);
+  console.log(chalk.blue(`\n=== ${player.name} (Level ${player.level}) ===`));
+  console.log(`Class: ${chalk.yellow(player.class.toUpperCase())}`);
+  console.log(`HP:    ${chalk.green(player.hp)}/${chalk.green(player.maxHp)}`);
+  if (player.maxMana > 0) {
+    console.log(`Mana:  ${chalk.blue(player.mana)}/${chalk.blue(player.maxMana)}`);
+  }
+  console.log(`\nStats:`);
+  console.log(`Attack:  ${chalk.red(player.attack)}`);
+  console.log(`Defense: ${chalk.hex('#FFA500')(player.defense)}`);
+  console.log(`Luck:    ${chalk.cyan(player.luck)}`);
+
+  console.log(`\nEquipment:`);
+  console.log(`Weapon: ${player.equipment.weapon ? ITEMS[player.equipment.weapon.id].name : 'None'}`);
+  console.log(`Armor:  ${player.equipment.armor ? ITEMS[player.equipment.armor.id].name : 'None'}`);
+
+  console.log(`\nGold:   ${chalk.yellow(player.gold)}`);
+  console.log(`EXP:    ${player.exp}/${EXP_LEVELS[player.level]}\n`);
 }
 
 export async function showInventory(player) {
