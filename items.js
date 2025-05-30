@@ -1,23 +1,47 @@
 import inquirer from "inquirer";
 
 async function handleEquipment(player, item) {
+
+  const isEquipped = player.equipment.weapon?.id === item.id ||
+    player.equipment.armor?.id === item.id;
+
+  const choices = [];
+
+  if (isEquipped) {
+    choices.push({
+      name: 'Unequip',
+      value: 'unequip'
+    });
+  } else if (item.type === 'weapon' || item.type === 'armor') {
+    choices.push({
+      name: 'Equip',
+      value: 'equip'
+    });
+  }
+
+  choices.push(
+    { name: 'Inspect', value: 'inspect' },
+    { name: 'Cancel', value: 'cancel' }
+  );
+
   const { action } = await inquirer.prompt({
-    type: "list",
-    name: "action",
+    type: 'list',
+    name: 'action',
     message: `What to do with ${item.name}?`,
-    choices: [
-      { name: "Equip", value: "equip" },
-      { name: "Inspect", value: "inspect" },
-      { name: "Cancel", value: "cancel" }
-    ]
+    choices
   });
 
-  if (action === "equip") player.equipItem(item);
-  if (action === "inspect") {
+  if (action === 'equip') {
+    player.equipItem(item);
+  } else if (action === 'unequip') {
+    player.unequipItem(item);
+  } else if (action === "inspect") {
     console.log(chalk.yellow(`\n${item.name}:`));
     console.log(`Type: ${item.type}`);
     console.log(`Value: ${item.value} gold`);
     if (item.stats) Object.entries(item.stats).forEach(([stat, val]) => console.log(`${stat}: ${val > 0 ? "+" : ""}${val}`));
+    if (item.description) console.log(`\n${item.description}`);
+    return handleEquipment(player, item); // Return to options
   }
 }
 

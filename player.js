@@ -130,6 +130,12 @@ export class Player {
 
   unequipItem(item) {
     this.removeItemStats(item);
+    if (item.type === "weapon") {
+      this.equipment.weapon = null;
+    }
+    else if (item.type === "armor") {
+      this.equipment.armor = null;
+    }
     console.log(chalk.yellow(`Unequipped ${item.name}`));
   }
 
