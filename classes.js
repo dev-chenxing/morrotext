@@ -2,14 +2,14 @@ export const CLASSES = {
   warrior: {
     displayName: "Warrior",
     stats: {
-      attack: 15, defense: 10, hp: 120,
+      attack: 15, defense: 10, maxHp: 120,
       luck: 3  // Lower crit chance
     },
     startingItems: ["iron_sword", "leather_armor"]
   },
   mage: {
     displayName: "Mage",
-    stats: { attack: 8, defense: 5, hp: 80, magic: 20, mana: 150, luck: 7 },
+    stats: { attack: 8, defense: 5, maxHp: 80, magic: 20, maxMana: 150, luck: 7 },
     startingItems: ["oak_staff", "mana_potion"],
     abilities: {
       fireball: {
@@ -21,7 +21,7 @@ export const CLASSES = {
   },
   cleric: {
     displayName: "Cleric",
-    stats: { attack: 8, defense: 12, hp: 100, magic: 15, mana: 100, luck: 5 },
+    stats: { attack: 8, defense: 12, maxHp: 100, magic: 15, maxMana: 100, luck: 5 },
     startingItems: ["mace", "holy_symbol"],
     abilities: {
       divineHeal: { manaCost: 30, healMultiplier: 2, description: "Heal wounds with divine light (30 mana)" }

@@ -11,7 +11,9 @@ export class Player {
 
     this.class = className;
     Object.assign(this, CLASSES[className].stats);
-    this.maxHp = this.hp;
+    this.hp = this.maxHp;
+    this.maxMana = CLASSES[className].stats.maxMana || 0;
+    this.mana = this.maxMana;
 
     this.luck = CLASSES[className].stats.luck || 5;
 
@@ -85,6 +87,7 @@ export class Player {
       this.mana -= manaCost;
       return Math.floor(this.magic * damageMultiplier);
     }
+    console.log(chalk.red("Not enough mana!"));
     return 0;
   }
 
