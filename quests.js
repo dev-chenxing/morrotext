@@ -15,6 +15,30 @@ export function startQuest(player, questKey) {
   console.log(`New quest started: "${quest.title}"`);
 }
 
+export function completeQuest(player, questKey) {
+  const questIndex = player.activeQuests.findIndex(q => q.key === questKey);
+  if (questIndex === -1) return;
+
+  const quest = player.activeQuests[questIndex];
+  const questData = QUESTS[questKey];
+
+  // Apply rewards
+  player.gold += questData.reward.gold;
+  player.addExp(questData.reward.exp);
+  questData.reward.items?.forEach(itemId => {
+    player.inventory.push(itemId);
+  });
+
+  // Remove quest from active list
+  player.activeQuests.splice(questIndex, 1);
+
+  console.log(chalk.green(`\nQuest "${quest.title}" completed!`));
+  console.log(`Rewards: ${questData.reward.gold} gold, ${questData.reward.exp} EXP`);
+  if (questData.reward.items.length > 0) {
+    console.log(`Items: ${questData.reward.items.map(id => ITEMS[id].name).join(', ')}`);
+  }
+}
+
 // quest definition
 export const QUESTS = {
   investigate_ruins: {
@@ -23,7 +47,7 @@ export const QUESTS = {
       { type: "collect", item: "crown_of_widsom", count: 1, description: 'Retrieve the Ancient Artifact from the ruins', },
       { type: "return", target: "town", description: 'Return to the Hermit with the artifact', }
     ],
-    reward: { gold: 200 }
+    reward: { gold: 200, exp: 500 }
   },
   slay_goblins: {
     title: "Goblin Infestation",

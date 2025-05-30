@@ -7,6 +7,7 @@
 - the inventory does not stack the same item, please fix it.
 - implement the stat boost of items
 - the Use Item menu in battle display the item id instead of name
+- actually use the `completeQuest` function
 
 - [ ] Class-based character progression
 - [ ] 5+ locations with unique quests
