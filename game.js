@@ -6,7 +6,7 @@ import { Player } from "./player.js";
 import { saveGame } from "./save.js";
 import { startCombat } from "./combat.js";
 import { talkToNPC, getNPCName } from "./dialogue.js";
-import { ITEMS } from "./items.js";
+import { ITEMS, useItem } from "./items.js";
 import { CLASSES, EXP_LEVELS } from "./classes.js";
 import { createEnemy } from "./combat.js";
 
@@ -89,36 +89,12 @@ export async function showInventory(player) {
   if (!itemId) return showMainMenu(player);
 
   const item = ITEMS[itemId];
-  if (item.type === "consumable") {
-    player.hp = Math.min(player.maxHp, player.hp + (item.effect.hp || 0));
-    player.inventory = player.inventory.filter(i => i !== itemId);
-    console.log(`Used ${item.name}!`);
-  } else {
-    await handleEquipment(player, item);
+  if (item) {
+    const result = await useItem(player, itemId);
+    if (result) console.log(chalk.yellow(`\n${result}\n`));
   }
 
   return showInventory(player);
-}
-
-async function handleEquipment(player, item) {
-  const { action } = await inquirer.prompt({
-    type: "list",
-    name: "action",
-    message: `What to do with ${item.name}?`,
-    choices: [
-      { name: "Equip", value: "equip" },
-      { name: "Inspect", value: "inspect" },
-      { name: "Cancel", value: "cancel" }
-    ]
-  });
-
-  if (action === "equip") player.equipItem(item);
-  if (action === "inspect") {
-    console.log(chalk.yellow(`\n${item.name}:`));
-    console.log(`Type: ${item.type}`);
-    console.log(`Value: ${item.value} gold`);
-    if (item.stats) Object.entries(item.stats).forEach(([stat, val]) => console.log(`${stat}: ${val > 0 ? "+" : ""}${val}`));
-  }
 }
 
 export async function showQuests(player) {

@@ -2,7 +2,7 @@ import chalk from "chalk";
 import inquirer from "inquirer";
 import { generateLoot } from "./loot.js";
 import { CLASSES } from "./classes.js";
-import { ITEMS } from "./items.js";
+import { ITEMS, useItem } from "./items.js";
 
 function getActionChoices(player) {
     let choices = ["Attack", "Use Item"];
@@ -86,15 +86,24 @@ export async function startCombat(player, enemy) {
                 break;
 
             case "Use Item":
-                const { item } = await inquirer.prompt({
+                const { itemId } = await inquirer.prompt({
                     type: "list",
-                    name: "item",
+                    name: "itemId",
                     message: "Select item:",
-                    choices: [...player.inventory, "Cancel"]
+                    choices: [
+                        ...player.inventory
+                            .filter(id => ITEMS[id].type === 'consumable')
+                            .map(id => ({
+                                name: ITEMS[id].name,
+                                value: id
+                            })),
+                        { name: 'Cancel', value: null }
+                    ]
                 });
 
-                if (item !== "Cancel") {
-                    // Handle item usage logic
+                if (itemId) {
+                    const result = await useItem(player, itemId);
+                    console.log(chalk.yellow(result));
                 }
                 break;
 

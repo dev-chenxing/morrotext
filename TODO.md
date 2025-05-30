@@ -1,10 +1,12 @@
-- Implement EXP gain from quest completion
-- handle Item usage in battle and in `showInventory`, remember DRY.
+- the inventory does not stack the same item, please fix it.
 - implement the priestess, not the dialogue, I mean place her in the game
 - test: blessing, prayer
 - implement the ruins
 - implement luck
-- the inventory does not stack the same item, please fix it.
+- If the item in inventory is already equipped, the option should be unequip instead of equip
+- If we check player stats, warrior has undefined mana. If they use mana potion, it restored NaN mana!
+- What does `holy water` do?
+
 - implement the stat boost of items
 - the Use Item menu in battle display the item id instead of name
 - actually use the `completeQuest` function

@@ -1,3 +1,66 @@
+import inquirer from "inquirer";
+
+async function handleEquipment(player, item) {
+  const { action } = await inquirer.prompt({
+    type: "list",
+    name: "action",
+    message: `What to do with ${item.name}?`,
+    choices: [
+      { name: "Equip", value: "equip" },
+      { name: "Inspect", value: "inspect" },
+      { name: "Cancel", value: "cancel" }
+    ]
+  });
+
+  if (action === "equip") player.equipItem(item);
+  if (action === "inspect") {
+    console.log(chalk.yellow(`\n${item.name}:`));
+    console.log(`Type: ${item.type}`);
+    console.log(`Value: ${item.value} gold`);
+    if (item.stats) Object.entries(item.stats).forEach(([stat, val]) => console.log(`${stat}: ${val > 0 ? "+" : ""}${val}`));
+  }
+}
+
+export async function useItem(player, itemId) {
+  const item = ITEMS[itemId];
+  if (!item) return "Item not found.";
+
+  let message = null;
+
+  switch (item.type) {
+    case 'consumable':
+      if (item.effect) {
+        if (item.effect.hp) {
+          const oldHP = player.hp;
+          player.hp = Math.min(player.maxHp, player.hp + item.effect.hp);
+          message = `Restored ${player.hp - oldHP} HP!`;
+        }
+        if (item.effect.mana) {
+          const oldMana = player.mana;
+          player.mana = Math.min(player.maxMana, player.mana + item.effect.mana);
+          message = `Restored ${player.mana - oldMana} mana!`;
+        }
+      }
+      break;
+
+    case 'weapon':
+    case 'armor':
+      await handleEquipment(player, item);
+      break;
+
+    default:
+      message = "You can't use that item right now.";
+  }
+
+  // Remove consumables after use
+  if (item.type === 'consumable') {
+    const index = player.inventory.indexOf(itemId);
+    if (index !== -1) player.inventory.splice(index, 1);
+  }
+
+  return message;
+}
+
 export const ITEMS = {
   // Consumable
   health_potion: {
