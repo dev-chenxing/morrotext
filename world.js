@@ -22,7 +22,6 @@ export const locations = {
         name: 'Ancient Ruins',
         description: 'Crumbling stone structures covered in vines. An eerie silence hangs in the air.',
         enemies: ['skeleton', 'stone_golem', 'void_cultist'],
-        special: 'artifact_chamber',
         lootTable: 'ruins',
         npcs: []
     }

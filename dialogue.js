@@ -198,7 +198,7 @@ async function handleDialogueAction(player, action, data, npcKey) {
         });
         return {
           message: `Quest started: "${QUESTS[data.quest].title}"`,
-          exit: false
+          exit: true
         };
       }
       return {
@@ -288,10 +288,6 @@ export async function talkToNPC(npcKey, player) {
     }
 
     if (result.exit) {
-      break;
-    }
-
-    if (choice.action === "start_quest") {
       break;
     }
   }

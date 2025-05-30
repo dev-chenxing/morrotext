@@ -152,25 +152,23 @@ function getRandomEnemy(locationEnemies) {
 }
 
 export async function enterLocation(player, location) {
-  console.log(chalk.cyan(`\n=== ${location.name} ===`));
-  console.log(location.description);
-
   if (location.name === 'Ancient Ruins') {
-    // Higher chance of combat
-    if (Math.random() > 0.3) {
+    if (Math.random() > 0.2) {
       const enemies = ['skeleton', 'skeleton', 'stone_golem', 'void_cultist'];
       const enemyType = enemies[Math.floor(Math.random() * enemies.length)];
       await startCombat(player, createEnemy(enemyType));
     }
-
+    console.log("explore ruins")
     await exploreRuins(player);
 
-  } else if (location.enemies && Math.random() > 0.6) {
-    const enemy = getRandomEnemy(location.enemies);
-    await startCombat(player, enemy);
+  } else {
+    console.log(chalk.cyan(`\n=== ${location.name} ===`));
+    console.log(chalk.hex('#8B4513')(location.description));
+    if (location.enemies) {
+      const enemy = getRandomEnemy(location.enemies);
+      await startCombat(player, enemy);
+    }
   }
-
-
 
   const choices = [
     ...location.npcs.map(npcKey => ({

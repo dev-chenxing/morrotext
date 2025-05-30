@@ -137,7 +137,7 @@ export async function startCombat(player, enemy) {
     // Victory handling
     if (player.hp > 0) {
         const gold = enemy.gold();
-        console.log(chalk.green(`\nVictory! Gained ${gold} gold!`));
+        console.log(chalk.green(`Victory! Gained ${gold} gold!`));
         player.gold += gold;
 
         // Enemy-specific loot drops
