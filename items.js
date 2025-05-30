@@ -54,8 +54,7 @@ export async function useItem(player, itemId) {
 
   // Remove consumables after use
   if (item.type === 'consumable') {
-    const index = player.inventory.indexOf(itemId);
-    if (index !== -1) player.inventory.splice(index, 1);
+    player.removeItem(itemId);
   }
 
   return message;
@@ -200,9 +199,10 @@ export const ITEMS = {
   crown_of_wisdom: {
     id: "crown_of_wisdom",
     name: "Crown of Wisdom",
+    description: 'A pulsating relic of immense power',
     type: "accessory",
     stats: { defense: 10, magic: 10, hp: 50 },
-    value: 500
+    value: 0
   },
   bone_charm: {
     id: 'bone_charm',
@@ -221,4 +221,36 @@ export const ITEMS = {
     value: 5,
     description: "Proof of goblin slaying"
   },
+
+  // Materials
+  bone_fragment: {
+    id: 'bone_fragment',
+    name: 'Bone Fragment',
+    type: 'material',
+    value: 15,
+    description: 'Remains of an ancient skeleton'
+  },
+  stone_core: {
+    id: 'stone_core',
+    name: 'Stone Core',
+    type: 'material',
+    value: 50,
+    description: 'The magical heart of a stone golem'
+  },
+  void_essence: {
+    id: 'void_essence',
+    name: 'Void Essence',
+    type: 'material',
+    value: 75,
+    description: 'A shard of pure void energy'
+  },
+
+  // Books
+  dark_tome: {
+    id: 'dark_tome',
+    name: 'Dark Tome',
+    type: 'book',
+    value: 150,
+    description: 'Forbidden knowledge of the void cult'
+  }
 };

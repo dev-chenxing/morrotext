@@ -26,7 +26,7 @@ export function completeQuest(player, questKey) {
   player.gold += questData.reward.gold;
   player.addExp(questData.reward.exp);
   questData.reward.items?.forEach(itemId => {
-    player.inventory.push(itemId);
+    player.inventory.addItem(itemId);
   });
 
   // Remove quest from active list
@@ -47,7 +47,7 @@ export const QUESTS = {
       { type: "collect", item: "crown_of_widsom", count: 1, description: 'Retrieve the Ancient Artifact from the ruins', },
       { type: "return", target: "town", description: 'Return to the Hermit with the artifact', }
     ],
-    reward: { gold: 200, exp: 500 }
+    reward: { gold: 500, exp: 1000 }
   },
   slay_goblins: {
     title: "Goblin Infestation",

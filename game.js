@@ -5,10 +5,11 @@ import { locations } from "./world.js";
 import { Player } from "./player.js";
 import { saveGame } from "./save.js";
 import { startCombat } from "./combat.js";
-import { talkToNPC, getNPCName } from "./dialogue.js";
+import { talkToNPC, npcDialogues } from "./dialogue.js";
 import { ITEMS, useItem } from "./items.js";
 import { CLASSES, EXP_LEVELS } from "./classes.js";
 import { createEnemy } from "./combat.js";
+import { exploreRuins } from "./ruins.js";
 
 process.on("uncaughtException", error => {
   if (error instanceof Error && error.name === "ExitPromptError") {
@@ -68,22 +69,27 @@ function showPlayerStats(player) {
 }
 
 export async function showInventory(player) {
-  const equippedItems = [player.equipment.weapon?.id, player.equipment.armor?.id].filter(Boolean);
+  const inventoryList = Object.entries(player.inventory)
+    .map(([id, count]) => {
+      const item = ITEMS[id];
+      const isEquipped = player.equipment.weapon?.id === id ||
+        player.equipment.armor?.id === id;
+      return {
+        name: `${item.name}${isEquipped ? ' (Equipped)' : ''} x${count}`,
+        value: id
+      };
+    });
 
-  const choices = player.inventory.map(itemId => {
-    const item = ITEMS[itemId];
-    const isEquipped = equippedItems.includes(itemId);
-    return {
-      name: `${item.name}${isEquipped ? " (Equipped)" : ""} [${item.type}]`,
-      value: itemId
-    };
-  });
+  if (inventoryList.length === 0) {
+    console.log(chalk.red('\nYour inventory is empty!'));
+    return showMainMenu(player);
+  }
 
   const { itemId } = await inquirer.prompt({
     type: "list",
     name: "itemId",
     message: "Inventory:",
-    choices: [...choices, { name: "Return to Menu", value: null }]
+    choices: [...inventoryList, { name: "Return to Menu", value: null }]
   });
 
   if (!itemId) return showMainMenu(player);
@@ -139,35 +145,43 @@ export async function enterLocation(player, location) {
   console.log(chalk.cyan(`\n=== ${location.name} ===`));
   console.log(location.description);
 
-  // Random encounter check for dangerous areas
-  if (location.enemies && Math.random() > 0.6) {
+  if (location.name === 'Ancient Ruins') {
+    // Higher chance of combat
+    if (Math.random() > 0.3) {
+      const enemies = ['skeleton', 'skeleton', 'stone_golem', 'void_cultist'];
+      const enemyType = enemies[Math.floor(Math.random() * enemies.length)];
+      await startCombat(player, createEnemy(enemyType));
+    }
+
+    await exploreRuins(player);
+
+  } else if (location.enemies && Math.random() > 0.6) {
     const enemy = getRandomEnemy(location.enemies);
     await startCombat(player, enemy);
   }
+
+
+
+  const choices = [
+    ...location.npcs.map(npcKey => ({
+      name: `Talk to ${npcDialogues[npcKey]?.name || npcKey}`,
+      value: `npc_${npcKey}`
+    })),
+    { name: 'Return to Main Menu', value: 'return' }
+  ];
 
   const { action } = await inquirer.prompt({
     type: "list",
     name: "action",
     message: "What would you like to do?",
-    choices: [
-      ...location.npcs.map(npcKey => `Talk to ${getNPCName(npcKey)}`),
-      // ...location.quests.map(quest => QUESTS[quest].title),
-      "Return to Main Menu"
-    ]
+    choices
   });
 
-  if (action.startsWith("Talk to")) {
-    const npc = action.replace("Talk to ", "").toLowerCase();
-    await talkToNPC(npc, player);
+  if (action.startsWith("npc_")) {
+    const npcKey = action.split('_')[1];
+    await talkToNPC(npcKey, player);
     return enterLocation(player, location);
   }
-
-  // if (action.startsWith("Investigate")) {
-  //   const questKey = location.quests.find(q => action.includes(QUESTS[q].title));
-  //   startQuest(player, QUESTS[questKey]);
-  //   return enterLocation(player, location);
-  // }
-
   return showMainMenu(player);
 }
 

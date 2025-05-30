@@ -38,15 +38,17 @@ function calculateDamage(attacker, defender) {
     return { damage, isCrit };
 }
 
-function formatHealth(entity) {
-    // Prevent negative HP and add space before HP
+function formatCombatStatus(entity) {
+    // Ensure HP never shows negative and add space
     const currentHP = Math.max(0, entity.hp);
-    return `${currentHP} HP`;
+    return `${entity.name}: ${currentHP} HP`;
 }
 
-function updateCombatStatus(player, enemy) {
-    console.log(chalk.cyan(`\n${player.name}: ${formatHealth(player)}`));
-    console.log(chalk.cyan(`${enemy.name}: ${formatHealth(enemy)}`));
+function updateBattleDisplay(player, enemy) {
+    console.log(chalk.cyan("\n==== BATTLE ===="));
+    console.log(chalk.green(formatCombatStatus(player)));
+    console.log(chalk.red(formatCombatStatus(enemy)));
+    console.log(chalk.cyan("================\n"));
 }
 
 function applyDamage(target, damage) {
@@ -59,7 +61,7 @@ function applyDamage(target, damage) {
 export async function startCombat(player, enemy) {
     console.log(chalk.red(`\nA wild ${enemy.name} appears!`));
 
-    updateCombatStatus(player, enemy);
+    updateBattleDisplay(player, enemy);
 
     while (player.hp > 0 && enemy.hp > 0) {
         const { action } = await inquirer.prompt({
@@ -86,17 +88,21 @@ export async function startCombat(player, enemy) {
                 break;
 
             case "Use Item":
+                const inventoryList = Object.entries(player.inventory)
+                    .filter(([id, _]) => ITEMS[id].type === 'consumable')
+                    .map(([id, count]) => {
+                        const item = ITEMS[id];
+                        return {
+                            name: `${item.name} x${count}`,
+                            value: id
+                        };
+                    });
                 const { itemId } = await inquirer.prompt({
                     type: "list",
                     name: "itemId",
                     message: "Select item:",
                     choices: [
-                        ...player.inventory
-                            .filter(id => ITEMS[id].type === 'consumable')
-                            .map(id => ({
-                                name: ITEMS[id].name,
-                                value: id
-                            })),
+                        ...inventoryList,
                         { name: 'Cancel', value: null }
                     ]
                 });
@@ -125,7 +131,7 @@ export async function startCombat(player, enemy) {
         }
 
         // Combat status update
-        updateCombatStatus(player, enemy);
+        updateBattleDisplay(player, enemy);
     }
 
     // Victory handling
@@ -139,7 +145,7 @@ export async function startCombat(player, enemy) {
             enemy.loot.forEach(itemId => {
                 if (Math.random() < 0.65) {
                     const item = ITEMS[itemId];
-                    player.inventory.push(itemId);
+                    player.addItem(itemId);
                     console.log(chalk.blue(`Found ${item.name}!`));
                 }
             });
@@ -148,7 +154,7 @@ export async function startCombat(player, enemy) {
         // Procedural loot generation
         const lootId = generateLoot();
         const proceduralItem = ITEMS[lootId];
-        player.inventory.push(lootId);
+        player.addItem(lootId);
         console.log(chalk.blue(`Found ${proceduralItem.name}!`));
 
         const expGained = enemy.exp;
@@ -179,6 +185,33 @@ export const ENEMIES = {
         exp: 80,
         loot: ["mana_essence", "bone_charm"],
         gold: () => Math.floor(Math.random() * 21) + 30 // Returns 30-50 gold
+    },
+    skeleton: {
+        name: 'Ancient Skeleton',
+        hp: 60,
+        attack: 14,
+        defense: 8,
+        loot: ['bone_fragment', 'rusty_sword'],
+        gold: () => Math.floor(Math.random() * 21) + 20,
+        exp: 50
+    },
+    stone_golem: {
+        name: 'Stone Golem',
+        hp: 120,
+        attack: 18,
+        defense: 15,
+        loot: ['stone_core'],
+        gold: () => Math.floor(Math.random() * 31) + 40,
+        exp: 100
+    },
+    void_cultist: {
+        name: 'Void Cultist',
+        hp: 80,
+        attack: 20,
+        defense: 10,
+        loot: ['void_essence', 'dark_tome'],
+        gold: () => Math.floor(Math.random() * 26) + 30,
+        exp: 80
     }
 };
 

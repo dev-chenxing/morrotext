@@ -80,16 +80,32 @@ export const npcDialogues = {
       }
     }
   },
-  priest: {
+  priestess: {
     name: "High Prietess Elara",
     dialogues: {
       initial: {
         question: "The light guides you, child. How may the church assist?",
         options: [
-          { text: "Receive blessing (50 gold)", action: "blessing" },
+          { text: "Receive blessing (50 gold)", action: "blessing", cost: 50 },
           { text: "Learn holy prayer", action: "prayer" },
+          { text: "Seek guidance", action: "guidance" },
           { text: "Leave", action: "leave" }
         ]
+      },
+      guidance: {
+        question: "Darkness gathers in the ancient ruins. The artifact must be secured before the cultists find it.",
+        options: [
+          { text: "What artifact?", action: "artifact_info" },
+          { text: "Who are the cultists?", action: "cultists_info" }
+        ]
+      },
+      artifact_info: {
+        question: "A relic of immense power from the First Age. It could save or doom us all.",
+        options: [{ text: "I understand", action: "return" }]
+      },
+      cultists_info: {
+        question: "Followers of the Void God. They seek to unleash ancient evils upon the world.",
+        options: [{ text: "I'll stop them", action: "return" }]
       }
     }
   },
@@ -133,7 +149,7 @@ async function handleDialogueAction(player, action, data, npcKey) {
       const item = ITEMS[data.itemId];
       if (player.gold >= item.value) {
         player.gold -= item.value;
-        player.inventory.push(item.id);
+        player.addItem(item.id);
 
         return {
           message: `You bought ${item.name}!`
@@ -160,6 +176,8 @@ async function handleDialogueAction(player, action, data, npcKey) {
 
     case 'rumor':
     case 'artifact_info':
+    case 'guidance':
+    case 'cultists_info':
     case 'hermit_location':
     case 'relic_details':
     case 'more_rumors':
@@ -189,11 +207,20 @@ async function handleDialogueAction(player, action, data, npcKey) {
       };
 
     case "blessing":
-      if (player.gold >= 50) {
-        player.gold -= 50;
+      if (player.gold >= data.cost) {
+        player.gold -= data.cost;
         player.blessed = true;
         return {
           message: chalk.yellow("Holy blessing shines upon you!"),
+          effect: () => {
+            player.attack += 5;
+            player.defense += 5;
+            setTimeout(() => {
+              player.attack -= 5;
+              player.defense -= 5;
+              console.log(chalk.yellow("\nBlessing fades..."));
+            }, 60000); // 1 minute duration
+          },
           exit: true
         };
       }
@@ -203,7 +230,7 @@ async function handleDialogueAction(player, action, data, npcKey) {
       };
 
     case "prayer":
-      player.mana = Math.min(player.maxMana, player.mana + 50);
+      player.mana = player.maxMana;
       return {
         message: chalk.blue("Divine energy renews your spirit!"),
         exit: true

@@ -1,15 +1,19 @@
-- the inventory does not stack the same item, please fix it.
-- implement the priestess, not the dialogue, I mean place her in the game
-- test: blessing, prayer
-- implement the ruins
-- implement luck
+- better player stats display, showing attack and defense
+- mage and cleric should have maxMana
 - If the item in inventory is already equipped, the option should be unequip instead of equip
+- test: blessing, prayer
 - If we check player stats, warrior has undefined mana. If they use mana potion, it restored NaN mana!
 - What does `holy water` do?
-
+- Implement the blessing effect
 - implement the stat boost of items
 - the Use Item menu in battle display the item id instead of name
-- actually use the `completeQuest` function
+- take the artifact progresses the quest. after returning the artifact, use the `completeQuest` function
+- use setTimeout for effect tracking is bad, since the player can just save and reload the cheese it.
+- implement lootTable of 'forest' and 'ruins'
+- implement special artifact_chamber
+- implement 'bone_fragment', 'rusty_sword', 'stone_core', 'void_essence', 'dark_tome'
+- you can only visit the ancient ruins after you accepted the quest
+
 
 - [ ] Class-based character progression
 - [ ] 5+ locations with unique quests

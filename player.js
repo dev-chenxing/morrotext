@@ -19,17 +19,48 @@ export class Player {
       weapon: null,
       armor: null
     };
-    this.inventory = [...CLASSES[className].startingItems];
-
-    // Auto-equip starting items
-    this.inventory.forEach(itemId => {
-      const item = ITEMS[itemId];
-      if (item.type === "weapon") this.equipItem(item);
-      if (item.type === "armor") this.equipItem(item);
-    });
+    this.inventory = {}; // {itemId: count}
+    this.addStartingItems();
 
     this.gold = 50;
     this.activeQuests = [];
+  }
+
+  addStartingItems() {
+    const startingItems = CLASSES[this.class].startingItems;
+    startingItems.forEach(itemId => {
+      this.addItem(itemId);
+
+      // Auto-equip weapons and armor
+      const item = ITEMS[itemId];
+      if (item.type === 'weapon' || item.type === 'armor') {
+        this.equipItem(item);
+      }
+    });
+  }
+
+  addItem(itemId, count = 1) {
+    if (!this.inventory[itemId]) this.inventory[itemId] = 0;
+    this.inventory[itemId] += count;
+  }
+
+  removeItem(itemId, count = 1) {
+    if (!this.inventory[itemId] || this.inventory[itemId] < count) {
+      return false;
+    }
+    this.inventory[itemId] -= count;
+    if (this.inventory[itemId] <= 0) {
+      delete this.inventory[itemId];
+    }
+    return true;
+  }
+
+  hasItem(itemId) {
+    return !!this.inventory[itemId] && this.inventory[itemId] > 0;
+  }
+
+  getInventoryCount(itemId) {
+    return this.inventory[itemId] || 0;
   }
 
   addExp(amount) {
