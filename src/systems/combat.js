@@ -1,8 +1,8 @@
 import chalk from "chalk";
 import inquirer from "inquirer";
-import { generateLoot } from "./loot.js";
-import { CLASSES } from "./classes.js";
-import { ITEMS, useItem } from "./items.js";
+import { generateLoot } from "../world/loot.js";
+import { CLASSES } from "../classes.js";
+import { ITEMS, useItem } from "../items.js";
 
 function getActionChoices(player) {
     let choices = ["Attack", "Use Item"];

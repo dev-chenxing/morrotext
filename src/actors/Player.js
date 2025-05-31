@@ -1,7 +1,7 @@
 import chalk from "chalk";
-import { CLASSES, EXP_LEVELS } from "./classes.js";
-import { ITEMS } from "./items.js";
-import { EFFECTS } from './effects.js';
+import { CLASSES, EXP_LEVELS } from "../classes.js";
+import { ITEMS } from "../items.js";
+import { EFFECTS } from '../effects.js';
 
 export class Player {
   constructor(name, className) {

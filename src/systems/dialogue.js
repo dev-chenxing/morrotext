@@ -1,7 +1,7 @@
 import inquirer from "inquirer";
 import chalk from "chalk";
-import { ITEMS } from "./items.js";
-import { completeQuest, QUESTS } from "./quests.js";
+import { ITEMS } from "../items.js";
+import { completeQuest, QUESTS } from "../world/quests.js";
 
 export const npcDialogues = {
   blacksmith: {

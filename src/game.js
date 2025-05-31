@@ -1,14 +1,14 @@
 import inquirer from "inquirer";
 import chalk from "chalk";
 import figlet from "figlet";
-import { locations } from "./world.js";
-import { Player } from "./player.js";
-import { startCombat } from "./combat.js";
-import { talkToNPC, npcDialogues } from "./dialogue.js";
+import { locations } from "./world/locations.js";
+import { Player } from "./actors/Player.js";
+import { startCombat } from "./systems/combat.js";
+import { talkToNPC, npcDialogues } from "./systems/dialogue.js";
 import { ITEMS, useItem } from "./items.js";
 import { CLASSES, EXP_LEVELS } from "./classes.js";
-import { createEnemy } from "./combat.js";
-import { exploreRuins } from "./ruins.js";
+import { createEnemy } from "./systems/combat.js";
+import { exploreRuins } from "./world/ruins.js";
 
 process.on("uncaughtException", error => {
   if (error instanceof Error && error.name === "ExitPromptError") {

@@ -1,4 +1,4 @@
-import { ITEMS } from "./items.js";
+import { ITEMS } from "../items.js";
 
 
 const LOOT_TABLES = {

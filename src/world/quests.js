@@ -1,5 +1,5 @@
 import chalk from "chalk";
-import { ITEMS } from "./items.js";
+import { ITEMS } from "../items.js";
 
 export function startQuest(player, questKey) {
   if (player.activeQuests.some(q => q.key === questKey)) {

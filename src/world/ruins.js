@@ -2,20 +2,34 @@ import inquirer from "inquirer";
 import chalk from "chalk";
 import figlet from "figlet";
 import { updateQuestProgress } from "./quests.js";
+import { generateLoot } from "./loot.js";
+import { startCombat, createEnemy } from "../systems/combat.js"
+import { ITEMS } from "../items.js";
 
 export async function exploreRuins(player, location) {
     console.log(chalk.yellow(figlet.textSync('ANCIENT RUINS', { font: 'Small' })));
     console.log(chalk.gray("You stand before the entrance of a long-forgotten civilization..."));
 
+    const hasDecipheredTablet = player.hasItem('deciphered_tablet');
+    if (hasDecipheredTablet) {
+        console.log(chalk.green("\nYour deciphered tablet glows, revealing a hidden path!"));
+    }
+
     let exploring = true;
     while (exploring && player.hp > 0) {
-        const hasDecipheredTablet = player.hasItem('deciphered_tablet');
+
+        // Random encounters
+        if (exploring && player.hp > 0 && Math.random() > 0.6) {
+            const enemies = ['skeleton', 'skeleton', 'stone_golem', 'void_cultist'];
+            const enemyType = enemies[Math.floor(Math.random() * enemies.length)];
+            await startCombat(player, createEnemy(enemyType), location);
+        }
+
         const hasArtifact = player.hasItem('ancient_artifact');
         const choices = [];
 
         if (!hasArtifact) {
             if (hasDecipheredTablet) {
-                console.log(chalk.green("\nYour deciphered tablet glows, revealing a hidden path!"));
                 choices.push('Follow the tablet\'s map to the artifact chamber');
             }
         }
@@ -81,12 +95,6 @@ export async function exploreRuins(player, location) {
                 console.log(chalk.yellow("\nYou return to the ruins entrance."));
                 exploring = false;
                 break;
-        }
-
-        // Random encounters
-        if (exploring && player.hp > 0 && Math.random() > 0.6) {
-            const enemy = getRandomEnemy(location.enemies);
-            await startCombat(player, enemy, location);
         }
     }
     return { exit: true }
