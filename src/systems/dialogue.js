@@ -19,18 +19,34 @@ export const npcDialogues = {
           {
             text: 'Ask about special orders',
             action: 'special_orders',
-            condition: (player) => isQuestAvailable(player, 'special_orders')
           },
           { text: "Leave", action: "leave" }
         ]
       },
       special_orders: {
-        question: "I need rare materials for a special commission. Can you help?",
+        question: (player) => {
+          if (isQuestAvailable(player, 'special_orders')) { return "I need rare materials for a special commission. Can you help?" }
+          else {
+            return "Have you brought what I need?"
+          }
+        },
         options: [
           {
             text: "I'll gather the materials",
             action: 'start_quest',
-            quest: 'special_orders'
+            quest: 'special_orders',
+            condition: (player) => isQuestAvailable(player, 'special_orders')
+          },
+          {
+            text: "[Hand over materials] I have everything",
+            action: 'complete_special_orders',
+            condition: (player) =>
+              player.activeQuests.some(quest => quest.key === 'special_orders') && player.getInventoryCount('void_essence') >= 5
+          },
+          {
+            text: "I'm still gathering materials",
+            action: 'leave',
+            condition: (player) => player.activeQuests.some(quest => quest.key === 'special_orders')
           },
           {
             text: "What do you need exactly?",
@@ -42,13 +58,31 @@ export const npcDialogues = {
         question: "I need 5 Void Essence. You can find them in the ruins.",
         options: [
           {
-            text: "I accept the task",
+            text: "I accept the task.",
             action: 'start_quest',
-            quest: 'special_orders'
+            quest: 'special_orders',
+            condition: (player) => isQuestAvailable(player, 'special_orders')
           },
           {
-            text: "That sounds difficult",
-            action: 'leave'
+            text: "That sounds difficult.",
+            action: 'leave',
+            condition: (player) => isQuestAvailable(player, 'special_orders')
+          },
+          {
+            text: "I'm still gathering materials",
+            action: 'leave',
+            condition: (player) => player.activeQuests.some(quest => quest.key === 'special_orders')
+          },
+        ]
+      },
+      complete_special_orders: {
+        question: "Magnificient! With these materials, I can forge weapons worthy of legends! \
+Take this masterwork hammer - it should serve you well.",
+        options: [
+          {
+            text: "Thank you",
+            action: 'complete_quest',
+            quest: 'special_orders'
           }
         ]
       }
@@ -252,6 +286,7 @@ async function handleDialogueAction(player, action, data, npcKey) {
     case 'return_artifact':
     case 'special_orders':
     case 'material_details':
+    case 'complete_special_orders':
       // These are handled through dialogue state transitions
 
       let message = "I've nothing more to say."
@@ -312,8 +347,16 @@ async function handleDialogueAction(player, action, data, npcKey) {
         return {
           exit: true
         };
-      }
+      } else if (data.quest === 'special_orders') {
+        // Remove quest items
+        player.removeItem('void_essence', 5);
 
+        // Complete quest
+        completeQuest(player, 'special_orders');
+        return {
+          exit: true
+        };
+      }
 
     case "blessing":
       if (player.gold >= data.cost) {

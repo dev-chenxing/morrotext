@@ -95,7 +95,7 @@ export const QUESTS = {
       exp: 100
     }
   },
-  special_order: {
+  special_orders: {
     title: 'Special Orders for the Blacksmith',
     objectives: [
       {
