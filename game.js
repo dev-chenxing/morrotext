@@ -158,7 +158,7 @@ export async function enterLocation(player, location) {
     if (Math.random() > 0.2) {
       const enemies = ['skeleton', 'skeleton', 'stone_golem', 'void_cultist'];
       const enemyType = enemies[Math.floor(Math.random() * enemies.length)];
-      await startCombat(player, createEnemy(enemyType));
+      await startCombat(player, createEnemy(enemyType), location);
     }
     await exploreRuins(player);
 
@@ -167,7 +167,7 @@ export async function enterLocation(player, location) {
     console.log(chalk.hex('#8B4513')(location.description));
     if (location.enemies) {
       const enemy = getRandomEnemy(location.enemies);
-      await startCombat(player, enemy);
+      await startCombat(player, enemy, location);
     }
   }
 

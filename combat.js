@@ -58,7 +58,7 @@ function applyDamage(target, damage) {
     return actualDamage;
 }
 
-export async function startCombat(player, enemy) {
+export async function startCombat(player, enemy, location) {
     console.log(chalk.red(`\nA wild ${enemy.name} appears!`));
 
     updateBattleDisplay(player, enemy);
@@ -155,7 +155,7 @@ export async function startCombat(player, enemy) {
         }
 
         // Procedural loot generation
-        const lootId = generateLoot();
+        const lootId = generateLoot(location.lootTable);
         const proceduralItem = ITEMS[lootId];
         player.addItem(lootId);
         console.log(chalk.blue(`Found ${proceduralItem.name}!`));
