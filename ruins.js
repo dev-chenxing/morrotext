@@ -26,7 +26,7 @@ export async function exploreRuins(player) {
 
         case 'Take the left passage':
             console.log(chalk.cyan("\nYou find a hidden alcove with ancient carvings..."));
-            
+
             // Special effect if player is mage
             if (player.class === 'mage') {
                 console.log(chalk.green("The runes glow with arcane energy!"));
@@ -80,13 +80,13 @@ async function handleArtifactChamber(player) {
                 break
 
             case 'Examine it carefully':
-                if (player.class === 'cleric') {
+                if (player.class === 'cleric' && player.hasItem('holy_symbol')) {
                     console.log(chalk.cyan("\nYou notice faint inscriptions matching your holy symbol..."));
                     console.log(chalk.green("Divine energy flows through you!"));
                     player.maxMana += 20;
                     player.mana = player.maxMana;
                 } else {
-                    console.log(chalk.cyan("\nYou notice faint inscriptions matching your holy symbol..."));
+                    console.log(chalk.cyan("\nYou study the artifact carefully but can't decipher its markings."));
                 }
                 break;
 
