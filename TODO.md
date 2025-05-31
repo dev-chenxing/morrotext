@@ -1,2 +1,0 @@
-- continue implementing smith's quest: `special_orders`. Write the dialogue for player finishing gathering 5 Void Essence for the Blacksmith
-- Write a README.md

@@ -206,16 +206,6 @@ async function showTravelMenu(player) {
   await enterLocation(player, selectedLocation);
 }
 
-let storyFlags = { savedVillage: false, artifactDestroyed: false };
-
-function checkEndings() {
-  if (storyFlags.artifactDestroyed) {
-    console.log(chalk.green("Peaceful Ending: You prevented the artifact's misuse!"));
-    process.exit();
-  }
-  // Other endings...
-}
-
 // Initialize game
 async function startGame() {
 
