@@ -1,4 +1,3 @@
-- implement 'rusty_sword', ancient_tablet
 - Implement the blessing effect
 - If we check player stats, warrior has undefined mana. If they use mana potion, it restored NaN mana!
 - What does `holy water` do?
@@ -10,9 +9,10 @@
 - you can only visit the ancient ruins after you accepted the quest
 - remove save and reload functionality
 - when `Examine it carefully`, if the player is not cleric, they would not have a holy symbol. 
-- give cleric and mage starting armor. Cloth Robe for mage.
+
 - Player should be able to explore the ruins fully. Right now, if the player picks the left passage, then we are only given the option to return to main menu, instead of keep exploring.
 - function `addItem` needs to check if the item actually exist. 
+- implement the `unlock_secret` effect of ancient_tablet
 
 
 - [ ] Class-based character progression

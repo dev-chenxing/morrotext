@@ -10,7 +10,7 @@ export const CLASSES = {
   mage: {
     displayName: "Mage",
     stats: { attack: 8, defense: 5, maxHp: 80, magic: 20, maxMana: 150, luck: 7 },
-    startingItems: ["oak_staff", "mana_potion"],
+    startingItems: ["oak_staff", "mana_potion", 'cloth_robe'],
     abilities: {
       fireball: {
         manaCost: 40,
@@ -22,7 +22,7 @@ export const CLASSES = {
   cleric: {
     displayName: "Cleric",
     stats: { attack: 8, defense: 12, maxHp: 100, magic: 15, maxMana: 100, luck: 5 },
-    startingItems: ["mace", "holy_symbol"],
+    startingItems: ["mace", "holy_symbol", 'cloth_robe'],
     abilities: {
       divineHeal: { manaCost: 30, healMultiplier: 2, description: "Heal wounds with divine light (30 mana)" }
     }

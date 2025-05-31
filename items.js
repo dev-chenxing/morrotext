@@ -121,8 +121,16 @@ export const ITEMS = {
     id: "rusty_dagger",
     name: "Rusty Dagger",
     type: "weapon",
-    stats: { attack: 5 },
+    stats: { attack: 4 },
     value: 15
+  },
+  rusty_sword: {
+    id: 'rusty_sword',
+    name: 'Rusty Sword',
+    type: 'weapon',
+    stats: { attack: 5 },
+    value: 15,
+    description: 'A corroded blade that has seen better days',
   },
   iron_sword: {
     id: "iron_sword",
@@ -176,6 +184,14 @@ export const ITEMS = {
   },
 
   // Armors
+  cloth_robe: {
+    id: 'cloth_robe',
+    name: 'Cloth Robe',
+    type: 'armor',
+    stats: { defense: 4, magic: 2 },
+    value: 30,
+    description: 'Simple robe favored by spellcasters',
+  },
   leather_armor: {
     id: "leather_armor",
     name: "Leather Armor",
@@ -244,6 +260,14 @@ export const ITEMS = {
     type: "quest",
     value: 5,
     description: "Proof of goblin slaying"
+  },
+  ancient_tablet: {
+    id: 'ancient_tablet',
+    name: 'Ancient Tablet',
+    type: 'quest',
+    value: 0,
+    description: 'Stone slab covered in forgotten runes',
+    effect: 'unlock_secrets',
   },
 
   // Materials
