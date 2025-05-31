@@ -174,7 +174,7 @@ export async function enterLocation(player, location) {
   const choices = [
     ...location.npcs.map(npcKey => ({
       name: `Talk to ${npcDialogues[npcKey]?.name || npcKey}`,
-      value: `npc_${npcKey}`
+      value: `npc:${npcKey}`
     })),
     { name: 'Return to Main Menu', value: 'return' }
   ];
@@ -186,8 +186,8 @@ export async function enterLocation(player, location) {
     choices
   });
 
-  if (action.startsWith("npc_")) {
-    const npcKey = action.split('_')[1];
+  if (action.startsWith("npc:")) {
+    const npcKey = action.split(':')[1];
     await talkToNPC(npcKey, player);
     return enterLocation(player, location);
   }

@@ -8,7 +8,6 @@ const lootTable = {
         ITEMS.mana_potion.id
     ],
     rare: [
-        ITEMS.steel_sword.id,
         ITEMS.chainmail.id,
         ITEMS.steel_armor.id,
         ITEMS.magic_amulet.id,

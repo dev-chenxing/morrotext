@@ -136,28 +136,23 @@ export const npcDialogues = {
         question: "The forest reeks of goblin filth. You here to help?",
         options: [
           {
+            text: "I've cleared the goblins",
+            action: "complete_quest",
+            quest: "slay_goblins",
+            condition: (player) => {
+              const quest = player.activeQuests.find(q => q.key === 'slay_goblins');
+              return quest && player.getInventoryCount('goblin_ear') >= 5;
+            }
+          },
+          {
             text: "I'll clear the infestation",
             action: "start_quest",
-            quest: "slay_goblins"
+            quest: "slay_goblins",
+            condition: (player) => !player.activeQuests.find(q => q.key === 'slay_goblins')
           },
-          {
-            text: "Any advice?",
-            action: "advice"
-          },
-          {
-            text: "What's happening here?",
-            action: "lore"
-          }
+          { text: "Leave", action: "leave" }
         ]
       },
-      advice: {
-        question: "Aim for the shamans first - their magic strengthens the pack.",
-        options: [{ text: "Understood", action: "return" }]
-      },
-      lore: {
-        question: "These goblins worship some dark idol deep in the ruins...",
-        options: [{ text: "I'll investigate", action: "return" }]
-      }
     }
   }
 };
@@ -201,8 +196,6 @@ async function handleDialogueAction(player, action, data, npcKey) {
     case 'hermit_location':
     case 'relic_details':
     case 'more_rumors':
-    case 'advice':
-    case 'lore':
     case 'return_artifact':
       // These are handled through dialogue state transitions
       return {
@@ -243,7 +236,14 @@ async function handleDialogueAction(player, action, data, npcKey) {
         return {
           exit: true
         };
+      } else if (data.quest === 'slay_goblins') {
+        console.log("You've done us a great service! Here's your reward.")
+        completeQuest(player, data.quest)
+        return {
+          exit: true
+        };
       }
+
 
     case "blessing":
       if (player.gold >= data.cost) {

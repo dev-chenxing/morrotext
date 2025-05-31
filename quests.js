@@ -1,4 +1,5 @@
 import chalk from "chalk";
+import { ITEMS } from "./items.js";
 
 export function startQuest(player, questKey) {
   if (player.activeQuests.some(q => q.key === questKey)) {
@@ -67,11 +68,11 @@ export const QUESTS = {
   slay_goblins: {
     title: "Goblin Infestation",
     objectives: [
-      { type: "loot", item: "goblin_ear", count: 3, description: 'Slay the goblins in Darkwood Forest and collect 3 goblin ears as proof', },
+      { type: "loot", item: "goblin_ear", count: 5, description: 'Slay the goblins in Darkwood Forest and collect 3 goblin ears as proof', },
       { type: "report", npc: "forest_warden", description: 'Report to Ranger Alden', }
     ],
     reward: {
-      gold: 150,
+      gold: 200,
       items: ["steel_dagger"],
       exp: 100
     }

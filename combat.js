@@ -136,6 +136,9 @@ export async function startCombat(player, enemy) {
 
     // Victory handling
     if (player.hp > 0) {
+
+        player.recordKill(enemy.type);
+
         const gold = enemy.gold();
         console.log(chalk.green(`Victory! Gained ${gold} gold!`));
         player.gold += gold;
@@ -183,7 +186,7 @@ export const ENEMIES = {
         attack: 18,
         defense: 7,
         exp: 80,
-        loot: ["mana_essence", "bone_charm"],
+        loot: ["mana_essence", "bone_charm", "goblin_ear"],
         gold: () => Math.floor(Math.random() * 21) + 30 // Returns 30-50 gold
     },
     skeleton: {

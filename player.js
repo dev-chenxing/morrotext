@@ -30,6 +30,12 @@ export class Player {
     this.gold = 50;
     this.activeQuests = [];
     this.storyFlags = {};
+    this.killCount = {};
+  }
+
+  recordKill(enemyType) {
+    if (!this.killCount[enemyType]) this.killCount[enemyType] = 0;
+    this.killCount[enemyType]++;
   }
 
   applyEffect(effectId) {
