@@ -51,10 +51,12 @@ export function completeQuest(player, questKey) {
 
   if (!quest) return;
 
+  if (!player.completedQuests.find(q => q.key === questKey)) {
+    player.completedQuests.push(quest)
+  }
+
   // Remove quest from active list
   player.activeQuests = player.activeQuests.filter(q => q.key !== questKey);
-
-  player.completedQuests.push(quest)
 
   // Show completion message
   console.log(chalk.green(`\nQuest "${quest.title}" completed!`));

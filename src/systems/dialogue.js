@@ -2,6 +2,7 @@ import inquirer from "inquirer";
 import chalk from "chalk";
 import { openShop } from "./shop.js";
 import { completeQuest, isQuestAvailable, QUESTS } from "../world/quests.js";
+import { resolveDynamic } from "../utils/dynamicUtils.js"
 
 export const npcDialogues = {
   blacksmith: {
@@ -34,6 +35,11 @@ export const npcDialogues = {
             text: "Rest for the night (10 gold)",
             action: "rest",
             cost: 10
+          },
+          {
+            text: 'Buy supplies',
+            action: 'open_shop',
+            shop: 'general'
           },
           {
             text: "Hear local rumors",
@@ -71,7 +77,12 @@ export const npcDialogues = {
     name: "Old Hermit",
     dialogues: {
       initial: {
-        question: "The ancient ruins are dangerous... but the artifact must be recovered!",
+        question: (player) => {
+          if (player.completedQuests.some(q => q.key === 'investigate_ruins')) {
+            return "The artifact is safe, thanks to you. The forest is at peace now.";
+          }
+          return "The ancient ruins are dangerous... but the artifact must be recovered!";
+        },
         options: [
           {
             text: "I've retrieved the ancient artifact",
@@ -212,9 +223,15 @@ async function handleDialogueAction(player, action, data, npcKey) {
     case 'translate_tablet':
     case 'return_artifact':
       // These are handled through dialogue state transitions
+
+      let message = "I've nothing more to say."
+      if (npc.dialogues[action]) {
+        message = resolveDynamic(npc.dialogues[action].question, player)
+      }
+
       return {
         nextState: action,
-        message: npc.dialogues[action]?.question || "I've nothing more to say."
+        message: message
       };
 
     case 'complete_tablet':
@@ -260,6 +277,7 @@ async function handleDialogueAction(player, action, data, npcKey) {
         };
       } else if (data.quest === 'slay_goblins') {
         console.log("You've done us a great service! Here's your reward.")
+        console.log(chalk.green("\nThe forest is now safe from goblin raids!"));
         completeQuest(player, data.quest)
         return {
           exit: true
@@ -321,10 +339,13 @@ export async function talkToNPC(npcKey, player) {
       value: { action: opt.action, data: opt }
     }));
 
+    // Resolve dynamic question
+    const question = resolveDynamic(dialogue.question, player);
+
     const { choice } = await inquirer.prompt({
       type: "list",
       name: "choice",
-      message: dialogue.question,
+      message: question,
       choices
     });
 

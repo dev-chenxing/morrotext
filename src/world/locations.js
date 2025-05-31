@@ -12,11 +12,21 @@ export const locations = {
     },
     forest: {
         name: 'Darkwood Forest',
-        description: 'A dense forest teeming with goblins.',
+        description: (player) => {
+            if (player.completedQuests.some(q => q.key === 'slay_goblins')) {
+                return "The forest is peaceful now, with goblins driven out by your efforts.";
+            }
+            return "A dense forest teeming with monsters. Goblin signs are everywhere.";
+        },
         quests: ['slay_goblins'],
         npcs: ['hermit', 'forest_warden'],
         lootTable: 'forest',
-        enemies: ['goblin', 'goblin', 'goblin', 'goblin_shaman'], // 3:1 spawn ratio
+        enemies: (player) => {
+            if (player.completedQuests.some(q => q.key === 'slay_goblins')) {
+                return ['wolf', 'forest_spider']; // New peaceful creatures
+            }
+            return ['goblin', 'goblin', 'goblin', 'goblin_shaman'] // 3:1 spawn ratio
+        },
     },
     ruins: {
         name: 'Ancient Ruins',

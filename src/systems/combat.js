@@ -216,6 +216,26 @@ export const ENEMIES = {
         loot: ['void_essence', 'dark_tome'],
         gold: () => Math.floor(Math.random() * 26) + 30,
         exp: 80
+    },
+    wolf: {
+        type: 'wolf',
+        name: 'Timber Wolf',
+        hp: 40,
+        attack: 10,
+        defense: 5,
+        loot: ['wolf_pelt', 'fangs'],
+        gold: () => Math.floor(Math.random() * 15) + 10,
+        exp: 30
+    },
+    forest_spider: {
+        type: 'spider',
+        name: 'Forest Spider',
+        hp: 25,
+        attack: 12,
+        defense: 3,
+        loot: ['spider_silk', 'venom_sac'],
+        gold: () => Math.floor(Math.random() * 10) + 5,
+        exp: 25
     }
 };
 

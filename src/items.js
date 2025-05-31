@@ -324,6 +324,34 @@ export const ITEMS = {
     value: 75,
     description: 'A shard of pure void energy'
   },
+  wolf_pelt: {
+    id: 'wolf_pelt',
+    name: 'Wolf Pelt',
+    type: 'material',
+    value: 20,
+    description: 'Thick fur from a forest wolf'
+  },
+  fangs: {
+    id: 'fangs',
+    name: 'Wolf Fangs',
+    type: 'material',
+    value: 15,
+    description: 'Sharp teeth from a predator',
+  },
+  spider_silk: {
+    id: 'spider_silk',
+    name: 'Spider Silk',
+    type: 'material',
+    value: 30,
+    description: 'Incredibly strong and lightweight silk',
+  },
+  venom_sac: {
+    id: 'venom_sac',
+    name: 'Venom Sac',
+    type: 'material',
+    value: 40,
+    description: 'Toxic substance from a spider',
+  },
 
   // Books
   dark_tome: {

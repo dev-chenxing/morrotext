@@ -9,6 +9,7 @@ import { ITEMS, useItem } from "./items.js";
 import { CLASSES, EXP_LEVELS } from "./classes.js";
 import { createEnemy } from "./systems/combat.js";
 import { exploreRuins } from "./world/ruins.js";
+import { resolveDynamic } from "./utils/dynamicUtils.js"
 
 process.on("uncaughtException", error => {
   if (error instanceof Error && error.name === "ExitPromptError") {
@@ -148,18 +149,20 @@ function getRandomEnemy(locationEnemies) {
 }
 
 export async function enterLocation(player, location) {
+  const description = resolveDynamic(location.description, player);
+  const enemies = resolveDynamic(location.enemies, player);
   if (location.name === 'Ancient Ruins') {
     if (Math.random() > 0.2) {
-      const enemy = getRandomEnemy(location.enemies);
+      const enemy = getRandomEnemy(enemies);
       await startCombat(player, enemy, location);
     }
     await exploreRuins(player, location);
 
   } else {
     console.log(chalk.cyan(`\n=== ${location.name} ===`));
-    console.log(chalk.hex('#8B4513')(location.description));
-    if (location.enemies) {
-      const enemy = getRandomEnemy(location.enemies);
+    console.log(chalk.hex('#8B4513')(description));
+    if (enemies) {
+      const enemy = getRandomEnemy(enemies);
       await startCombat(player, enemy, location);
     }
     const choices = [
