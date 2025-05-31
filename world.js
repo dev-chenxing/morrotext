@@ -23,6 +23,10 @@ export const locations = {
         description: 'Crumbling stone structures covered in vines. An eerie silence hangs in the air.',
         enemies: ['skeleton', 'stone_golem', 'void_cultist'],
         lootTable: 'ruins',
-        npcs: []
+        npcs: [],
+        // Access requires quest acceptance
+        travelCondition: (player) => {
+            return player.activeQuests.some(q => q.key === 'investigate_ruins');
+        }
     }
 };

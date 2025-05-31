@@ -195,12 +195,26 @@ export async function enterLocation(player, location) {
 }
 
 async function showTravelMenu(player) {
+
+  const availableLocations = Object.values(locations).filter(loc => {
+    // Check travel conditions
+    if (loc.travelCondition && !loc.travelCondition(player)) {
+      return false;
+    }
+    return true;
+  });
+
   const { destination } = await inquirer.prompt({
     type: "list",
     name: "destination",
     message: "Where would you like to travel?",
-    choices: Object.values(locations).map(loc => loc.name)
+    choices: [
+      ...availableLocations.map(loc => loc.name),
+      'Cancel'
+    ]
   });
+
+  if (destination === 'Cancel') return showMainMenu(player);
 
   const selectedLocation = Object.values(locations).find(loc => loc.name === destination);
   console.log(chalk.yellow(`\nTraveling to ${destination}...`));
