@@ -1,6 +1,5 @@
-- organize the directory better
 - player should be able to sell items
-- If you have completed a quest like `investigate_ruins`, the quest giver will try to give you the same quest again
+- If you have completed quest `investigate_ruins`, the Hermit should not greet you with `The ancient ruins are dangerous... but the artifact must be recovered!`
 - After you completed the slay goblin quest, there would be no goblin spawning anymore
 - in `enterLocation`, there should be an option to explore to encounter enemy, instead of exiting and reentering
 - we use `enterLocation` to exit dialogue, and immediately encounter enemy and enter combat, which interrupts player's flow. Maybe add a flag to `enterLocation` to fix this issue.

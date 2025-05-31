@@ -1,7 +1,7 @@
 import inquirer from "inquirer";
 import chalk from "chalk";
 import { ITEMS } from "../items.js";
-import { completeQuest, QUESTS } from "../world/quests.js";
+import { completeQuest, isQuestAvailable, QUESTS } from "../world/quests.js";
 
 export const npcDialogues = {
   blacksmith: {
@@ -88,7 +88,7 @@ export const npcDialogues = {
             text: "Accept quest",
             action: "start_quest",
             quest: "investigate_ruins",
-            condition: (player) => !player.activeQuests.find(q => q.key === 'investigate_ruins')
+            condition: (player) => isQuestAvailable(player, 'investigate_ruins')
           },
           { text: "Maybe later", action: "leave" }
         ]
@@ -171,7 +171,7 @@ export const npcDialogues = {
             text: "I'll clear the infestation",
             action: "start_quest",
             quest: "slay_goblins",
-            condition: (player) => !player.activeQuests.find(q => q.key === 'slay_goblins')
+            condition: (player) => isQuestAvailable(player, 'slay_goblins')
           },
           { text: "Leave", action: "leave" }
         ]

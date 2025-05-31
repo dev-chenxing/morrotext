@@ -33,6 +33,6 @@ export const EXP_LEVELS = [
   0, // Level 1
   200, // Level 2
   500, // Level 3
-  900, // Level 4
-  1400 // Level 5
+  1000, // Level 4
+  1500 // Level 5
 ];

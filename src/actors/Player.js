@@ -29,8 +29,11 @@ export class Player {
     this.addStartingItems();
 
     this.gold = 50;
+
     this.activeQuests = [];
+    this.completedQuests = [];
     this.storyFlags = {};
+
     this.killCount = {};
   }
 

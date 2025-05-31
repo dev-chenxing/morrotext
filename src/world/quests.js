@@ -1,6 +1,20 @@
 import chalk from "chalk";
 import { ITEMS } from "../items.js";
 
+export function isQuestAvailable(player, questKey) {
+  // Check if already completed
+  if (player.completedQuests.some(q => q.key === questKey)) {
+    return false;
+  }
+
+  // Check if already active
+  if (player.activeQuests.some(q => q.key === questKey)) {
+    return false;
+  }
+
+  return true;
+}
+
 export function startQuest(player, questKey) {
   if (player.activeQuests.some(q => q.key === questKey)) {
     return console.log("Quest already in progress!");
@@ -39,6 +53,8 @@ export function completeQuest(player, questKey) {
 
   // Remove quest from active list
   player.activeQuests = player.activeQuests.filter(q => q.key !== questKey);
+
+  player.completedQuests.push(quest)
 
   // Show completion message
   console.log(chalk.green(`\nQuest "${quest.title}" completed!`));
