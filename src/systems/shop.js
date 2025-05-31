@@ -1,4 +1,5 @@
 import inquirer from "inquirer";
+import chalk from "chalk";
 import { ITEMS } from "../items.js";
 
 export const SHOP_PRICES = {
@@ -9,7 +10,7 @@ export const SHOP_PRICES = {
 export async function openShop(player, shopType) {
     const shopItems = {
         blacksmith: [
-            'health_potion', 'steel_sword'
+            'iron_helmet', 'steel_sword'
         ],
         general: [
             'health_potion', 'mana_potion'
@@ -54,7 +55,7 @@ async function buyItems(player, availableItems) {
 
     choices.push({ name: 'Cancel', value: null });
 
-    const { itemId } = await safePrompt({
+    const { itemId } = await inquirer.prompt({
         type: 'list',
         name: 'itemId',
         message: 'Select item to buy:',
@@ -94,7 +95,7 @@ async function sellItems(player) {
 
     sellableItems.push({ name: 'Cancel', value: null });
 
-    const { itemId } = await safePrompt({
+    const { itemId } = await inquirer.prompt({
         type: 'list',
         name: 'itemId',
         message: 'Select item to sell:',
@@ -104,7 +105,7 @@ async function sellItems(player) {
     if (itemId) {
         const item = ITEMS[itemId];
         const value = Math.floor(item.value * SHOP_PRICES.sellMultiplier);
-        const { quantity } = await safePrompt({
+        const { quantity } = await inquirer.prompt({
             type: 'input',
             name: 'quantity',
             message: `How many to sell? (Max: ${player.inventory[itemId]})`,

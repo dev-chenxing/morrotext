@@ -239,7 +239,14 @@ export const ITEMS = {
     description: 'Armor blessed by the gods',
   },
 
-  // Magic Items
+  // Accessory
+  iron_helmet: {
+    id: "iron_helmet",
+    name: "Iron Helmet",
+    type: "accessory",
+    stats: { defense: 3 },
+    value: 60
+  },
   holy_symbol: {
     id: "holy_symbol",
     name: "Holy Symbol",

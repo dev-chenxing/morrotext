@@ -1,6 +1,6 @@
 import inquirer from "inquirer";
 import chalk from "chalk";
-import { ITEMS } from "../items.js";
+import { openShop } from "./shop.js";
 import { completeQuest, isQuestAvailable, QUESTS } from "../world/quests.js";
 
 export const npcDialogues = {
@@ -8,17 +8,16 @@ export const npcDialogues = {
     name: "Blacksmith",
     dialogues: {
       initial: {
-        question: "Need weapons? I have the best in town!",
+        question: "Steel and iron! What can I forge for you today?",
         options: [
           {
-            text: `Buy ${ITEMS.steel_sword.name} (${ITEMS.steel_sword.value} gold)`,
-            action: "buy",
-            itemId: "steel_sword"
+            text: 'Browse weapons and armor',
+            action: 'open_shop',
+            shop: 'blacksmith'
           },
           {
-            text: `Buy ${ITEMS.health_potion.name} (${ITEMS.health_potion.value} gold)`,
-            action: "buy",
-            itemId: "health_potion"
+            text: 'Ask about special orders',
+            action: 'special_orders'
           },
           { text: "Leave", action: "leave" }
         ]
@@ -183,19 +182,9 @@ export const npcDialogues = {
 async function handleDialogueAction(player, action, data, npcKey) {
   const npc = npcDialogues[npcKey];
   switch (action) {
-    case "buy":
-      const item = ITEMS[data.itemId];
-      if (player.gold >= item.value) {
-        player.gold -= item.value;
-        player.addItem(item.id);
-
-        return {
-          message: `You bought ${item.name}!`
-        };
-      }
-      return {
-        message: "Not enough gold!"
-      };
+    case 'open_shop':
+      await openShop(player, data.shop);
+      return { exit: false };
 
     case "rest":
       if (player.gold >= data.cost) {
