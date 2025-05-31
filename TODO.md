@@ -1,6 +1,3 @@
-- function `addItem` needs to check if the item actually exist. 
-- Ancient Tablet Usage
-- What does `holy water` do?
 - taking the artifact should progress the quest. and after returning the artifact, use the `completeQuest` function
 - implement the stat boost of items
 - implement lootTable of 'forest' and 'ruins'
@@ -14,6 +11,7 @@
 - player should be able to sell items
 - effects should not be able to stack, like the blessing and the permanent mana increase from the ancient tablet. implement a better effect system
 - in `enterLocation`, `const npcKey = action.split('_')[1];` does not work since we have npcKey like `forest_warden`
+- `useItem` message should not override itself. For example, if an item has both health and mana effect, it only shows the mana message and not the health message. 
 
 
 - [ ] Class-based character progression

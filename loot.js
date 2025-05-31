@@ -12,7 +12,6 @@ const lootTable = {
         ITEMS.chainmail.id,
         ITEMS.steel_armor.id,
         ITEMS.magic_amulet.id,
-        ITEMS.mace.id
     ],
     epic: [
         ITEMS.dragon_slayer.id,

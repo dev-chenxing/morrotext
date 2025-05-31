@@ -108,7 +108,7 @@ export async function startCombat(player, enemy) {
                 });
 
                 if (itemId) {
-                    const result = await useItem(player, itemId);
+                    const result = await useItem(player, itemId, enemy);
                     console.log(chalk.yellow(result));
                 }
                 break;
@@ -187,6 +187,7 @@ export const ENEMIES = {
         gold: () => Math.floor(Math.random() * 21) + 30 // Returns 30-50 gold
     },
     skeleton: {
+        type: 'undead',
         name: 'Ancient Skeleton',
         hp: 60,
         attack: 14,

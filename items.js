@@ -46,7 +46,7 @@ async function handleEquipment(player, item) {
   }
 }
 
-export async function useItem(player, itemId) {
+export async function useItem(player, itemId, enemy = null) {
   const item = ITEMS[itemId];
   if (!item) return "Item not found.";
 
@@ -64,6 +64,13 @@ export async function useItem(player, itemId) {
           const oldMana = player.mana;
           player.mana = Math.min(player.maxMana, player.mana + item.effect.mana);
           message = `Restored ${player.mana - oldMana} mana!`;
+        }
+        if (item.effect.damageUndead) {
+          if (enemy && enemy.type === 'undead') {
+            const damage = item.effect.damageUndead;
+            enemy.hp = Math.max(0, enemy.hp - damage);
+            message = `The holy water burns ${enemy.name} for ${damage} damage!`;
+          }
         }
       }
       break;
@@ -109,8 +116,9 @@ export const ITEMS = {
     id: "holy_water",
     name: "Holy Water",
     type: "consumable",
-    effect: { purify: true },
-    value: 30
+    effect: { damageUndead: 20 },
+    value: 40,
+    description: 'Blessed water that harms the unholy',
   },
   mana_potion: {
     id: "mana_potion",
