@@ -96,6 +96,13 @@ export async function useItem(player, itemId, enemy = null) {
 
 export const ITEMS = {
   // Consumable
+  herbs: {
+    id: 'herbs',
+    name: 'Medicinal Herbs',
+    type: 'consumable',
+    effect: { hp: 20 },
+    value: 10,
+  },
   health_potion: {
     id: "health_potion",
     name: "Health Potion",
@@ -272,6 +279,20 @@ export const ITEMS = {
     type: "quest",
     value: 5,
     description: "Proof of goblin slaying"
+  },
+  ancient_tablet: {
+    id: 'ancient_tablet',
+    name: 'Ancient Tablet',
+    type: 'quest',
+    value: 0,
+    description: 'Stone slab covered in forgotten runes',
+  },
+  deciphered_tablet: {
+    id: 'deciphered_tablet',
+    name: 'Deciphered Tablet',
+    type: 'quest',
+    value: 0,
+    description: 'A tablet with translated runes showing a map to the artifact chamber'
   },
 
   // Materials

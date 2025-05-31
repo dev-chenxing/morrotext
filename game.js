@@ -150,11 +150,10 @@ function getRandomEnemy(locationEnemies) {
 export async function enterLocation(player, location) {
   if (location.name === 'Ancient Ruins') {
     if (Math.random() > 0.2) {
-      const enemies = ['skeleton', 'skeleton', 'stone_golem', 'void_cultist'];
-      const enemyType = enemies[Math.floor(Math.random() * enemies.length)];
-      await startCombat(player, createEnemy(enemyType), location);
+      const enemy = getRandomEnemy(location.enemies);
+      await startCombat(player, enemy, location);
     }
-    await exploreRuins(player);
+    await exploreRuins(player, location);
 
   } else {
     console.log(chalk.cyan(`\n=== ${location.name} ===`));
@@ -163,27 +162,26 @@ export async function enterLocation(player, location) {
       const enemy = getRandomEnemy(location.enemies);
       await startCombat(player, enemy, location);
     }
-  }
+    const choices = [
+      ...location.npcs.map(npcKey => ({
+        name: `Talk to ${npcDialogues[npcKey]?.name || npcKey}`,
+        value: `npc:${npcKey}`
+      })),
+      { name: 'Return to Main Menu', value: 'return' }
+    ];
 
-  const choices = [
-    ...location.npcs.map(npcKey => ({
-      name: `Talk to ${npcDialogues[npcKey]?.name || npcKey}`,
-      value: `npc:${npcKey}`
-    })),
-    { name: 'Return to Main Menu', value: 'return' }
-  ];
+    const { action } = await inquirer.prompt({
+      type: "list",
+      name: "action",
+      message: "What would you like to do?",
+      choices
+    });
 
-  const { action } = await inquirer.prompt({
-    type: "list",
-    name: "action",
-    message: "What would you like to do?",
-    choices
-  });
-
-  if (action.startsWith("npc:")) {
-    const npcKey = action.split(':')[1];
-    await talkToNPC(npcKey, player);
-    return enterLocation(player, location);
+    if (action.startsWith("npc:")) {
+      const npcKey = action.split(':')[1];
+      await talkToNPC(npcKey, player);
+      return enterLocation(player, location);
+    }
   }
   return showMainMenu(player);
 }

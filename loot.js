@@ -4,7 +4,8 @@ import { ITEMS } from "./items.js";
 const LOOT_TABLES = {
     forest: {
         common: [
-            ITEMS.health_potion.id
+            ITEMS.health_potion.id,
+            ITEMS.herbs.id
         ],
         rare: [
             ITEMS.magic_amulet.id,

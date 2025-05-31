@@ -80,12 +80,35 @@ export const npcDialogues = {
             condition: (player) => player.getInventoryCount('crown_of_wisdom') > 0
           },
           {
+            text: "I found this ancient tablet",
+            action: "show_tablet",
+            condition: (player) => player.hasItem('ancient_tablet')
+          },
+          {
             text: "Accept quest",
             action: "start_quest",
             quest: "investigate_ruins",
             condition: (player) => !player.activeQuests.find(q => q.key === 'investigate_ruins')
           },
           { text: "Maybe later", action: "leave" }
+        ]
+      },
+      show_tablet: {
+        question: "By the old gods! Where did you find this? This tablet contains the key to the artifact chamber!",
+        options: [
+          {
+            text: "What does it say?",
+            action: "translate_tablet"
+          },
+        ]
+      },
+      translate_tablet: {
+        question: "It speaks of a hidden passage behind the throne of the ancient king. The artifact lies beyond... but beware the guardians! I've marked your map with the location. The artifact is powerful, but dangerous.",
+        options: [
+          {
+            text: "Thank you, hermit",
+            action: "complete_tablet"
+          }
         ]
       },
       return_artifact: {
@@ -196,11 +219,21 @@ async function handleDialogueAction(player, action, data, npcKey) {
     case 'hermit_location':
     case 'relic_details':
     case 'more_rumors':
+    case 'show_tablet':
+    case 'translate_tablet':
     case 'return_artifact':
       // These are handled through dialogue state transitions
       return {
         nextState: action,
         message: npc.dialogues[action]?.question || "I've nothing more to say."
+      };
+
+    case 'complete_tablet':
+      player.removeItem('ancient_tablet');
+      player.addItem('deciphered_tablet');
+      return {
+        message: chalk.green("The Hermit deciphered the tablet! He marked a map to the artifact chamber."),
+        exit: true
       };
 
     case "start_quest":

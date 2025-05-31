@@ -3,47 +3,93 @@ import chalk from "chalk";
 import figlet from "figlet";
 import { updateQuestProgress } from "./quests.js";
 
-export async function exploreRuins(player) {
+export async function exploreRuins(player, location) {
     console.log(chalk.yellow(figlet.textSync('ANCIENT RUINS', { font: 'Small' })));
     console.log(chalk.gray("You stand before the entrance of a long-forgotten civilization..."));
 
-    // Initial chamber
-    const { action } = await inquirer.prompt({
-        type: 'list',
-        name: 'action',
-        message: 'The path splits ahead:',
-        choices: [
-            'Explore the central chamber',
-            'Take the left passage',
-            'Take the right passage',
-            'Leave the ruins'
-        ]
-    });
+    let exploring = true;
+    while (exploring && player.hp > 0) {
+        const hasDecipheredTablet = player.hasItem('deciphered_tablet');
+        const hasArtifact = player.hasItem('ancient_artifact');
+        const choices = [];
 
-    switch (action) {
-        case 'Explore the central chamber':
-            return await handleArtifactChamber(player);
-
-        case 'Take the left passage':
-            console.log(chalk.cyan("\nYou find a hidden alcove with ancient carvings..."));
-
-            // Special effect if player is mage
-            if (player.class === 'mage') {
-                console.log(chalk.green("The runes glow with arcane energy!"));
-                player.magic += 3;
+        if (!hasArtifact) {
+            if (hasDecipheredTablet) {
+                console.log(chalk.green("\nYour deciphered tablet glows, revealing a hidden path!"));
+                choices.push('Follow the tablet\'s map to the artifact chamber');
             }
+        }
 
-            break;
+        choices.push(
+            'Explore the central chamber',
+            'Search the left passage',
+            'Investigate the right passage',
+            'Check for hidden rooms',
+            'Return to entrance'
+        );
 
-        case 'Take the right passage':
-            console.log(chalk.red("\nYou trigger a trap!"));
-            const trapDamage = Math.floor(Math.random() * 15) + 10;
-            player.hp = Math.max(1, player.hp - trapDamage);
-            console.log(`Took ${trapDamage} damage!`);
-            break;
+        const { action } = await inquirer.prompt({
+            type: 'list',
+            name: 'action',
+            message: 'What will you do?',
+            choices
+        });
+
+        switch (action) {
+            case 'Follow the tablet\'s map to the artifact chamber':
+            case 'Search for the artifact':
+                await handleArtifactChamber(player);
+                break;
+
+            case 'Explore the central chamber':
+                console.log(chalk.yellow("\nYou find ancient murals depicting forgotten battles."));
+                if (Math.random() > 0.7) {
+                    console.log(chalk.green("Found a health potion in a broken urn!"));
+                    player.addItem('health_potion');
+                }
+                break;
+
+            case 'Search the left passage':
+                console.log(chalk.cyan("\nYou discover a library of stone tablets..."));
+                if (!player.hasItem('ancient_tablet')) {
+                    player.addItem('ancient_tablet');
+                    console.log(chalk.green("You carefully extract an intact Ancient Tablet!\nThe Hermit might decipher it."));
+                } else {
+                    console.log(chalk.gray("The remaining tablets are too damaged to read."));
+                }
+                break;
+
+            case 'Investigate the right passage':
+                console.log(chalk.red("\nYou trigger a booby trap!"));
+                const trapDamage = Math.floor(Math.random() * 15) + 10;
+                player.hp = Math.max(1, player.hp - trapDamage);
+                console.log(`Took ${trapDamage} damage!`);
+                break;
+
+            case 'Check for hidden rooms':
+                if (Math.random() > 0.5) {
+                    console.log(chalk.green("\nYou discover a hidden alcove!"));
+                    const loot = generateLoot('ruins');
+                    player.addItem(loot);
+                    console.log(`Found ${ITEMS[loot].name}!`);
+                } else {
+                    console.log(chalk.gray("\nYou find nothing but dust and cobwebs."));
+                }
+                break;
+
+            case 'Return to entrance':
+                console.log(chalk.yellow("\nYou return to the ruins entrance."));
+                exploring = false;
+                break;
+        }
+
+        // Random encounters
+        if (exploring && player.hp > 0 && Math.random() > 0.6) {
+            const enemy = getRandomEnemy(location.enemies);
+            await startCombat(player, enemy, location);
+        }
     }
-
-    return true;
+    return { exit: true }
 }
 
 async function handleArtifactChamber(player) {
