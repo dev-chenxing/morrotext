@@ -109,7 +109,7 @@ export async function startCombat(player, enemy) {
 
                 if (itemId) {
                     const result = await useItem(player, itemId, enemy);
-                    console.log(chalk.yellow(result));
+                    if (result) console.log(chalk.yellow(result));
                 }
                 break;
 

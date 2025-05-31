@@ -250,7 +250,7 @@ async function startGame() {
 
   setInterval(() => {
     player.updateEffects();
-  }, 1000); // Check every second
+  }, 100); // Check every 1/10 second
 
   await showMainMenu(player);
 }

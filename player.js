@@ -1,6 +1,7 @@
 import chalk from "chalk";
 import { CLASSES, EXP_LEVELS } from "./classes.js";
 import { ITEMS } from "./items.js";
+import { EFFECTS } from './effects.js';
 
 export class Player {
   constructor(name, className) {
@@ -31,11 +32,14 @@ export class Player {
     this.storyFlags = {};
   }
 
-  addEffect(effect) {
+  applyEffect(effectId) {
+    const effect = EFFECTS[effectId];
+    if (!effect) return false;
+
     // Remove existing effect of same type
     this.activeEffects = this.activeEffects.filter(e => e.id !== effect.id);
 
-    // Apply effect stats
+    // Apply effect stat boosts
     if (effect.stats) {
       Object.entries(effect.stats).forEach(([stat, value]) => {
         this[stat] += value;
@@ -46,7 +50,12 @@ export class Player {
     effect.expiresAt = Date.now() + (effect.duration * 1000);
     this.activeEffects.push(effect);
 
+    // Trigger callback
+    if (effect.onApply) effect.onApply(this);
+
     console.log(chalk.yellow(`\n${effect.name} applied!`));
+
+    return true;
   }
 
   updateEffects() {
@@ -59,6 +68,10 @@ export class Player {
             this[stat] -= value;
           });
         }
+
+        // Trigger expiration callback
+        if (effect.onExpire) effect.onExpire(this);
+
         console.log(chalk.yellow(`\n${effect.name} has worn off.`));
         return false;
       }

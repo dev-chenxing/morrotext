@@ -31,11 +31,10 @@ export function updateQuestProgress(player, questKey, progress, message) {
 }
 
 export function completeQuest(player, questKey) {
-  const questIndex = player.activeQuests.findIndex(q => q.key === questKey);
-  if (questIndex === -1) return;
-
-  const quest = player.activeQuests[questIndex];
   const questData = QUESTS[questKey];
+  const quest = player.activeQuests.find(q => q.key === questKey);
+
+  if (!quest) return;
 
   // Apply rewards
   player.gold += questData.reward.gold;
@@ -45,11 +44,12 @@ export function completeQuest(player, questKey) {
   });
 
   // Remove quest from active list
-  player.activeQuests.splice(questIndex, 1);
+  player.activeQuests = player.activeQuests.filter(q => q.key !== questKey);
 
+  // Show completion message
   console.log(chalk.green(`\nQuest "${quest.title}" completed!`));
   console.log(`Rewards: ${questData.reward.gold} gold, ${questData.reward.exp} EXP`);
-  if (questData.reward.items.length > 0) {
+  if (questData.reward.items && questData.reward.items.length > 0) {
     console.log(`Items: ${questData.reward.items.map(id => ITEMS[id].name).join(', ')}`);
   }
 }
@@ -62,7 +62,7 @@ export const QUESTS = {
       { type: "collect", item: "crown_of_widsom", count: 1, description: 'Retrieve the Ancient Artifact from the ruins', },
       { type: "return", target: "town", description: 'Return to the Hermit with the artifact', }
     ],
-    reward: { gold: 500, exp: 1000 }
+    reward: { gold: 500, exp: 500 }
   },
   slay_goblins: {
     title: "Goblin Infestation",
@@ -73,7 +73,7 @@ export const QUESTS = {
     reward: {
       gold: 150,
       items: ["steel_dagger"],
-      exp: 500
+      exp: 100
     }
   }
 };

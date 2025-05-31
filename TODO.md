@@ -1,11 +1,4 @@
-- instead of `checkQuestProgression`, which hardcodes quests in logic. We should progress quest after the player takes the ancient artifact and talk to the hermit
-- Hermit takes the crown of wisdom from your inventory
-- taking the artifact should progress the quest. 
-- after returning the artifact, use the `completeQuest` function
-- ```const quest = player.activeQuests.find(q => q.key === 'investigate_ruins');
-                    if (quest) quest.progress = 2;``` Maybe implement a function for quest progress. It's important to give player feedback. 
-- do not put effect data in items.js
-
+- You can still stack the blessing effect. please fix it.
 - implement the stat boost of items
 - implement lootTable of 'forest' and 'ruins'
 - implement special artifact_chamber
@@ -19,6 +12,7 @@
 - effects should not be able to stack, like the blessing and the permanent mana increase from the ancient tablet. implement a better effect system
 - in `enterLocation`, `const npcKey = action.split('_')[1];` does not work since we have npcKey like `forest_warden`
 - `useItem` message should not override itself. For example, if an item has both health and mana effect, it only shows the mana message and not the health message. 
+- If you have completed the `investigate_ruins`, `hermit` will try to give the `investigate_ruins` again
 
 
 

@@ -1,7 +1,7 @@
 import inquirer from "inquirer";
 import chalk from "chalk";
 import { ITEMS } from "./items.js";
-import { QUESTS } from "./quests.js";
+import { completeQuest, QUESTS } from "./quests.js";
 
 export const npcDialogues = {
   blacksmith: {
@@ -92,7 +92,7 @@ export const npcDialogues = {
         question: "By the gods! You've done it! This will help us protect our town.",
         options: [
           {
-            text: "Complete quest",
+            text: "[Hand over artifact]",
             action: "complete_quest",
             quest: "investigate_ruins"
           }
@@ -203,6 +203,7 @@ async function handleDialogueAction(player, action, data, npcKey) {
     case 'more_rumors':
     case 'advice':
     case 'lore':
+    case 'return_artifact':
       // These are handled through dialogue state transitions
       return {
         nextState: action,
@@ -226,25 +227,30 @@ async function handleDialogueAction(player, action, data, npcKey) {
         exit: false
       };
 
+    case "complete_quest":
+      if (data.quest === 'investigate_ruins') {
+        // Verify requirements
+        if (!player.removeItem('crown_of_wisdom')) {
+          return {
+            message: "You don't have the required item!",
+            exit: true
+          };
+        }
+        // Story progression
+        player.storyFlags.artifactSecured = true;
+        console.log(chalk.yellow("\nThe Hermit places the artifact in the town vault."));
+        completeQuest(player, 'investigate_ruins')
+        return {
+          exit: true
+        };
+      }
+
     case "blessing":
       if (player.gold >= data.cost) {
         player.gold -= data.cost;
         player.blessed = true;
+        player.applyEffect('blessing')
         return {
-          message: chalk.yellow("Holy light surrounds you! You feel empowered."),
-          effect: () => {
-            console.log(chalk.yellow("\nYour attack and defense have increased!"));
-
-            player.attack += 5;
-            player.defense += 5;
-
-            // Set expiration
-            setTimeout(() => {
-              player.attack -= 5;
-              player.defense -= 5;
-              console.log(chalk.yellow("\nBlessing fades..."));
-            }, 60000); // 1 minute duration
-          },
           exit: true
         };
       }
