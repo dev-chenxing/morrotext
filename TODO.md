@@ -13,6 +13,7 @@
 - in `enterLocation`, `const npcKey = action.split('_')[1];` does not work since we have npcKey like `forest_warden`
 - `useItem` message should not override itself. For example, if an item has both health and mana effect, it only shows the mana message and not the health message. 
 - If you have completed the `investigate_ruins`, `hermit` will try to give the `investigate_ruins` again
+- "Found an Ancient Tablet! The Hermit might decipher it." Write the dialogue for Hermit
 
 
 

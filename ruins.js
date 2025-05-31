@@ -13,9 +13,9 @@ export async function exploreRuins(player) {
         name: 'action',
         message: 'The path splits ahead:',
         choices: [
+            'Explore the central chamber',
             'Take the left passage',
             'Take the right passage',
-            'Explore the central chamber',
             'Leave the ruins'
         ]
     });
@@ -26,7 +26,7 @@ export async function exploreRuins(player) {
 
         case 'Take the left passage':
             console.log(chalk.cyan("\nYou find a hidden alcove with ancient carvings..."));
-            if (player.addItem('ancient_tablet', 1)) console.log("Found an Ancient Tablet!");
+            if (player.addItem('ancient_tablet', 1)) console.log("Found an Ancient Tablet! The Hermit might decipher it.");
 
             // Special effect if player is mage
             if (player.class === 'mage') {
