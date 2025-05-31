@@ -4,7 +4,8 @@ import chalk from "chalk";
 async function handleEquipment(player, item) {
 
   const isEquipped = player.equipment.weapon?.id === item.id ||
-    player.equipment.armor?.id === item.id;
+    player.equipment.armor?.id === item.id ||
+    player.equipment.accessory?.id === item.id;
 
   const choices = [];
 
@@ -13,7 +14,7 @@ async function handleEquipment(player, item) {
       name: 'Unequip',
       value: 'unequip'
     });
-  } else if (item.type === 'weapon' || item.type === 'armor') {
+  } else if (item.type === 'weapon' || item.type === 'armor' || item.type === 'accessory') {
     choices.push({
       name: 'Equip',
       value: 'equip'
@@ -77,19 +78,9 @@ export async function useItem(player, itemId, enemy = null) {
 
     case 'weapon':
     case 'armor':
+    case 'accessory':
       await handleEquipment(player, item);
       break;
-
-    case 'ancient_tablet':
-      if (player.class === 'cleric') {
-        console.log(chalk.yellow("\nDivine insight flows through you!"));
-        player.maxMana += 20;
-        player.mana = player.maxMana;
-        message = "Permanently increased max mana by 20!";
-        break
-      }
-      message = "The runes are incomprehensible to you.";
-      break
 
     default:
       message = "You can't use that item right now.";
@@ -159,6 +150,13 @@ export const ITEMS = {
     stats: { attack: 6 },
     value: 50
   },
+  oak_staff: {
+    id: "oak_staff",
+    name: "Oak Staff",
+    type: "weapon",
+    stats: { magic: 7 },
+    value: 80
+  },
   steel_sword: {
     id: "steel_sword",
     name: "Steel Sword",
@@ -180,20 +178,12 @@ export const ITEMS = {
     stats: { attack: 12 },
     value: 85
   },
-  oak_staff: {
-    id: "oak_staff",
-    name: "Oak Staff",
-    type: "weapon",
-    stats: { magic: 7 },
-    value: 80
-  },
   seraphim_staff: {
     id: "seraphim_staff",
     name: "Seraphim Staff",
     type: "weapon",
-    stats: { attack: 12, magic: 8 },
+    stats: { attack: 8, magic: 12 },
     value: 450,
-    rarity: "epic"
   },
   dragon_slayer: {
     id: "dragon_slayer",
@@ -237,8 +227,9 @@ export const ITEMS = {
     id: "divine_armor",
     name: "Divine Armor",
     type: "armor",
-    stats: { defense: 15, hp: 50 },
-    value: 400
+    stats: { defense: 15, maxHp: 50 },
+    value: 400,
+    description: 'Armor blessed by the gods',
   },
 
   // Magic Items
@@ -254,14 +245,15 @@ export const ITEMS = {
     name: "Magic Amulet",
     type: "accessory",
     stats: { defense: 5, magic: 5 },
-    value: 150
+    value: 150,
+    description: 'An amulet that enhances magical abilities',
   },
   crown_of_wisdom: {
     id: "crown_of_wisdom",
     name: "Crown of Wisdom",
     description: 'A pulsating relic of immense power',
     type: "accessory",
-    stats: { defense: 10, magic: 10, hp: 50 },
+    stats: { defense: 10, magic: 10, maxHp: 50 },
     value: 0
   },
   bone_charm: {
@@ -280,14 +272,6 @@ export const ITEMS = {
     type: "quest",
     value: 5,
     description: "Proof of goblin slaying"
-  },
-  ancient_tablet: {
-    id: 'ancient_tablet',
-    name: 'Ancient Tablet',
-    type: 'ancient_tablet',
-    value: 0,
-    description: 'Stone slab covered in forgotten runes',
-    effect: 'unlock_secrets',
   },
 
   // Materials

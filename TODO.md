@@ -1,20 +1,17 @@
-- implement the stat boost of items
 - implement lootTable of 'forest' and 'ruins'
-- implement special artifact_chamber
 - you can only visit the ancient ruins after you accepted the quest
 - remove save and reload functionality
 - when `Examine it carefully`, if the player is not cleric, they would not have a holy symbol. 
 - Player should be able to explore the ruins fully. Right now, if the player picks the left passage, then we are only given the option to return to main menu, instead of keep exploring.
-- implement the `unlock_secret` effect of ancient_tablet
 - organize the directory better
 - player should be able to sell items
-- effects should not be able to stack, like the blessing and the permanent mana increase from the ancient tablet. implement a better effect system
+- the permanent mana increase from the ruins can only happen once.
 - `useItem` message should not override itself. For example, if an item has both health and mana effect, it only shows the mana message and not the health message. 
-- If you have completed the `investigate_ruins`, `hermit` will try to give the `investigate_ruins` again
-- "Found an Ancient Tablet! The Hermit might decipher it." Write the dialogue for Hermit
+- If you have completed a quest like `investigate_ruins`, the quest giver will try to give you the same quest again
 - After you completed the slay goblin quest, there would be no goblin spawning anymore
 - in `enterLocation`, there should be an option to explore to encounter enemy, instead of exiting and reentering
 - we use `enterLocation` to exit dialogue, and immediately encounter enemy and enter combat, which interrupts player's flow. Maybe add a flag to `enterLocation` to fix this issue.
+- after we reach level 5, the showPlayerStats display `EXP:    2050/undefined`. Please fix it.
 
 
 - [ ] Class-based character progression

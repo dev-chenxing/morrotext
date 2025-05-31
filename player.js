@@ -22,7 +22,8 @@ export class Player {
 
     this.equipment = {
       weapon: null,
-      armor: null
+      armor: null,
+      accessory: null
     };
     this.inventory = {}; // {itemId: count}
     this.addStartingItems();
@@ -194,19 +195,30 @@ export class Player {
 
   equipItem(item) {
     try {
-      if (item.type === "weapon") {
-        if (this.equipment.weapon) this.unequipItem(this.equipment.weapon);
-        this.equipment.weapon = item;
-        this.applyItemStats(item);
 
-        console.log(chalk.green(`Equipped ${item.name}!`));
-      } else if (item.type === "armor") {
-        if (this.equipment.armor) this.unequipItem(this.equipment.armor);
-        this.equipment.armor = item;
-        this.applyItemStats(item);
+      switch (item.type) {
+        case 'weapon':
+          if (this.equipment.weapon) this.unequipItem(this.equipment.weapon);
+          this.equipment.weapon = item;
+          this.applyItemStats(item);
 
-        console.log(chalk.green(`Equipped ${item.name}!`));
+          console.log(chalk.green(`Equipped ${item.name}!`));
+          break;
+        case 'armor':
+          if (this.equipment.armor) this.unequipItem(this.equipment.armor);
+          this.equipment.armor = item;
+          this.applyItemStats(item);
+
+          console.log(chalk.green(`Equipped ${item.name}!`));
+          break;
+        case 'accessory':
+          if (this.equipment.accessory) this.unequipItem(this.equipment.accessory);
+          this.equipment.accessory = item;
+          this.applyItemStats(item);
+          console.log(chalk.green(`Equipped ${item.name} in accessory slot!`));
+          break;
       }
+
     } catch (error) {
       console.log(chalk.red(`Cannot equip ${item.name}: ${error.message}`));
     }
@@ -214,19 +226,36 @@ export class Player {
 
   unequipItem(item) {
     this.removeItemStats(item);
-    if (item.type === "weapon") {
-      this.equipment.weapon = null;
+
+    switch (item.type) {
+      case 'weapon':
+        this.equipment.weapon = null;
+        break
+      case 'armor':
+        this.equipment.armor = null;
+        break
+      case 'accessory':
+        this.equipment.accessory = null;
+        break;
     }
-    else if (item.type === "armor") {
-      this.equipment.armor = null;
-    }
+
     console.log(chalk.yellow(`Unequipped ${item.name}`));
   }
 
   applyItemStats(item) {
     if (item.stats) {
       Object.entries(item.stats).forEach(([stat, value]) => {
-        this[stat] += value;
+        // Handle HP boosts specially
+        if (stat === 'maxHp') {
+          const oldMax = this.maxHp;
+          this.maxHp += value;
+
+          // Preserve HP percentage when max HP changes
+          const hpPercent = this.hp / oldMax;
+          this.hp = Math.max(1, Math.floor(this.maxHp * hpPercent));
+        } else {
+          this[stat] += value;
+        }
       });
     }
   }
@@ -234,7 +263,16 @@ export class Player {
   removeItemStats(item) {
     if (item.stats) {
       Object.entries(item.stats).forEach(([stat, value]) => {
-        this[stat] -= value;
+        if (stat === 'maxHp') {
+          const oldMax = this.maxHp;
+          this.maxHp -= value;
+
+          // Preserve HP percentage when max HP changes
+          const hpPercent = this.hp / oldMax;
+          this.hp = Math.max(1, Math.floor(this.maxHp * hpPercent));
+        } else {
+          this[stat] -= value;
+        }
       });
     }
   }

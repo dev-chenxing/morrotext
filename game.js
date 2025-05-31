@@ -85,7 +85,7 @@ export async function showInventory(player) {
     .map(([id, count]) => {
       const item = ITEMS[id];
       const isEquipped = player.equipment.weapon?.id === id ||
-        player.equipment.armor?.id === id;
+        player.equipment.armor?.id === id || player.equipment.accessory?.id === id;
       return {
         name: `${item.name}${isEquipped ? ' (Equipped)' : ''} x${count}`,
         value: id

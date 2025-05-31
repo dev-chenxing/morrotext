@@ -69,7 +69,7 @@ export const npcDialogues = {
     }
   },
   hermit: {
-    name: "Hermit",
+    name: "Old Hermit",
     dialogues: {
       initial: {
         question: "The ancient ruins are dangerous... but the artifact must be recovered!",

@@ -37,13 +37,6 @@ export function completeQuest(player, questKey) {
 
   if (!quest) return;
 
-  // Apply rewards
-  player.gold += questData.reward.gold;
-  player.addExp(questData.reward.exp);
-  questData.reward.items?.forEach(itemId => {
-    player.addItem(itemId);
-  });
-
   // Remove quest from active list
   player.activeQuests = player.activeQuests.filter(q => q.key !== questKey);
 
@@ -53,6 +46,13 @@ export function completeQuest(player, questKey) {
   if (questData.reward.items && questData.reward.items.length > 0) {
     console.log(`Items: ${questData.reward.items.map(id => ITEMS[id].name).join(', ')}`);
   }
+
+  // Apply rewards
+  player.gold += questData.reward.gold;
+  player.addExp(questData.reward.exp);
+  questData.reward.items?.forEach(itemId => {
+    player.addItem(itemId);
+  });
 }
 
 // quest definition
