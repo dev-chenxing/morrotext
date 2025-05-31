@@ -1,4 +1,5 @@
 import inquirer from "inquirer";
+import chalk from "chalk";
 
 async function handleEquipment(player, item) {
 
@@ -71,6 +72,17 @@ export async function useItem(player, itemId) {
     case 'armor':
       await handleEquipment(player, item);
       break;
+
+    case 'ancient_tablet':
+      if (player.class === 'cleric') {
+        console.log(chalk.yellow("\nDivine insight flows through you!"));
+        player.maxMana += 20;
+        player.mana = player.maxMana;
+        message = "Permanently increased max mana by 20!";
+        break
+      }
+      message = "The runes are incomprehensible to you.";
+      break
 
     default:
       message = "You can't use that item right now.";
@@ -264,7 +276,7 @@ export const ITEMS = {
   ancient_tablet: {
     id: 'ancient_tablet',
     name: 'Ancient Tablet',
-    type: 'quest',
+    type: 'ancient_tablet',
     value: 0,
     description: 'Stone slab covered in forgotten runes',
     effect: 'unlock_secrets',

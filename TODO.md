@@ -1,19 +1,18 @@
+- function `addItem` needs to check if the item actually exist. 
+- Ancient Tablet Usage
 - What does `holy water` do?
+- taking the artifact should progress the quest. and after returning the artifact, use the `completeQuest` function
 - implement the stat boost of items
-- the Use Item menu in battle display the item id instead of name
-- take the artifact progresses the quest. after returning the artifact, use the `completeQuest` function
 - implement lootTable of 'forest' and 'ruins'
 - implement special artifact_chamber
 - you can only visit the ancient ruins after you accepted the quest
 - remove save and reload functionality
 - when `Examine it carefully`, if the player is not cleric, they would not have a holy symbol. 
-
 - Player should be able to explore the ruins fully. Right now, if the player picks the left passage, then we are only given the option to return to main menu, instead of keep exploring.
-- function `addItem` needs to check if the item actually exist. 
 - implement the `unlock_secret` effect of ancient_tablet
 - organize the directory better
 - player should be able to sell items
-- the blessing effect should not be able to stack. implement a better effect system
+- effects should not be able to stack, like the blessing and the permanent mana increase from the ancient tablet. implement a better effect system
 - in `enterLocation`, `const npcKey = action.split('_')[1];` does not work since we have npcKey like `forest_warden`
 
 

@@ -42,8 +42,14 @@ export class Player {
   }
 
   addItem(itemId, count = 1) {
+    if (!ITEMS[itemId]) {
+      console.error(chalk.red(`[WARNING] Tried to add invalid item: ${itemId}`));
+      return false;
+    }
     if (!this.inventory[itemId]) this.inventory[itemId] = 0;
     this.inventory[itemId] += count;
+
+    return true;
   }
 
   removeItem(itemId, count = 1) {

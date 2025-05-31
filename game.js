@@ -65,9 +65,11 @@ function showPlayerStats(player) {
   if (player.maxMana > 0) {
     console.log(`Mana:  ${chalk.blue(player.mana)}/${chalk.blue(player.maxMana)}`);
   }
-  console.log(`\nStats:`);
+
+  console.log(`\n${chalk.underline('Attributes')}`);
   console.log(`Attack:  ${chalk.red(player.attack)}`);
   console.log(`Defense: ${chalk.hex('#FFA500')(player.defense)}`);
+  console.log(`Magic:   ${chalk.magenta(player.magic || 0)}`);
   console.log(`Luck:    ${chalk.cyan(player.luck)}`);
 
   console.log(`\nEquipment:`);
@@ -158,7 +160,6 @@ export async function enterLocation(player, location) {
       const enemyType = enemies[Math.floor(Math.random() * enemies.length)];
       await startCombat(player, createEnemy(enemyType));
     }
-    console.log("explore ruins")
     await exploreRuins(player);
 
   } else {

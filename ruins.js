@@ -26,6 +26,13 @@ export async function exploreRuins(player) {
         case 'Take the left passage':
             console.log(chalk.cyan("\nYou find a hidden alcove with ancient carvings..."));
             if (player.addItem('ancient_tablet', 1)) console.log("Found an Ancient Tablet!");
+
+            // Special effect if player is mage
+            if (player.class === 'mage') {
+                console.log(chalk.green("The runes glow with arcane energy!"));
+                player.magic += 3;
+            }
+
             break;
 
         case 'Take the right passage':
