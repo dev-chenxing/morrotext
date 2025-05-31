@@ -6,10 +6,11 @@ import { Player } from "./actors/Player.js";
 import { startCombat } from "./systems/combat.js";
 import { talkToNPC, npcDialogues } from "./systems/dialogue.js";
 import { ITEMS, useItem } from "./items.js";
-import { CLASSES, EXP_LEVELS } from "./classes.js";
+import { CLASSES } from "./classes.js";
 import { createEnemy } from "./systems/combat.js";
 import { exploreRuins } from "./world/ruins.js";
 import { resolveDynamic } from "./utils/dynamicUtils.js"
+import { showPlayerStats } from "./ui/hud.js";
 
 process.on("uncaughtException", error => {
   if (error instanceof Error && error.name === "ExitPromptError") {
@@ -50,29 +51,6 @@ export async function showMainMenu(player) {
     default:
       process.exit();
   }
-}
-
-function showPlayerStats(player) {
-  console.log(chalk.blue("\n=== Character Stats ==="));
-  console.log(chalk.blue(`\n=== ${player.name} (Level ${player.level}) ===`));
-  console.log(`Class: ${chalk.yellow(player.class.toUpperCase())}`);
-  console.log(`HP:    ${chalk.green(player.hp)}/${chalk.green(player.maxHp)}`);
-  if (player.maxMana > 0) {
-    console.log(`Mana:  ${chalk.blue(player.mana)}/${chalk.blue(player.maxMana)}`);
-  }
-
-  console.log(`\n${chalk.underline('Attributes')}`);
-  console.log(`Attack:  ${chalk.red(player.attack)}`);
-  console.log(`Defense: ${chalk.hex('#FFA500')(player.defense)}`);
-  console.log(`Magic:   ${chalk.magenta(player.magic || 0)}`);
-  console.log(`Luck:    ${chalk.cyan(player.luck)}`);
-
-  console.log(`\nEquipment:`);
-  console.log(`Weapon: ${player.equipment.weapon ? ITEMS[player.equipment.weapon.id].name : 'None'}`);
-  console.log(`Armor:  ${player.equipment.armor ? ITEMS[player.equipment.armor.id].name : 'None'}`);
-
-  console.log(`\nGold:   ${chalk.yellow(player.gold)}`);
-  console.log(`EXP:    ${player.exp}/${EXP_LEVELS[player.level]}\n`);
 }
 
 export async function showInventory(player) {

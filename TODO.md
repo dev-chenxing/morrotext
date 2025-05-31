@@ -1,8 +1,3 @@
-- if the dialogue `question`, location `description` or `enemies` is a function and not a string, call the function
-- If you have completed quest `investigate_ruins`, the Hermit should not greet you with `The ancient ruins are dangerous... but the artifact must be recovered!`
-- After you completed the slay goblin quest, there would be no goblin spawning anymore
-- in `enterLocation`, there should be an option to explore to encounter enemy, instead of exiting and reentering
-- we use `enterLocation` to exit dialogue, and immediately encounter enemy and enter combat, which interrupts player's flow. Maybe add a flag to `enterLocation` to fix this issue.
 - after we reach level 5, the showPlayerStats display `EXP:    2050/undefined`. Please fix it.
 - implement smith's quest: `special_orders`
 - player didn't unequip their equipment when selling them

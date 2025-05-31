@@ -1,5 +1,6 @@
 import chalk from "chalk";
-import { CLASSES, EXP_LEVELS } from "../classes.js";
+import { CLASSES } from "../classes.js";
+import { EXP_LEVELS } from "../utils/expLevels.js";
 import { ITEMS } from "../items.js";
 import { EFFECTS } from '../effects.js';
 
