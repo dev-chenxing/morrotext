@@ -3,7 +3,6 @@ import chalk from "chalk";
 import figlet from "figlet";
 import { locations } from "./world.js";
 import { Player } from "./player.js";
-import { saveGame } from "./save.js";
 import { startCombat } from "./combat.js";
 import { talkToNPC, npcDialogues } from "./dialogue.js";
 import { ITEMS, useItem } from "./items.js";
@@ -30,7 +29,7 @@ export async function showMainMenu(player) {
     type: "list",
     name: "action",
     message: "What would you like to do?",
-    choices: ["Travel", "Check Stats", "View Inventory", "View Quests", "Save Game", "Exit Game"]
+    choices: ["Travel", "Check Stats", "View Inventory", "View Quests", "Exit Game"]
   });
 
   switch (action) {
@@ -46,11 +45,6 @@ export async function showMainMenu(player) {
       break;
     case "View Quests":
       await showQuests(player);
-      break;
-    case "Save Game":
-      saveGame(player);
-      console.log(chalk.green("Game saved!"));
-      await showMainMenu(player);
       break;
     default:
       process.exit();

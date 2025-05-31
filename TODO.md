@@ -1,8 +1,5 @@
-- implement lootTable of 'forest' and 'ruins'
-- you can only visit the ancient ruins after you accepted the quest
-- remove save and reload functionality
-- when `Examine it carefully`, if the player is not cleric, they would not have a holy symbol. 
-- Player should be able to explore the ruins fully. Right now, if the player picks the left passage, then we are only given the option to return to main menu, instead of keep exploring.
+- when `Examine it carefully`, if the player is not cleric, they would not have a holy symbol, so they would not say "You notice faint inscriptions matching your holy symbol". 
+- Player should be able to explore the ruins continuously. Right now, if the player picks the left passage, then we are only given the option to return to main menu, instead of keep exploring.
 - organize the directory better
 - player should be able to sell items
 - the permanent mana increase from the ruins can only happen once.
