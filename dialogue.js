@@ -248,7 +248,7 @@ async function handleDialogueAction(player, action, data, npcKey) {
     case "blessing":
       if (player.gold >= data.cost) {
         player.gold -= data.cost;
-        player.blessed = true;
+
         player.applyEffect('blessing')
         return {
           exit: true

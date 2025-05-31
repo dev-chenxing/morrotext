@@ -36,10 +36,30 @@ export class Player {
     const effect = EFFECTS[effectId];
     if (!effect) return false;
 
-    // Remove existing effect of same type
-    this.activeEffects = this.activeEffects.filter(e => e.id !== effect.id);
+    // Check for existing effect of same type
+    const existingIndex = this.activeEffects.findIndex(e => e.id === effectId);
 
-    // Apply effect stat boosts
+    // Remove existing effect first
+    if (existingIndex !== -1) {
+      const existing = this.activeEffects[existingIndex];
+
+      // Remove stat boosts
+      if (existing.stats) {
+        Object.entries(existing.stats).forEach(([stat, value]) => {
+          this[stat] -= value;
+        });
+      }
+
+      // Cancel expiration timer
+      clearTimeout(existing.timerId);
+
+      // Remove from array
+      this.activeEffects.splice(existingIndex, 1);
+
+      console.log(chalk.yellow("\nExisting blessing removed before applying new one."));
+    }
+
+    // Apply effect new stat boosts
     if (effect.stats) {
       Object.entries(effect.stats).forEach(([stat, value]) => {
         this[stat] += value;
@@ -47,8 +67,9 @@ export class Player {
     }
 
     // Set expiration
-    effect.expiresAt = Date.now() + (effect.duration * 1000);
-    this.activeEffects.push(effect);
+    const effectClone = { ...effect };
+    effectClone.expiresAt = Date.now() + (effect.duration * 1000);
+    this.activeEffects.push(effectClone);
 
     // Trigger callback
     if (effect.onApply) effect.onApply(this);
