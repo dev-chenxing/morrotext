@@ -1,6 +1,7 @@
 import inquirer from "inquirer";
 import chalk from "chalk";
 import figlet from "figlet";
+import { updateQuestProgress } from "./quests.js";
 
 export async function exploreRuins(player) {
     console.log(chalk.yellow(figlet.textSync('ANCIENT RUINS', { font: 'Small' })));
@@ -66,10 +67,18 @@ async function handleArtifactChamber(player) {
 
         switch (action) {
             case 'Take the artifact':
-                player.addItem('crown_of_wisdom');
-                console.log(chalk.yellow("You carefully lift the artifact from its pedestal."));
-                player.storyFlags.hasArtifact = true;
-                return true;
+                if (player.addItem('crown_of_wisdom')) {
+                    console.log(chalk.yellow("You carefully lift the artifact from its pedestal."));
+                    player.storyFlags.hasArtifact = true;
+
+                    updateQuestProgress(
+                        player,
+                        'investigate_ruins',
+                        1, // Progress to step 1
+                        "Retrieved the Ancient Artifact! Return it to the Hermit in Darkwood Forest."
+                    );
+                }
+                break
 
             case 'Examine it carefully':
                 if (player.class === 'cleric') {

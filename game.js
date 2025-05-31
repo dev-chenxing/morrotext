@@ -247,6 +247,11 @@ async function startGame() {
   );
 
   const player = new Player(name, className);
+
+  setInterval(() => {
+    player.updateEffects();
+  }, 1000); // Check every second
+
   await showMainMenu(player);
 }
 startGame();

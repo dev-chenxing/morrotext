@@ -74,8 +74,28 @@ export const npcDialogues = {
       initial: {
         question: "The ancient ruins are dangerous... but the artifact must be recovered!",
         options: [
-          { text: "Accept quest", action: "start_quest", quest: "investigate_ruins" },
+          {
+            text: "I've retrieved the ancient artifact",
+            action: "return_artifact",
+            condition: (player) => player.getInventoryCount('crown_of_wisdom') > 0
+          },
+          {
+            text: "Accept quest",
+            action: "start_quest",
+            quest: "investigate_ruins",
+            condition: (player) => !player.activeQuests.find(q => q.key === 'investigate_ruins')
+          },
           { text: "Maybe later", action: "leave" }
+        ]
+      },
+      return_artifact: {
+        question: "By the gods! You've done it! This will help us protect our town.",
+        options: [
+          {
+            text: "Complete quest",
+            action: "complete_quest",
+            quest: "investigate_ruins"
+          }
         ]
       }
     }
@@ -266,7 +286,9 @@ export async function talkToNPC(npcKey, player) {
 
     const dialogue = npc.dialogues[currentState];
     if (!dialogue) break;
-    const choices = dialogue.options.map(opt => ({
+    const choices = dialogue.options.filter(option => {
+      return !option.condition || option.condition(player);
+    }).map(opt => ({
       name: opt.text,
       value: { action: opt.action, data: opt }
     }));

@@ -1,4 +1,11 @@
-- taking the artifact should progress the quest. and after returning the artifact, use the `completeQuest` function
+- instead of `checkQuestProgression`, which hardcodes quests in logic. We should progress quest after the player takes the ancient artifact and talk to the hermit
+- Hermit takes the crown of wisdom from your inventory
+- taking the artifact should progress the quest. 
+- after returning the artifact, use the `completeQuest` function
+- ```const quest = player.activeQuests.find(q => q.key === 'investigate_ruins');
+                    if (quest) quest.progress = 2;``` Maybe implement a function for quest progress. It's important to give player feedback. 
+- do not put effect data in items.js
+
 - implement the stat boost of items
 - implement lootTable of 'forest' and 'ruins'
 - implement special artifact_chamber
@@ -14,12 +21,11 @@
 - `useItem` message should not override itself. For example, if an item has both health and mana effect, it only shows the mana message and not the health message. 
 
 
+
 - [ ] Class-based character progression
 - [ ] 5+ locations with unique quests
-- [ ] 3+ enemy types with combat
+- [x] 3+ enemy types with combat
 - [ ] 5+ interactive NPCs
-- [ ] 20+ items with procedural generation
-- [ ] Multiple quest lines
+- [x] 20+ items with procedural generation
+- [x] Multiple quest lines
 - [ ] 3 distinct endings based on player choices
-- [ ] Save/load functionality
-- [ ] 2+ hours of gameplay with branching storylines

@@ -17,6 +17,8 @@ export class Player {
 
     this.luck = CLASSES[className].stats.luck || 5;
 
+    this.activeEffects = [];
+
     this.equipment = {
       weapon: null,
       armor: null
@@ -26,6 +28,42 @@ export class Player {
 
     this.gold = 50;
     this.activeQuests = [];
+    this.storyFlags = {};
+  }
+
+  addEffect(effect) {
+    // Remove existing effect of same type
+    this.activeEffects = this.activeEffects.filter(e => e.id !== effect.id);
+
+    // Apply effect stats
+    if (effect.stats) {
+      Object.entries(effect.stats).forEach(([stat, value]) => {
+        this[stat] += value;
+      });
+    }
+
+    // Set expiration
+    effect.expiresAt = Date.now() + (effect.duration * 1000);
+    this.activeEffects.push(effect);
+
+    console.log(chalk.yellow(`\n${effect.name} applied!`));
+  }
+
+  updateEffects() {
+    const now = Date.now();
+    this.activeEffects = this.activeEffects.filter(effect => {
+      if (effect.expiresAt <= now) {
+        // Remove effect stats
+        if (effect.stats) {
+          Object.entries(effect.stats).forEach(([stat, value]) => {
+            this[stat] -= value;
+          });
+        }
+        console.log(chalk.yellow(`\n${effect.name} has worn off.`));
+        return false;
+      }
+      return true;
+    });
   }
 
   addStartingItems() {

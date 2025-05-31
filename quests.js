@@ -1,3 +1,5 @@
+import chalk from "chalk";
+
 export function startQuest(player, questKey) {
   if (player.activeQuests.some(q => q.key === questKey)) {
     return console.log("Quest already in progress!");
@@ -15,6 +17,19 @@ export function startQuest(player, questKey) {
   console.log(`New quest started: "${quest.title}"`);
 }
 
+export function updateQuestProgress(player, questKey, progress, message) {
+  const quest = player.activeQuests.find(q => q.key === questKey);
+  if (!quest) return false;
+
+  // Only update if progressing forward
+  if (progress > quest.progress) {
+    quest.progress = progress;
+    console.log(chalk.green(`\n[QUEST UPDATE] ${message}`));
+    return true;
+  }
+  return false;
+}
+
 export function completeQuest(player, questKey) {
   const questIndex = player.activeQuests.findIndex(q => q.key === questKey);
   if (questIndex === -1) return;
@@ -26,7 +41,7 @@ export function completeQuest(player, questKey) {
   player.gold += questData.reward.gold;
   player.addExp(questData.reward.exp);
   questData.reward.items?.forEach(itemId => {
-    player.inventory.addItem(itemId);
+    player.addItem(itemId);
   });
 
   // Remove quest from active list
