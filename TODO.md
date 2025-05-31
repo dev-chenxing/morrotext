@@ -1,5 +1,4 @@
-- after we reach level 5, the showPlayerStats display `EXP:    2050/undefined`. Please fix it.
-- implement smith's quest: `special_orders`
+- continue implementing smith's quest: `special_orders`. Write the dialogue for player finishing gathering 5 Void Essence for the Blacksmith
 - player didn't unequip their equipment when selling them
 
 - [ ] Class-based character progression

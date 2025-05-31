@@ -3,9 +3,7 @@ import chalk from "chalk";
 
 async function handleEquipment(player, item) {
 
-  const isEquipped = player.equipment.weapon?.id === item.id ||
-    player.equipment.armor?.id === item.id ||
-    player.equipment.accessory?.id === item.id;
+  const isEquipped = player.isItemEquipped(item.id);
 
   const choices = [];
 
@@ -192,11 +190,19 @@ export const ITEMS = {
     stats: { attack: 8, magic: 12 },
     value: 450,
   },
+  masterwork_hammer: {
+    id: 'masterwork_hammer',
+    name: 'Masterwork Hammer',
+    type: 'weapon',
+    stats: { attack: 15 },
+    value: 300,
+    description: 'Exceptional hammer'
+  },
   dragon_slayer: {
     id: "dragon_slayer",
     name: "Dragon Slayer",
     type: "weapon",
-    stats: { attack: 15 },
+    stats: { attack: 18 },
     value: 500
   },
 

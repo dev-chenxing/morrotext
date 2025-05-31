@@ -94,5 +94,26 @@ export const QUESTS = {
       items: ["steel_dagger"],
       exp: 100
     }
+  },
+  special_order: {
+    title: 'Special Orders for the Blacksmith',
+    objectives: [
+      {
+        description: 'Obtain 5 Void Essence',
+        type: 'collect',
+        item: 'void_essence',
+        count: 5
+      },
+      {
+        description: 'Deliver materials to the Blacksmith',
+        type: 'return',
+        npc: 'blacksmith'
+      }
+    ],
+    reward: {
+      gold: 500,
+      exp: 100,
+      items: ['masterwork_hammer']
+    }
   }
 };

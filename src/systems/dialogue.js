@@ -18,9 +18,38 @@ export const npcDialogues = {
           },
           {
             text: 'Ask about special orders',
-            action: 'special_orders'
+            action: 'special_orders',
+            condition: (player) => isQuestAvailable(player, 'special_orders')
           },
           { text: "Leave", action: "leave" }
+        ]
+      },
+      special_orders: {
+        question: "I need rare materials for a special commission. Can you help?",
+        options: [
+          {
+            text: "I'll gather the materials",
+            action: 'start_quest',
+            quest: 'special_orders'
+          },
+          {
+            text: "What do you need exactly?",
+            action: 'material_details'
+          }
+        ]
+      },
+      material_details: {
+        question: "I need 5 Void Essence. You can find them in the ruins.",
+        options: [
+          {
+            text: "I accept the task",
+            action: 'start_quest',
+            quest: 'special_orders'
+          },
+          {
+            text: "That sounds difficult",
+            action: 'leave'
+          }
         ]
       }
     }
@@ -211,7 +240,6 @@ async function handleDialogueAction(player, action, data, npcKey) {
         exit: false
       };
 
-
     case 'rumor':
     case 'artifact_info':
     case 'guidance':
@@ -222,6 +250,8 @@ async function handleDialogueAction(player, action, data, npcKey) {
     case 'show_tablet':
     case 'translate_tablet':
     case 'return_artifact':
+    case 'special_orders':
+    case 'material_details':
       // These are handled through dialogue state transitions
 
       let message = "I've nothing more to say."

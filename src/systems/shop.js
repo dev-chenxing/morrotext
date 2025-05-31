@@ -103,6 +103,12 @@ async function sellItems(player) {
     });
 
     if (itemId) {
+
+        // Unequip if currently equipped
+        if (player.isItemEquipped(itemId)) {
+            player.unequipItemById(itemId);
+        }
+
         const item = ITEMS[itemId];
         const value = Math.floor(item.value * SHOP_PRICES.sellMultiplier);
         const { quantity } = await inquirer.prompt({

@@ -197,6 +197,24 @@ export class Player {
     return 0;
   }
 
+  isItemEquipped(itemId) {
+    return (
+      this.equipment.weapon?.id === itemId ||
+      this.equipment.armor?.id === itemId ||
+      this.equipment.accessory?.id === itemId
+    );
+  }
+
+  unequipItemById(itemId) {
+    if (this.equipment.weapon?.id === itemId) {
+      this.unequipItem(this.equipment.weapon);
+    } else if (this.equipment.armor?.id === itemId) {
+      this.unequipItem(this.equipment.armor);
+    } else if (this.equipment.accessory?.id === itemId) {
+      this.unequipItem(this.equipment.accessory);
+    }
+  }
+
   equipItem(item) {
     try {
 
