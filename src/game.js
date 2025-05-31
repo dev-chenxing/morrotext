@@ -152,38 +152,51 @@ export async function enterLocation(player, location) {
   const description = resolveDynamic(location.description, player);
   const enemies = resolveDynamic(location.enemies, player);
   if (location.name === 'Ancient Ruins') {
-    if (Math.random() > 0.2) {
-      const enemy = getRandomEnemy(enemies);
-      await startCombat(player, enemy, location);
-    }
+
+    const enemy = getRandomEnemy(enemies);
+    await startCombat(player, enemy, location);
     await exploreRuins(player, location);
 
   } else {
-    console.log(chalk.cyan(`\n=== ${location.name} ===`));
-    console.log(chalk.hex('#8B4513')(description));
-    if (enemies) {
-      const enemy = getRandomEnemy(enemies);
-      await startCombat(player, enemy, location);
-    }
-    const choices = [
-      ...location.npcs.map(npcKey => ({
-        name: `Talk to ${npcDialogues[npcKey]?.name || npcKey}`,
-        value: `npc:${npcKey}`
-      })),
-      { name: 'Return to Main Menu', value: 'return' }
-    ];
 
-    const { action } = await inquirer.prompt({
-      type: "list",
-      name: "action",
-      message: "What would you like to do?",
-      choices
-    });
+    let inLocation = true;
+    while (inLocation && player.hp > 0) {
 
-    if (action.startsWith("npc:")) {
-      const npcKey = action.split(':')[1];
-      await talkToNPC(npcKey, player);
-      return enterLocation(player, location);
+      console.log(chalk.cyan(`\n=== ${location.name} ===`));
+      console.log(chalk.hex('#8B4513')(description));
+
+      const choices = [
+        ...location.npcs.map(npcKey => ({
+          name: `Talk to ${npcDialogues[npcKey]?.name || npcKey}`,
+          value: `npc:${npcKey}`
+        })),
+        { name: 'Return to Main Menu', value: 'return' }
+      ];
+
+      if (enemies && enemies.length > 0) {
+        choices.unshift({ name: 'Explore area', value: 'explore' },)
+      }
+
+      const { action } = await inquirer.prompt({
+        type: "list",
+        name: "action",
+        message: "What would you like to do?",
+        choices
+      });
+
+      if (action.startsWith("npc:")) {
+        const npcKey = action.split(':')[1];
+        await talkToNPC(npcKey, player);
+
+        return enterLocation(player, location);
+      } else if (action === 'explore') {
+        if (enemies && enemies.length > 0) {
+          const enemy = getRandomEnemy(enemies);
+          await startCombat(player, enemy, location);
+        }
+      } else {
+        inLocation = false;
+      }
     }
   }
   return showMainMenu(player);
