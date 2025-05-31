@@ -211,10 +211,14 @@ async function handleDialogueAction(player, action, data, npcKey) {
         player.gold -= data.cost;
         player.blessed = true;
         return {
-          message: chalk.yellow("Holy blessing shines upon you!"),
+          message: chalk.yellow("Holy light surrounds you! You feel empowered."),
           effect: () => {
+            console.log(chalk.yellow("\nYour attack and defense have increased!"));
+
             player.attack += 5;
             player.defense += 5;
+
+            // Set expiration
             setTimeout(() => {
               player.attack -= 5;
               player.defense -= 5;
@@ -285,6 +289,10 @@ export async function talkToNPC(npcKey, player) {
       currentState = result.nextState;
     } else if (result.message) {
       console.log(chalk.yellow(`\n${result.message}`));
+    }
+
+    if (result.effect) {
+      result.effect(); // Execute the effect callback
     }
 
     if (result.exit) {

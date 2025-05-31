@@ -1,5 +1,3 @@
-- Implement the blessing effect
-- If we check player stats, warrior has undefined mana. If they use mana potion, it restored NaN mana!
 - What does `holy water` do?
 - implement the stat boost of items
 - the Use Item menu in battle display the item id instead of name
@@ -13,6 +11,10 @@
 - Player should be able to explore the ruins fully. Right now, if the player picks the left passage, then we are only given the option to return to main menu, instead of keep exploring.
 - function `addItem` needs to check if the item actually exist. 
 - implement the `unlock_secret` effect of ancient_tablet
+- organize the directory better
+- player should be able to sell items
+- the blessing effect should not be able to stack. implement a better effect system
+- in `enterLocation`, `const npcKey = action.split('_')[1];` does not work since we have npcKey like `forest_warden`
 
 
 - [ ] Class-based character progression
