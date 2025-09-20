@@ -42,34 +42,7 @@ npm start
 
 ## Gameplay Preview
 
-```ascii
-  _____                   _             _   ____  ____   ____ 
- |_   _|__ _ __ _ __ ___ (_)_ __   __ _| | |  _ \|  _ \ / ___|
-   | |/ _ \ '__| '_ ` _ \| | '_ \ / _` | | | |_) | |_) | |  _ 
-   | |  __/ |  | | | | | | | | | | (_| | | |  _ <|  __/| |_| |
-   |_|\___|_|  |_| |_| |_|_|_| |_|\__,_|_| |_| \_\_|    \____|
-
-? Choose class: (Use arrow keys)
-  Warrior
-  Mage
-❯ Cleric
-
-Traveling to Darkwood Forest...
-A wild Goblin appears!
-
-? Choose your action: (Use arrow keys)
-❯ Attack
-  Use Item
-  Heal wounds with divine light (30 mana)
-
-You deal 11 damage!
-Goblin deals 1 damage!
-
-==== BATTLE ====
-Tav: 99 HP
-Goblin: 34 HP
-================
-```
+![demo.gif](demo.gif)
 
 ## Development
 
