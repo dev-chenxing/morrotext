@@ -2,26 +2,76 @@
 
 ## Refactoring
 
-### Code quality / maintainability
-- [ ] fix: fix the `crown_of_widsom` typo
-- [ ] refactor: remove magic strings/numbers everywhere
-
 ### Migrate to TypeScript
 - [x] build: add `typescript` and `@types/node` as dev dependencies
 - [x] build: vulnerability fix
-- [ ] chore: create `tsconfig.json` with `NodeNext` module and resolution, `ES2022` target `strict` mode
+- [x] build: add `tsconfig.json`
 - [ ] chore: rename all `.js` files to `.ts`
 - [ ] chore: update all imports to include `.js` extension (NodeNext requirement)
 - [ ] chore: update `package.json` start script to `.ts`
 
+### Types & Constants
+- [ ] feat: create `src/types/index.ts` -- interfaces for `Item`, `Quest`, `Dialogue`, `Area`, `Action`, `Effect`, `Player`, `Class` etc.
+- [ ] feat: create `src/constants.ts` -- for all hardcoded strings/numbers (e.g., ObjectType)
+- [ ] fix: fix the `crown_of_widsom` typo
+- [ ] refactor: apply types to existing codebase (e.g., `classes.ts`, `items.ts`, `effects.ts`)
+
+### Data Separation
+- [ ] refactor: extract creature definitions from `systems/combat.js` into `src/world/creatures.ts`
+- [ ] refactor: extract NPC dialogue trees from `systems/dialogue.js` to a separate dialogue content file, keeping only dialogue engine logic
+- [ ] refactor: keep `items.js` as pure data registry + `useItem()` logic, move `handleEquipment()` UI logic to a new `src/systems/equipment.ts`
+
+### Action System
+- [ ] feat: create `src/systems/action.ts` with
+  - [ ] `Action` interface with properties like `id`, `name`, `description`, `execute(player, target?)`, `condition?(player, target?)`
+  - [ ] `ACTIONS` registry with `fireball`, `cure_wounds`, `divine_smite`, etc.
+  - [ ] `getClassActions(className: string): Action[]` function to return available actions for a given class
+  - [ ] refactor: remove `castFireball()` and `divineHeal()` from `Player` class
+  - [ ] refactor: update `systems/combat.js`'s `getAvailableActions()` and combat loop to use action registry instead of hardcoded logic
+
+### Slim `Player.ts` & Actor Foundation
+- [ ] feat: create `src/actors/Actor.ts` base class with shared state and behavior:
+  - [ ] state: stats, level, inventory, equipment, effects
+  - [ ] methods: inventory add/remove, equipment equip/unequip + stat recomputation, effect apply/tick/expire
+- [ ] feat: create `src/actors/NPC.ts` class that extends `Actor` with NPC-specific state/behavior (e.g., class)
+- [ ] refactor: move shared logic from current `Player.ts` into `Actor.ts` without changing behavior
+- [ ] refactor: refactor `src/actors/Player.ts` to extend `Actor` and keep only player-specific concerns:
+  - [ ] levelUpProgress
+- [ ] refactor: replace timer-based `updateEffects()` with explicit `onTick()` calls from the game loop
+- [ ] refactor: update all consuming systems (`combat`, `items`, `shop`, `hud`, `ruins`, `dialogue`) to use the new inheritance contract
+
+
+### Quest Manager
+- [ ] feat: create `src/systems/QuestManager.ts` that owns active/completed quest maps, current stage per quest, and imports quest definitions from `world/quests.ts`.
+  - [ ] feat: expose centralized quest API (e.g., `setQuestStage`, `getQuestStage`)
+  - [ ] feat: enforce stage monotonicity (can skip stages but can't go backwards)
+- [ ] refactor: refactor dialogue to prioritized dialogue entries that each have a condition and result
+- [ ] refactor: update quest menu rendering to read from journal entries and current stage metadata rather than raw objective indexes
+- [ ] refactor: replace old save/state quest shape with the new QuestManager snapshot format
+- [ ] refactor: remove deprecated helper functions `startQuest()` from `world/quests.js`
+- [ ] refactor: delete obsolete player quest fields and replace all `player.quests` manipulations with `QuestManager` API calls
+- [ ] refactor: update `game.ts` to construct and pass `QuestManager` instance
+
+### Dialogue Engine Refactor
+- [ ] refactor: no NPC-specific code in dialogue engine
+
+### Narrative State Handler
+- [ ] feat: create `src/dataHandler/index.ts` as a data handler for data like current location, state, etc. that needs to be globally accessible but isn't player-specific
+- [ ] feat: create `src/dataHandler/state.ts` as a non-dynamic data handler for global story progress:
+  - [ ] state: story flags
+  - [ ] methods: `setFlag`, `hasFlag`
+- [ ] refactor: move all story flags from `Player.ts` into `state.ts`
+- [ ] refactor: keep save/serialization shape deterministic (plain object output from state)
+
+### Game State & Entry Point
+- [ ] feat: create `src/GameState.ts` to hold `player`, `questManager`, `dataHandler` and pass it to all systems instead of singletons or direct imports
+- [ ] refactor: remove `setInterval(updateEffects)` and replace with `Actor.onTick()` calls from the main game loop in `game.ts`
+
 ### Extensibility
 - [ ] feat: make the code easier to add classes, quests, NPCs, etc.
 
-### Architecture overhaul
-- [ ] feat: implement a state manager
+### More Architecture Overhaul
 - [ ] feat: implement an event system
 - [ ] refactor: proper separation of concerns (e.g., separate UI, game logic, and data management)
-  - [ ] refactor(Player.js): too many responsibilities (e.g., managing player stats, inventory, quests, etc.)
-  - [ ] refactor(game.js): god object with 17 imports
   - [ ] refactor(dialogue.js): mixed data/UI/logic
   - [ ] refactor(item.js): mixed data/UI/logic
