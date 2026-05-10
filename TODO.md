@@ -8,7 +8,7 @@
 
 ### Migrate to TypeScript
 - [x] build: add `typescript` and `@types/node` as dev dependencies
-- [ ] chore: vulnerability fix
+- [x] build: vulnerability fix
 - [ ] chore: create `tsconfig.json` with `NodeNext` module and resolution, `ES2022` target `strict` mode
 - [ ] chore: rename all `.js` files to `.ts`
 - [ ] chore: update all imports to include `.js` extension (NodeNext requirement)
