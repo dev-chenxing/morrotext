@@ -6,6 +6,6 @@ export const EXP_LEVELS = [
     1500 // Level 5
 ];
 
-export function getNextLevelExp(level) {
+export function getNextLevelExp(level: number): number | 'MAX' {
     return level < EXP_LEVELS.length ? EXP_LEVELS[level] : 'MAX';
 }
