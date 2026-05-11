@@ -7,19 +7,21 @@ import type { Player } from "../types.ts";
 export function showPlayerStats(player: Player) {
   console.log(chalk.blue("\n=== Character Stats ==="));
   console.log(chalk.blue(`\n=== ${player.name} (Level ${player.level}) ===`));
-  console.log(`Class: ${chalk.yellow(player.class.toUpperCase())}`);
-  console.log(`HP:    ${chalk.green(player.hp)}/${chalk.green(player.maxHp)}`);
-  if (player.maxMana > 0) {
+  console.log(`Class: ${chalk.yellow(player.class.name.toUpperCase())}`);
+  console.log(
+    `HP:    ${chalk.green(player.stats.hp)}/${chalk.green(player.stats.maxHp)}`,
+  );
+  if (player.stats.maxMana > 0) {
     console.log(
-      `Mana:  ${chalk.blue(player.mana)}/${chalk.blue(player.maxMana)}`,
+      `Mana:  ${chalk.blue(player.stats.mana)}/${chalk.blue(player.stats.maxMana)}`,
     );
   }
 
   console.log(`\n${chalk.underline("Attributes")}`);
-  console.log(`Attack:  ${chalk.red(player.attack)}`);
-  console.log(`Defense: ${chalk.hex("#FFA500")(player.defense)}`);
-  console.log(`Magic:   ${chalk.magenta(player.magic || 0)}`);
-  console.log(`Luck:    ${chalk.cyan(player.luck)}`);
+  console.log(`Attack:  ${chalk.red(player.stats.attack)}`);
+  console.log(`Defense: ${chalk.hex("#FFA500")(player.stats.defense)}`);
+  console.log(`Magic:   ${chalk.magenta(player.stats.magic)}`);
+  console.log(`Luck:    ${chalk.cyan(player.stats.luck)}`);
 
   console.log(`\nEquipment:`);
   console.log(

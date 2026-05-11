@@ -6,6 +6,7 @@ export enum OBJECT_TYPE {
   BOOK = "book",
   ITEM = "item",
   LEVELED_ITEM = "leveled_item",
+  MISC = "misc",
   NPC = "npc",
   QUEST = "quest",
   WEAPON = "weapon",

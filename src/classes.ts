@@ -1,8 +1,28 @@
-import type { Class, ClassId } from "./types.ts";
+import { MERCHANT_SERVICE, OBJECT_TYPE } from "./constants.ts";
+import type { Stats, ValueOf } from "./types.ts";
 
-export const CLASSES: Record<ClassId, Class> = {
-  warrior: {
-    displayName: "Warrior",
+export type ClassEntry = {
+  id: string;
+  name: string;
+  stats?: Partial<Stats>;
+  startingItems?: string[];
+  actions?: string[];
+  barters?: {
+    [objectType in ValueOf<typeof OBJECT_TYPE>]?: boolean;
+  };
+  offers?: {
+    [service in ValueOf<typeof MERCHANT_SERVICE>]?: boolean;
+  };
+  description: string;
+  playable?: boolean;
+};
+
+export const CLASSES: ClassEntry[] = [
+  {
+    id: "warrior",
+    name: "Warrior",
+    description:
+      "A strong and resilient fighter, skilled with weapons and armor.",
     stats: {
       attack: 15,
       defense: 10,
@@ -11,8 +31,9 @@ export const CLASSES: Record<ClassId, Class> = {
     },
     startingItems: ["iron_sword", "leather_armor"],
   },
-  mage: {
-    displayName: "Mage",
+  {
+    id: "mage",
+    name: "Mage",
     stats: {
       attack: 8,
       defense: 5,
@@ -22,16 +43,13 @@ export const CLASSES: Record<ClassId, Class> = {
       luck: 7,
     },
     startingItems: ["oak_staff", "mana_potion", "cloth_robe"],
-    abilities: {
-      fireball: {
-        manaCost: 40,
-        damageMultiplier: 2.5,
-        description: "Hurl a fiery projectile (40 mana)",
-      },
-    },
+    actions: ["fireball"],
+    description:
+      "A master of the arcane arts, wielding powerful spells at the cost of physical strength.",
   },
-  cleric: {
-    displayName: "Cleric",
+  {
+    id: "cleric",
+    name: "Cleric",
     stats: {
       attack: 8,
       defense: 12,
@@ -41,12 +59,29 @@ export const CLASSES: Record<ClassId, Class> = {
       luck: 5,
     },
     startingItems: ["mace", "holy_symbol", "cloth_robe"],
-    abilities: {
-      divineHeal: {
-        manaCost: 30,
-        healMultiplier: 2,
-        description: "Heal wounds with divine light (30 mana)",
-      },
-    },
+    actions: ["divineHeal"],
+    description:
+      "A devoted healer, using divine magic to support allies and smite foes.",
   },
-};
+  {
+    id: "smith",
+    name: "Smith",
+    stats: { attack: 0, defense: 0, maxHp: 50 },
+    barters: {
+      [OBJECT_TYPE.WEAPON]: true,
+      [OBJECT_TYPE.ARMOR]: true,
+    },
+    description: "A village blacksmith; sells weapons and armor.",
+    playable: false,
+  },
+  {
+    id: "publican",
+    name: "Publican",
+    stats: { attack: 0, defense: 0, maxHp: 40 },
+    barters: {
+      [OBJECT_TYPE.ALCHEMY]: true,
+    },
+    description: "Innkeeper and purveyor of potions.",
+    playable: false,
+  },
+];

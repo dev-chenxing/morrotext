@@ -3,7 +3,7 @@ import chalk from "chalk";
 import figlet from "figlet";
 import { RUINS_BALANCE } from "../constants.ts";
 import type { Player } from "../actors/Player.ts";
-import { startCombat, createEnemy } from "../systems/combat.ts";
+import { startCombat, createCreature } from "../systems/combat.ts";
 import { ITEMS } from "../items.ts";
 import { generateLoot } from "./loot.ts";
 import { updateQuestProgress } from "./quests.ts";
@@ -27,16 +27,16 @@ export async function exploreRuins(player: Player, area: Area) {
   }
 
   let exploring = true;
-  while (exploring && player.hp > 0) {
+  while (exploring && player.stats.hp > 0) {
     // Random encounters
     if (
       exploring &&
-      player.hp > 0 &&
+      player.stats.hp > 0 &&
       Math.random() > RUINS_BALANCE.RANDOM_ENCOUNTER_THRESHOLD
     ) {
       const enemies = ["skeleton", "skeleton", "stone_golem", "void_cultist"];
       const enemyType = enemies[Math.floor(Math.random() * enemies.length)];
-      await startCombat(player, createEnemy(enemyType), area);
+      await startCombat(player, createCreature(enemyType), area);
     }
 
     const hasArtifact = player.hasItem("ancient_artifact");
@@ -102,7 +102,7 @@ export async function exploreRuins(player: Player, area: Area) {
         const trapDamage =
           Math.floor(Math.random() * RUINS_BALANCE.TRAP_DAMAGE_RANGE) +
           RUINS_BALANCE.TRAP_DAMAGE_MIN;
-        player.hp = Math.max(1, player.hp - trapDamage);
+        player.stats.hp = Math.max(1, player.stats.hp - trapDamage);
         console.log(`Took ${trapDamage} damage!`);
         break;
 
@@ -166,15 +166,15 @@ async function handleArtifactChamber(player: Player) {
         break;
 
       case "Examine it carefully":
-        if (player.class === "cleric" && player.hasItem("holy_symbol")) {
+        if (player.class.id === "cleric" && player.hasItem("holy_symbol")) {
           console.log(
             chalk.cyan(
               "\nYou notice faint inscriptions matching your holy symbol...",
             ),
           );
           console.log(chalk.green("Divine energy flows through you!"));
-          player.maxMana += RUINS_BALANCE.CLERIC_MANA_BONUS;
-          player.mana = player.maxMana;
+          player.stats.maxMana += RUINS_BALANCE.CLERIC_MANA_BONUS;
+          player.stats.mana = player.stats.maxMana;
         } else {
           console.log(
             chalk.cyan(
@@ -187,9 +187,9 @@ async function handleArtifactChamber(player: Player) {
       case "Destroy it":
         console.log(chalk.red("You smash the artifact with your weapon!"));
         console.log("A wave of dark energy explodes outward...");
-        player.hp = Math.max(
+        player.stats.hp = Math.max(
           1,
-          player.hp - RUINS_BALANCE.ARTIFACT_DESTRUCTION_DAMAGE,
+          player.stats.hp - RUINS_BALANCE.ARTIFACT_DESTRUCTION_DAMAGE,
         );
         player.storyFlags.artifactDestroyed = true;
         return true;

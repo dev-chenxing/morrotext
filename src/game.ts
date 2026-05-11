@@ -8,11 +8,11 @@ import { talkToNPC, npcDialogues } from "./systems/dialogue.ts";
 import { ITEMS, useItem } from "./items.ts";
 import { CLASSES } from "./classes.ts";
 import { GAME_TIMINGS } from "./constants.ts";
-import { createEnemy } from "./systems/combat.ts";
+import { createCreature } from "./systems/combat.ts";
 import { exploreRuins } from "./world/ruins.ts";
 import { resolveDynamic } from "./utils/dynamicUtils.ts";
 import { showPlayerStats } from "./ui/hud.ts";
-import type { ActiveQuest, Area, ClassId } from "./types.ts";
+import type { ActiveQuest, Area } from "./types.ts";
 
 process.on("uncaughtException", (error: unknown) => {
   if (error instanceof Error && error.name === "ExitPromptError") {
@@ -124,23 +124,23 @@ export async function showQuests(player: Player) {
   await showQuests(player);
 }
 
-function getRandomEnemy(areaEnemies: string[]) {
-  const enemyTypes = areaEnemies;
-  const totalWeight = enemyTypes.length;
-  const selected = enemyTypes[Math.floor(Math.random() * totalWeight)];
-  return createEnemy(selected);
+function getRandomCreature(areaEnemies: string[]) {
+  const creatureTypes = areaEnemies;
+  const totalWeight = creatureTypes.length;
+  const selected = creatureTypes[Math.floor(Math.random() * totalWeight)];
+  return createCreature(selected);
 }
 
 export async function enterArea(player: Player, area: Area) {
   const description = resolveDynamic(area.description, player) ?? "";
   const enemies = resolveDynamic(area.enemies, player) ?? [];
   if (area.name === "Ancient Ruins") {
-    const enemy = getRandomEnemy(enemies);
-    await startCombat(player, enemy, area);
+    const creature = getRandomCreature(enemies);
+    await startCombat(player, creature, area);
     await exploreRuins(player, area);
   } else {
     let inArea = true;
-    while (inArea && player.hp > 0) {
+    while (inArea && player.stats.hp > 0) {
       console.log(chalk.cyan(`\n=== ${area.name} ===`));
       console.log(chalk.hex("#8B4513")(description));
 
@@ -170,8 +170,8 @@ export async function enterArea(player: Player, area: Area) {
         return enterArea(player, area);
       } else if (action === "explore") {
         if (enemies && enemies.length > 0) {
-          const enemy = getRandomEnemy(enemies);
-          await startCombat(player, enemy, area);
+          const creature = getRandomCreature(enemies);
+          await startCombat(player, creature, area);
         }
       } else {
         inArea = false;
@@ -225,12 +225,12 @@ async function startGame() {
     name = response.name.trim();
   }
 
-  const classChoices = (Object.keys(CLASSES) as ClassId[]).map((key) => ({
-    name: CLASSES[key].displayName,
+  const classChoices = Object.entries(CLASSES).map(([key, cls]) => ({
+    name: cls.name,
     value: key,
   }));
 
-  const { className } = await inquirer.prompt<{ className: ClassId }>({
+  const { className } = await inquirer.prompt<{ className: string }>({
     type: "list",
     name: "className",
     message: "Choose class:",

@@ -3,12 +3,14 @@ import chalk from "chalk";
 import type { Player } from "../actors/Player.ts";
 import { completeQuest, isQuestAvailable, QUESTS } from "../world/quests.ts";
 import { resolveDynamic } from "../utils/dynamicUtils.ts";
-import { openShop } from "./shop.ts";
+import { barter } from "./barter.ts";
 import type {
+  ActiveQuest,
+  Actor,
   DialogueActionResult,
   DialogueOption,
   Dialogue,
-  ActiveQuest,
+  NPC,
 } from "../types.ts";
 
 export const npcDialogues: Record<string, Dialogue> = {
@@ -291,24 +293,22 @@ Take this masterwork hammer - it should serve you well.",
 
 async function handleDialogueAction(
   player: Player,
+  actor: NPC,
   action: string,
   data: DialogueOption,
-  npcKey: string,
 ): Promise<DialogueActionResult> {
-  const npc = npcDialogues[npcKey];
+  const entry = npcDialogues[actor.id];
   switch (action) {
     case "open_shop":
-      if (data.shop) {
-        await openShop(player, data.shop);
-      }
+      await barter(player, actor);
       return { exit: false };
 
     case "rest":
       if (typeof data.cost === "number" && player.gold >= data.cost) {
         player.gold -= data.cost;
-        player.hp = player.maxHp;
+        player.stats.hp = player.stats.maxHp;
         return {
-          message: chalk.green("You rest fully and recover all HP!"),
+          message: chalk.green("You rest fully and recover all HP and mana!"),
           exit: true,
         };
       }
@@ -333,9 +333,9 @@ async function handleDialogueAction(
       // These are handled through dialogue state transitions
 
       let message = "I've nothing more to say.";
-      if (npc.dialogues[action]) {
+      if (entry?.dialogues?.[action]) {
         message =
-          resolveDynamic(npc.dialogues[action].question, player) ?? message;
+          resolveDynamic(entry.dialogues[action].question, player) ?? message;
       }
 
       return {
@@ -433,7 +433,7 @@ async function handleDialogueAction(
       };
 
     case "prayer":
-      player.mana = player.maxMana;
+      player.stats.mana = player.stats.maxMana;
       return {
         message: chalk.blue("Divine energy renews your spirit!"),
         exit: true,
@@ -450,21 +450,21 @@ async function handleDialogueAction(
   }
 }
 
-export async function talkToNPC(npcKey: string, player: Player) {
-  const npc = npcDialogues[npcKey];
+export async function talkToNPC(actor: NPC, player: Player) {
+  const entry = npcDialogues[actor.id];
 
-  if (!npc) {
-    console.log(chalk.red(`NPC ${npcKey} not found!`));
+  if (!entry) {
+    console.log(chalk.red(`NPC ${actor.id} not found!`));
     return;
   }
   let currentState = "initial";
 
-  console.log(chalk.cyan(`\n=== ${npc.name} ===`));
+  console.log(chalk.cyan(`\n=== ${entry.name} ===`));
 
   while (true) {
-    const dialogue = npc.dialogues[currentState];
-    if (!dialogue) break;
-    const choices = dialogue.options
+    const state = entry.dialogues[currentState];
+    if (!state) break;
+    const choices = state.options
       .filter((option) => {
         return !option.condition || option.condition(player);
       })
@@ -474,7 +474,7 @@ export async function talkToNPC(npcKey: string, player: Player) {
       }));
 
     // Resolve dynamic question
-    const question = resolveDynamic(dialogue.question, player) ?? "";
+    const question = resolveDynamic(state.question, player) ?? "";
 
     const { choice } = await inquirer.prompt({
       type: "list",
@@ -485,9 +485,9 @@ export async function talkToNPC(npcKey: string, player: Player) {
 
     const result = await handleDialogueAction(
       player,
+      actor,
       choice.action,
       choice.data,
-      npcKey,
     );
 
     if (result.nextState) {

@@ -1,27 +1,24 @@
 import chalk from "chalk";
 import { CLASSES } from "../classes.ts";
-import {
-  OBJECT_TYPE,
-  PLAYER_DEFAULTS,
-  SLOT,
-} from "../constants.ts";
+import { OBJECT_TYPE, PLAYER_DEFAULTS, SLOT } from "../constants.ts";
 import { EXP_LEVELS } from "../utils/expLevels.ts";
 import { ITEMS } from "../items.ts";
 import { EFFECTS } from "../effects.ts";
 import type {
   ActiveEffect,
   ActiveQuest,
-  ClassId,
+  Class,
   Equipment,
   Item,
-  ItemType,
-  StatKey,
   Stats,
   StoryFlags,
+  ValueOf,
 } from "../types.ts";
 
-function getSlotForItemType(itemType: ItemType): SLOT | null {
-  switch (itemType) {
+function getSlotForItemType(
+  objectType: ValueOf<typeof OBJECT_TYPE>,
+): SLOT | null {
+  switch (objectType) {
     case OBJECT_TYPE.WEAPON:
       return SLOT.WEAPON;
     case OBJECT_TYPE.ARMOR:
@@ -34,22 +31,15 @@ function getSlotForItemType(itemType: ItemType): SLOT | null {
 }
 
 function isEquipmentItem(item: Item): boolean {
-  return getSlotForItemType(item.type) !== null;
+  return getSlotForItemType(item.objectType) !== null;
 }
 
 export class Player {
   name: string;
   exp: number;
   level: number;
-  class: ClassId;
-  attack: number;
-  defense: number;
-  maxHp: number;
-  hp: number;
-  maxMana: number;
-  mana: number;
-  magic: number;
-  luck: number;
+  class: Class;
+  stats: Stats;
   activeEffects: ActiveEffect[];
   equipment: Equipment;
   inventory: Record<string, number>;
@@ -59,27 +49,28 @@ export class Player {
   storyFlags: StoryFlags;
   killCount: Record<string, number>;
 
-  constructor(name: string, className: ClassId) {
+  constructor(name: string, classId: string) {
     this.name = name;
 
     this.exp = PLAYER_DEFAULTS.EXP;
     this.level = PLAYER_DEFAULTS.LEVEL;
 
-    this.class = className;
-    const classStats = CLASSES[className]?.stats;
+    this.class = CLASSES.find((c) => c.id === classId) as Class;
+    const classStats = this.class?.stats;
     if (!classStats) {
-      throw new Error(`Unknown class: ${className}`);
+      throw new Error(`Unknown class: ${classId}`);
     }
 
-    this.attack = classStats.attack;
-    this.defense = classStats.defense;
-    this.maxHp = classStats.maxHp;
-    this.magic = classStats.magic ?? 0;
-    this.hp = this.maxHp;
-    this.maxMana = classStats.maxMana ?? 0;
-    this.mana = this.maxMana;
-
-    this.luck = classStats.luck ?? PLAYER_DEFAULTS.LUCK;
+    this.stats = {
+      hp: classStats.maxHp ?? 10,
+      maxHp: classStats.maxHp ?? 10,
+      attack: classStats.attack ?? 0,
+      defense: classStats.defense ?? 0,
+      magic: classStats.magic ?? 0,
+      maxMana: classStats.maxMana ?? 0,
+      mana: classStats.maxMana ?? 0,
+      luck: classStats.luck ?? 0,
+    };
 
     this.activeEffects = [];
 
@@ -101,36 +92,36 @@ export class Player {
   }
 
   private adjustStat(
-    stat: StatKey,
+    stat: keyof Stats,
     amount: number,
     preserveHealthRatio = false,
   ) {
     switch (stat) {
       case "attack":
-        this.attack += amount;
+        this.stats.attack += amount;
         break;
       case "defense":
-        this.defense += amount;
+        this.stats.defense += amount;
         break;
       case "magic":
-        this.magic += amount;
+        this.stats.magic += amount;
         break;
       case "luck":
-        this.luck += amount;
+        this.stats.luck += amount;
         break;
       case "maxMana":
-        this.maxMana += amount;
-        this.mana = Math.min(this.mana, this.maxMana);
+        this.stats.maxMana += amount;
+        this.stats.mana = Math.min(this.stats.mana, this.stats.maxMana);
         break;
       case "maxHp": {
-        const oldMax = this.maxHp;
-        this.maxHp += amount;
+        const oldMax = this.stats.maxHp;
+        this.stats.maxHp += amount;
 
         if (preserveHealthRatio && oldMax > 0) {
-          const hpPercent = this.hp / oldMax;
-          this.hp = Math.max(1, Math.floor(this.maxHp * hpPercent));
+          const hpPercent = this.stats.hp / oldMax;
+          this.stats.hp = Math.max(1, Math.floor(this.stats.maxHp * hpPercent));
         } else {
-          this.hp = Math.min(this.hp, this.maxHp);
+          this.stats.hp = Math.min(this.stats.hp, this.stats.maxHp);
         }
         break;
       }
@@ -138,7 +129,7 @@ export class Player {
   }
 
   private applyStats(
-    stats: Stats | undefined,
+    stats: Partial<Stats> | undefined,
     multiplier: 1 | -1,
     preserveHealthRatio = false,
   ) {
@@ -146,9 +137,10 @@ export class Player {
       return;
     }
 
-    for (const [stat, value] of Object.entries(stats) as Array<
-      [StatKey, number]
+    for (const [stat, value] of Object.entries(stats ?? {}) as Array<
+      [keyof Stats, number]
     >) {
+      if (typeof value !== "number") continue;
       this.adjustStat(stat, value * multiplier, preserveHealthRatio);
     }
   }
@@ -221,8 +213,8 @@ export class Player {
   }
 
   addStartingItems() {
-    const startingItems = CLASSES[this.class]?.startingItems ?? [];
-    startingItems.forEach((itemId) => {
+    const startingItems = this.class.startingItems ?? [];
+    startingItems.forEach((itemId: string) => {
       this.addItem(itemId);
 
       // Auto-equip weapons and armor
@@ -277,51 +269,10 @@ export class Player {
 
   levelUp() {
     this.level++;
-    this.maxHp += PLAYER_DEFAULTS.LEVEL_UP_HP_GAIN;
-    this.hp = this.maxHp;
+    this.stats.maxHp += PLAYER_DEFAULTS.LEVEL_UP_HP_GAIN;
+    this.stats.hp = this.stats.maxHp;
     console.log(chalk.yellow(`\n=== LEVEL UP! (${this.level}) ===`));
-    console.log(`Max HP increased to ${this.maxHp}`);
-  }
-
-  // Mage-specific method
-  castFireball() {
-    const fireball = CLASSES.mage.abilities?.fireball;
-    if (!fireball || typeof fireball.damageMultiplier !== "number") {
-      return 0;
-    }
-
-    const { manaCost, damageMultiplier } = fireball;
-    if (this.mana >= manaCost) {
-      this.mana -= manaCost;
-      return Math.floor(this.magic * damageMultiplier);
-    }
-    console.log(chalk.red("Not enough mana!"));
-    return 0;
-  }
-
-  // Cleric-specific method
-  divineHeal() {
-    const divineHeal = CLASSES.cleric.abilities?.divineHeal;
-    if (!divineHeal || typeof divineHeal.healMultiplier !== "number") {
-      return 0;
-    }
-
-    const { manaCost, healMultiplier } = divineHeal;
-
-    if (this.mana >= manaCost) {
-      this.mana -= manaCost;
-      const healAmount = Math.min(
-        this.magic * healMultiplier,
-        this.maxHp - this.hp,
-      );
-      this.hp += healAmount;
-
-      console.log(chalk.yellow(`Divine healing restored ${healAmount} HP!`));
-      return healAmount;
-    }
-
-    console.log(chalk.red("Not enough mana for healing!"));
-    return 0;
+    console.log(`Max HP increased to ${this.stats.maxHp}`);
   }
 
   isItemEquipped(itemId: string) {
@@ -344,7 +295,7 @@ export class Player {
 
   equipItem(item: Item) {
     try {
-      const slot = getSlotForItemType(item.type);
+      const slot = getSlotForItemType(item.objectType);
       if (!slot) {
         throw new Error("Item cannot be equipped");
       }
@@ -381,7 +332,7 @@ export class Player {
   unequipItem(item: Item) {
     this.removeItemStats(item);
 
-    switch (getSlotForItemType(item.type)) {
+    switch (getSlotForItemType(item.objectType)) {
       case SLOT.WEAPON:
         this.equipment.weapon = null;
         break;

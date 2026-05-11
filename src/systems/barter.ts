@@ -2,26 +2,32 @@ import inquirer from "inquirer";
 import chalk from "chalk";
 import { SHOP_PRICES } from "../constants.ts";
 import { ITEMS } from "../items.ts";
-import type { Player } from "../types.ts";
+import type { NPC, Player } from "../types.ts";
 
-export async function openShop(player: Player, shopType: string) {
-  const shopItems: Record<string, string[]> = {
-    blacksmith: ["iron_helmet", "steel_sword"],
-    general: ["health_potion", "mana_potion"],
-  };
+export async function barter(player: Player, actor: NPC) {
+  let availableItems: string[] = [];
+  const invKeys = Object.keys(actor.inventory || {});
+  if (invKeys.length > 0) {
+    availableItems = invKeys.filter((id) => !!ITEMS[id]);
+  } else {
+    const allowedTypes = new Set(Object.keys(actor.aiConfig?.barters ?? {}));
+    availableItems = Object.entries(ITEMS)
+      .filter(([, item]) => allowedTypes.has(item.objectType ?? ""))
+      .map(([id]) => id);
+  }
 
   let shopping = true;
   while (shopping) {
     const { action } = await inquirer.prompt({
       type: "list",
       name: "action",
-      message: "Shop Menu:",
-      choices: ["Buy Items", "Sell Items", "Exit Shop"],
+      message: "Barter Menu:",
+      choices: ["Buy Items", "Sell Items", "Exit"],
     });
 
     switch (action) {
       case "Buy Items":
-        await buyItems(player, shopItems[shopType] ?? []);
+        await buyItems(player, availableItems);
         break;
       case "Sell Items":
         await sellItems(player);
@@ -94,7 +100,6 @@ async function sellItems(player: Player) {
   });
 
   if (itemId) {
-    // Unequip if currently equipped
     if (player.isItemEquipped(itemId)) {
       player.unequipItemById(itemId);
     }

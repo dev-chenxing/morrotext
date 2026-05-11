@@ -8,28 +8,7 @@ import {
 
 export type Player = PlayerType;
 
-type ValueOf<T> = T[keyof T];
-
-export type StatKey =
-  | "attack"
-  | "defense"
-  | "maxHp"
-  | "magic"
-  | "maxMana"
-  | "luck";
-
-export type Stats = Partial<Record<StatKey, number>>;
-
-export interface ItemEffect {
-  hp?: number;
-  mana?: number;
-  damageUndead?: number;
-}
-
-export type ItemType = OBJECT_TYPE;
-export type ClassId = "warrior" | "mage" | "cleric";
-export type CreatureType = CREATURE_TYPE;
-export type QuestObjectiveType = "collect" | "return" | "loot" | "report";
+export type ValueOf<T> = T[keyof T];
 
 export type GameObject = {
   id: string;
@@ -66,6 +45,17 @@ export type AiConfig = {
   fight: number;
 };
 
+export type Stats = {
+  hp: number;
+  maxHp: number;
+  attack: number;
+  defense: number;
+  magic: number;
+  maxMana: number;
+  mana: number;
+  luck: number;
+};
+
 export interface NPC extends Actor {
   aiConfig: AiConfig;
   stats: Stats;
@@ -74,17 +64,15 @@ export interface NPC extends Actor {
   name: string;
   objectType: OBJECT_TYPE.NPC;
   actions: Action[];
-  dialogues?: Record<string, DialogueState>;
-  quests?: string[];
 }
 
 export interface Item {
   id: string;
   name: string;
-  type: ItemType;
+  objectType: ValueOf<typeof OBJECT_TYPE>;
   value: number;
   description?: string;
-  stats?: Stats;
+  stats?: Partial<Stats>;
   effect?: ItemEffect;
 }
 
@@ -94,16 +82,10 @@ export interface Equipment {
   [SLOT.ACCESSORY]: Item | null;
 }
 
-export interface Actor {
+export interface Creature extends Actor {
+  type: ValueOf<typeof CREATURE_TYPE>;
   name: string;
-  hp: number;
-  attack: number;
-  defense: number;
-  luck?: number;
-  type?: CreatureType;
-}
-
-export interface Enemy extends Actor {
+  stats: Stats;
   exp: number;
   loot?: string[];
   gold: () => number;
@@ -142,7 +124,7 @@ export interface Effect {
   id: string;
   name: string;
   duration: number;
-  stats?: Stats;
+  stats?: Partial<Stats>;
   onApply?: (player: Player) => void;
   onExpire?: (player: Player) => void;
 }
@@ -153,14 +135,19 @@ export interface ActiveEffect extends Effect {
 }
 
 export interface Action {
-  manaCost: number;
+  id: string;
+  name: string;
   description: string;
+  execute: (player: Player, target?: any) => number | void;
+  condition?: (player: Player, target?: any) => boolean;
+  // optional legacy fields for data-driven actions
+  manaCost?: number;
   damageMultiplier?: number;
   healMultiplier?: number;
 }
 
-export interface Class {
-  displayName: string;
+export interface Class extends GameObject {
+  name: string;
   stats: {
     attack: number;
     defense: number;
@@ -170,7 +157,15 @@ export interface Class {
     luck?: number;
   };
   startingItems: string[];
-  abilities?: Record<string, Action>;
+  actions?: Record<string, Action>;
+  barters?: {
+    [objectType in ValueOf<typeof OBJECT_TYPE>]?: boolean;
+  };
+  offers?: {
+    [service in ValueOf<typeof MERCHANT_SERVICE>]?: boolean;
+  };
+  description: string;
+  playable: boolean;
 }
 
 export type DynamicValue<T> = T | ((player: Player) => T);
@@ -216,3 +211,11 @@ export interface LootTable {
   rare: string[];
   epic: string[];
 }
+
+export interface ItemEffect {
+  hp?: number;
+  mana?: number;
+  damageUndead?: number;
+}
+
+export type QuestObjectiveType = "collect" | "return" | "loot" | "report";
