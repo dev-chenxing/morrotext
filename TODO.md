@@ -15,7 +15,7 @@
 - [x] feat: create `src/types/index.ts` -- interfaces for `Item`, `Quest`, `Dialogue`, `Area`, `Action`, `Effect`, `Player`, `Class` etc.
 - [x] refactor: apply types to existing codebase (e.g., `classes.ts`, `items.ts`, `effects.ts`)
 - [x] fix: fix the `crown_of_widsom` typo
-- [ ] feat: create `src/constants.ts` -- for all hardcoded strings/numbers (e.g., ObjectType)
+- [x] feat: create `src/constants.ts` -- for all hardcoded strings/numbers (e.g., ObjectType)
 
 ### Data Separation
 - [ ] refactor: extract creature definitions from `systems/combat.ts` into `src/world/creatures.ts`
@@ -34,8 +34,9 @@
 - [ ] feat: create `src/actors/Actor.ts` base class with shared state and behavior:
   - [ ] state: stats, level, inventory, equipment, effects
   - [ ] methods: inventory add/remove, equipment equip/unequip + stat recomputation, effect apply/tick/expire
-- [ ] feat: create `src/actors/NPC.ts` class that extends `Actor` with NPC-specific state/behavior (e.g., class)
-- [ ] refactor: move shared logic from current `Player.ts` into `Actor.ts` without changing behavior
+- [ ] feat: create `src/actors/Creature.ts` class that extends `Actor` with creature-specific state/behavior (e.g., name, description)
+- [ ] feat: create `src/actors/NPC.ts` class that extends `Actor` with NPC-specific state/behavior (e.g., name, description, class, barter gold)
+- [ ] refactor: move shared logic from current `Player.ts` into `Actor.ts`
 - [ ] refactor: refactor `src/actors/Player.ts` to extend `Actor` and keep only player-specific concerns:
   - [ ] levelUpProgress
 - [ ] refactor: replace timer-based `updateEffects()` with explicit `onTick()` calls from the game loop
@@ -56,10 +57,11 @@
 ### Dialogue Engine Refactor
 - [ ] refactor: no NPC-specific code in dialogue engine
 
-### Narrative State Handler
+### Data Handler
 - [ ] feat: create `src/dataHandler/index.ts` as a data handler for data like current area, state, etc. that needs to be globally accessible but isn't player-specific
-- [ ] feat: create `src/dataHandler/state.ts` as a non-dynamic data handler for global story progress:
-  - [ ] state: story flags
+- [ ] feat: create `src/dataHandler/nonDynamicData.ts` as a non-dynamic data store:
+  - [ ] `classes.ts`
+  - [ ] `state.ts`: story flags
   - [ ] methods: `setFlag`, `hasFlag`
 - [ ] refactor: move all story flags from `Player.ts` into `state.ts`
 - [ ] refactor: keep save/serialization shape deterministic (plain object output from state)

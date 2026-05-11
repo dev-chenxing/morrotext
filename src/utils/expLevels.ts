@@ -1,3 +1,5 @@
+import { PROGRESSION } from "../constants.ts";
+
 export const EXP_LEVELS = [
     0, // Level 1
     200, // Level 2
@@ -6,6 +8,6 @@ export const EXP_LEVELS = [
     1500 // Level 5
 ];
 
-export function getNextLevelExp(level: number): number | 'MAX' {
-    return level < EXP_LEVELS.length ? EXP_LEVELS[level] : 'MAX';
+export function getNextLevelExp(level: number): number | typeof PROGRESSION.MAX_LEVEL_LABEL {
+    return level < EXP_LEVELS.length ? EXP_LEVELS[level] : PROGRESSION.MAX_LEVEL_LABEL;
 }

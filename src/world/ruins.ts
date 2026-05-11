@@ -1,6 +1,7 @@
 import inquirer from "inquirer";
 import chalk from "chalk";
 import figlet from "figlet";
+import { RUINS_BALANCE } from "../constants.ts";
 import type { Player } from "../actors/Player.ts";
 import { startCombat, createEnemy } from "../systems/combat.ts";
 import { ITEMS } from "../items.ts";
@@ -28,7 +29,11 @@ export async function exploreRuins(player: Player, area: Area) {
   let exploring = true;
   while (exploring && player.hp > 0) {
     // Random encounters
-    if (exploring && player.hp > 0 && Math.random() > 0.6) {
+    if (
+      exploring &&
+      player.hp > 0 &&
+      Math.random() > RUINS_BALANCE.RANDOM_ENCOUNTER_THRESHOLD
+    ) {
       const enemies = ["skeleton", "skeleton", "stone_golem", "void_cultist"];
       const enemyType = enemies[Math.floor(Math.random() * enemies.length)];
       await startCombat(player, createEnemy(enemyType), area);
@@ -70,7 +75,7 @@ export async function exploreRuins(player: Player, area: Area) {
             "\nYou find ancient murals depicting forgotten battles.",
           ),
         );
-        if (Math.random() > 0.7) {
+        if (Math.random() > RUINS_BALANCE.CENTRAL_CHAMBER_POTION_THRESHOLD) {
           console.log(chalk.green("Found a health potion in a broken urn!"));
           player.addItem("health_potion");
         }
@@ -94,14 +99,16 @@ export async function exploreRuins(player: Player, area: Area) {
 
       case "Investigate the right passage":
         console.log(chalk.red("\nYou trigger a booby trap!"));
-        const trapDamage = Math.floor(Math.random() * 15) + 10;
+        const trapDamage =
+          Math.floor(Math.random() * RUINS_BALANCE.TRAP_DAMAGE_RANGE) +
+          RUINS_BALANCE.TRAP_DAMAGE_MIN;
         player.hp = Math.max(1, player.hp - trapDamage);
         console.log(`Took ${trapDamage} damage!`);
         break;
 
       case "Check for hidden rooms":
         const loot = generateLoot("ruins");
-        if (Math.random() > 0.5 && loot) {
+        if (Math.random() > RUINS_BALANCE.HIDDEN_ROOM_LOOT_THRESHOLD && loot) {
           console.log(chalk.green("\nYou discover a hidden alcove!"));
           player.addItem(loot);
           console.log(`Found ${ITEMS[loot].name}!`);
@@ -166,7 +173,7 @@ async function handleArtifactChamber(player: Player) {
             ),
           );
           console.log(chalk.green("Divine energy flows through you!"));
-          player.maxMana += 20;
+          player.maxMana += RUINS_BALANCE.CLERIC_MANA_BONUS;
           player.mana = player.maxMana;
         } else {
           console.log(
@@ -180,7 +187,10 @@ async function handleArtifactChamber(player: Player) {
       case "Destroy it":
         console.log(chalk.red("You smash the artifact with your weapon!"));
         console.log("A wave of dark energy explodes outward...");
-        player.hp = Math.max(1, player.hp - 30);
+        player.hp = Math.max(
+          1,
+          player.hp - RUINS_BALANCE.ARTIFACT_DESTRUCTION_DAMAGE,
+        );
         player.storyFlags.artifactDestroyed = true;
         return true;
 

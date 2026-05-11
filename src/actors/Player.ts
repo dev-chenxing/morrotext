@@ -1,26 +1,47 @@
 import chalk from "chalk";
 import { CLASSES } from "../classes.ts";
+import {
+  OBJECT_TYPE,
+  PLAYER_DEFAULTS,
+  SLOT,
+} from "../constants.ts";
 import { EXP_LEVELS } from "../utils/expLevels.ts";
 import { ITEMS } from "../items.ts";
 import { EFFECTS } from "../effects.ts";
 import type {
   ActiveEffect,
   ActiveQuest,
+  ClassId,
+  Equipment,
   Item,
+  ItemType,
   StatKey,
   Stats,
   StoryFlags,
 } from "../types.ts";
 
-function isEquipmentItem(item: Item): boolean {
-  return ["weapon", "armor", "accessory"].includes(item.type);
+function getSlotForItemType(itemType: ItemType): SLOT | null {
+  switch (itemType) {
+    case OBJECT_TYPE.WEAPON:
+      return SLOT.WEAPON;
+    case OBJECT_TYPE.ARMOR:
+      return SLOT.ARMOR;
+    case OBJECT_TYPE.ACCESSORY:
+      return SLOT.ACCESSORY;
+    default:
+      return null;
+  }
 }
 
-export class Player implements Player {
+function isEquipmentItem(item: Item): boolean {
+  return getSlotForItemType(item.type) !== null;
+}
+
+export class Player {
   name: string;
   exp: number;
   level: number;
-  class: string;
+  class: ClassId;
   attack: number;
   defense: number;
   maxHp: number;
@@ -30,11 +51,7 @@ export class Player implements Player {
   magic: number;
   luck: number;
   activeEffects: ActiveEffect[];
-  equipment: {
-    weapon: Item | null;
-    armor: Item | null;
-    accessory: Item | null;
-  };
+  equipment: Equipment;
   inventory: Record<string, number>;
   gold: number;
   activeQuests: ActiveQuest[];
@@ -42,11 +59,11 @@ export class Player implements Player {
   storyFlags: StoryFlags;
   killCount: Record<string, number>;
 
-  constructor(name: string, className: string) {
+  constructor(name: string, className: ClassId) {
     this.name = name;
 
-    this.exp = 0;
-    this.level = 1;
+    this.exp = PLAYER_DEFAULTS.EXP;
+    this.level = PLAYER_DEFAULTS.LEVEL;
 
     this.class = className;
     const classStats = CLASSES[className]?.stats;
@@ -62,7 +79,7 @@ export class Player implements Player {
     this.maxMana = classStats.maxMana ?? 0;
     this.mana = this.maxMana;
 
-    this.luck = classStats.luck ?? 5;
+    this.luck = classStats.luck ?? PLAYER_DEFAULTS.LUCK;
 
     this.activeEffects = [];
 
@@ -74,7 +91,7 @@ export class Player implements Player {
     this.inventory = {}; // {itemId: count}
     this.addStartingItems();
 
-    this.gold = 50;
+    this.gold = PLAYER_DEFAULTS.GOLD;
 
     this.activeQuests = [];
     this.completedQuests = [];
@@ -260,7 +277,7 @@ export class Player implements Player {
 
   levelUp() {
     this.level++;
-    this.maxHp += 20;
+    this.maxHp += PLAYER_DEFAULTS.LEVEL_UP_HP_GAIN;
     this.hp = this.maxHp;
     console.log(chalk.yellow(`\n=== LEVEL UP! (${this.level}) ===`));
     console.log(`Max HP increased to ${this.maxHp}`);
@@ -327,22 +344,27 @@ export class Player implements Player {
 
   equipItem(item: Item) {
     try {
-      switch (item.type) {
-        case "weapon":
+      const slot = getSlotForItemType(item.type);
+      if (!slot) {
+        throw new Error("Item cannot be equipped");
+      }
+
+      switch (slot) {
+        case SLOT.WEAPON:
           if (this.equipment.weapon) this.unequipItem(this.equipment.weapon);
           this.equipment.weapon = item;
           this.applyItemStats(item);
 
           console.log(chalk.green(`Equipped ${item.name}!`));
           break;
-        case "armor":
+        case SLOT.ARMOR:
           if (this.equipment.armor) this.unequipItem(this.equipment.armor);
           this.equipment.armor = item;
           this.applyItemStats(item);
 
           console.log(chalk.green(`Equipped ${item.name}!`));
           break;
-        case "accessory":
+        case SLOT.ACCESSORY:
           if (this.equipment.accessory)
             this.unequipItem(this.equipment.accessory);
           this.equipment.accessory = item;
@@ -359,14 +381,14 @@ export class Player implements Player {
   unequipItem(item: Item) {
     this.removeItemStats(item);
 
-    switch (item.type) {
-      case "weapon":
+    switch (getSlotForItemType(item.type)) {
+      case SLOT.WEAPON:
         this.equipment.weapon = null;
         break;
-      case "armor":
+      case SLOT.ARMOR:
         this.equipment.armor = null;
         break;
-      case "accessory":
+      case SLOT.ACCESSORY:
         this.equipment.accessory = null;
         break;
     }

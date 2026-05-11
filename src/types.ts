@@ -1,6 +1,15 @@
 import type { Player as PlayerType } from "./actors/Player.ts";
+import {
+  CREATURE_TYPE,
+  LOOT_RARITIES,
+  OBJECT_TYPE,
+  SHOP_TYPES,
+  SLOT,
+} from "./constants.ts";
 
 export type Player = PlayerType;
+
+type ValueOf<T> = T[keyof T];
 
 export type StatKey =
   | "attack"
@@ -18,14 +27,12 @@ export interface ItemEffect {
   damageUndead?: number;
 }
 
-export type ItemType =
-  | "consumable"
-  | "weapon"
-  | "armor"
-  | "accessory"
-  | "quest"
-  | "material"
-  | "book";
+export type ItemType = OBJECT_TYPE;
+export type ClassId = "warrior" | "mage" | "cleric";
+export type CreatureType = CREATURE_TYPE;
+export type LootRarity = ValueOf<typeof LOOT_RARITIES>;
+export type QuestObjectiveType = "collect" | "return" | "loot" | "report";
+export type ShopType = ValueOf<typeof SHOP_TYPES>;
 
 export interface Item {
   id: string;
@@ -38,9 +45,9 @@ export interface Item {
 }
 
 export interface Equipment {
-  weapon: Item | null;
-  armor: Item | null;
-  accessory: Item | null;
+  [SLOT.WEAPON]: Item | null;
+  [SLOT.ARMOR]: Item | null;
+  [SLOT.ACCESSORY]: Item | null;
 }
 
 export interface Actor {
@@ -49,7 +56,7 @@ export interface Actor {
   attack: number;
   defense: number;
   luck?: number;
-  type?: string;
+  type?: CreatureType;
 }
 
 export interface Enemy extends Actor {
@@ -59,7 +66,7 @@ export interface Enemy extends Actor {
 }
 
 export interface QuestObjective {
-  type: string;
+  type: QuestObjectiveType;
   description: string;
   item?: string;
   count?: number;
@@ -90,7 +97,6 @@ export type StoryFlags = Record<string, boolean>;
 export interface Effect {
   id: string;
   name: string;
-  type: string;
   duration: number;
   stats?: Stats;
   onApply?: (player: Player) => void;
@@ -138,7 +144,7 @@ export interface Area {
 export interface DialogueOption {
   text: string;
   action: string;
-  shop?: string;
+  shop?: ShopType;
   quest?: string;
   cost?: number;
   condition?: (player: Player) => boolean;

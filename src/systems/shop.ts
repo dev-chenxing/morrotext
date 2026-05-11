@@ -1,17 +1,13 @@
 import inquirer from "inquirer";
 import chalk from "chalk";
+import { SHOP_PRICES, SHOP_TYPES } from "../constants.ts";
 import { ITEMS } from "../items.ts";
-import type { Player } from "../types.ts";
+import type { Player, ShopType } from "../types.ts";
 
-export const SHOP_PRICES = {
-  buyMultiplier: 1.2,
-  sellMultiplier: 0.6,
-};
-
-export async function openShop(player: Player, shopType: string) {
+export async function openShop(player: Player, shopType: ShopType) {
   const shopItems: Record<string, string[]> = {
-    blacksmith: ["iron_helmet", "steel_sword"],
-    general: ["health_potion", "mana_potion"],
+    [SHOP_TYPES.BLACKSMITH]: ["iron_helmet", "steel_sword"],
+    [SHOP_TYPES.GENERAL]: ["health_potion", "mana_potion"],
   };
 
   let shopping = true;
@@ -40,7 +36,7 @@ async function buyItems(player: Player, availableItems: string[]) {
   const choices: Array<{ name: string; value: string | null }> =
     availableItems.map((itemId) => {
       const item = ITEMS[itemId];
-      const price = Math.ceil(item.value * SHOP_PRICES.buyMultiplier);
+      const price = Math.ceil(item.value * SHOP_PRICES.BUY_MULTIPLIER);
       return {
         name: `${item.name} - ${price} gold`,
         value: itemId,
@@ -58,7 +54,7 @@ async function buyItems(player: Player, availableItems: string[]) {
 
   if (itemId) {
     const item = ITEMS[itemId];
-    const price = Math.ceil(item.value * SHOP_PRICES.buyMultiplier);
+    const price = Math.ceil(item.value * SHOP_PRICES.BUY_MULTIPLIER);
 
     if (player.gold >= price) {
       player.gold -= price;
@@ -76,7 +72,7 @@ async function sellItems(player: Player) {
       .filter(([id, count]) => count > 0 && ITEMS[id].value > 0)
       .map(([id, count]) => {
         const item = ITEMS[id];
-        const value = Math.floor(item.value * SHOP_PRICES.sellMultiplier);
+        const value = Math.floor(item.value * SHOP_PRICES.SELL_MULTIPLIER);
         return {
           name: `${item.name} x${count} - ${value} gold each`,
           value: id,
@@ -104,7 +100,7 @@ async function sellItems(player: Player) {
     }
 
     const item = ITEMS[itemId];
-    const value = Math.floor(item.value * SHOP_PRICES.sellMultiplier);
+    const value = Math.floor(item.value * SHOP_PRICES.SELL_MULTIPLIER);
     const { quantity } = await inquirer.prompt({
       type: "input",
       name: "quantity",

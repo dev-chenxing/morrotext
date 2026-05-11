@@ -7,11 +7,12 @@ import { startCombat } from "./systems/combat.ts";
 import { talkToNPC, npcDialogues } from "./systems/dialogue.ts";
 import { ITEMS, useItem } from "./items.ts";
 import { CLASSES } from "./classes.ts";
+import { GAME_TIMINGS } from "./constants.ts";
 import { createEnemy } from "./systems/combat.ts";
 import { exploreRuins } from "./world/ruins.ts";
 import { resolveDynamic } from "./utils/dynamicUtils.ts";
 import { showPlayerStats } from "./ui/hud.ts";
-import type { ActiveQuest, Area } from "./types.ts";
+import type { ActiveQuest, Area, ClassId } from "./types.ts";
 
 process.on("uncaughtException", (error: unknown) => {
   if (error instanceof Error && error.name === "ExitPromptError") {
@@ -224,12 +225,12 @@ async function startGame() {
     name = response.name.trim();
   }
 
-  const classChoices = Object.keys(CLASSES).map((key) => ({
+  const classChoices = (Object.keys(CLASSES) as ClassId[]).map((key) => ({
     name: CLASSES[key].displayName,
     value: key,
   }));
 
-  const { className } = await inquirer.prompt<{ className: string }>({
+  const { className } = await inquirer.prompt<{ className: ClassId }>({
     type: "list",
     name: "className",
     message: "Choose class:",
@@ -240,7 +241,7 @@ async function startGame() {
 
   setInterval(() => {
     player.updateEffects();
-  }, 100); // Check every 1/10 second
+  }, GAME_TIMINGS.EFFECT_TICK_INTERVAL_MS);
 
   await showMainMenu(player);
 }

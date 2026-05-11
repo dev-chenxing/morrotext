@@ -1,4 +1,5 @@
 import chalk from "chalk";
+import { PROGRESSION } from "../constants.ts";
 import { getNextLevelExp } from "../utils/expLevels.ts";
 import { ITEMS } from "../items.ts";
 import type { Player } from "../types.ts";
@@ -32,7 +33,7 @@ export function showPlayerStats(player: Player) {
 
   const nextLevelExp = getNextLevelExp(player.level);
   const expDisplay =
-    nextLevelExp === "MAX"
+    nextLevelExp === PROGRESSION.MAX_LEVEL_LABEL
       ? `${player.exp} (MAX LEVEL)`
       : `${player.exp}/${nextLevelExp}`;
 

@@ -1,6 +1,20 @@
 import inquirer from "inquirer";
 import chalk from "chalk";
+import { CREATURE_TYPE, OBJECT_TYPE, SLOT } from "./constants.ts";
 import type { Enemy, Item, Player } from "./types.ts";
+
+function getSlotForItemType(item: Item): SLOT | null {
+  switch (item.type) {
+    case OBJECT_TYPE.WEAPON:
+      return SLOT.WEAPON;
+    case OBJECT_TYPE.ARMOR:
+      return SLOT.ARMOR;
+    case OBJECT_TYPE.ACCESSORY:
+      return SLOT.ACCESSORY;
+    default:
+      return null;
+  }
+}
 
 async function handleEquipment(player: Player, item: Item) {
   const isEquipped = player.isItemEquipped(item.id);
@@ -12,11 +26,7 @@ async function handleEquipment(player: Player, item: Item) {
       name: "Unequip",
       value: "unequip",
     });
-  } else if (
-    item.type === "weapon" ||
-    item.type === "armor" ||
-    item.type === "accessory"
-  ) {
+  } else if (getSlotForItemType(item)) {
     choices.push({
       name: "Equip",
       value: "equip",
@@ -63,7 +73,7 @@ export async function useItem(
   let message = null;
 
   switch (item.type) {
-    case "consumable":
+    case OBJECT_TYPE.CONSUMABLE:
       if (item.effect) {
         if (item.effect.hp) {
           const oldHP = player.hp;
@@ -79,7 +89,7 @@ export async function useItem(
           message = `Restored ${player.mana - oldMana} mana!`;
         }
         if (item.effect.damageUndead) {
-          if (enemy && enemy.type === "undead") {
+          if (enemy && enemy.type === CREATURE_TYPE.UNDEAD) {
             const damage = item.effect.damageUndead;
             enemy.hp = Math.max(0, enemy.hp - damage);
             message = `The holy water burns ${enemy.name} for ${damage} damage!`;
@@ -88,9 +98,9 @@ export async function useItem(
       }
       break;
 
-    case "weapon":
-    case "armor":
-    case "accessory":
+    case OBJECT_TYPE.WEAPON:
+    case OBJECT_TYPE.ARMOR:
+    case OBJECT_TYPE.ACCESSORY:
       await handleEquipment(player, item);
       break;
 
@@ -99,7 +109,7 @@ export async function useItem(
   }
 
   // Remove consumables after use
-  if (item.type === "consumable") {
+  if (item.type === OBJECT_TYPE.CONSUMABLE) {
     player.removeItem(itemId);
   }
 
@@ -111,21 +121,21 @@ export const ITEMS: Record<string, Item> = {
   herbs: {
     id: "herbs",
     name: "Medicinal Herbs",
-    type: "consumable",
+    type: OBJECT_TYPE.CONSUMABLE,
     effect: { hp: 20 },
     value: 10,
   },
   health_potion: {
     id: "health_potion",
     name: "Health Potion",
-    type: "consumable",
+    type: OBJECT_TYPE.CONSUMABLE,
     effect: { hp: 30 },
     value: 20,
   },
   holy_water: {
     id: "holy_water",
     name: "Holy Water",
-    type: "consumable",
+    type: OBJECT_TYPE.CONSUMABLE,
     effect: { damageUndead: 20 },
     value: 40,
     description: "Blessed water that harms the unholy",
@@ -133,14 +143,14 @@ export const ITEMS: Record<string, Item> = {
   mana_potion: {
     id: "mana_potion",
     name: "Mana Potion",
-    type: "consumable",
+    type: OBJECT_TYPE.CONSUMABLE,
     effect: { mana: 30 },
     value: 35,
   },
   mana_essence: {
     id: "mana_essence",
     name: "Mana Essence",
-    type: "consumable",
+    type: OBJECT_TYPE.CONSUMABLE,
     description: "A glowing crystal that pulses with arcane energy",
     value: 75,
     effect: { mana: 50 },
@@ -150,14 +160,14 @@ export const ITEMS: Record<string, Item> = {
   rusty_dagger: {
     id: "rusty_dagger",
     name: "Rusty Dagger",
-    type: "weapon",
+    type: OBJECT_TYPE.WEAPON,
     stats: { attack: 4 },
     value: 15,
   },
   rusty_sword: {
     id: "rusty_sword",
     name: "Rusty Sword",
-    type: "weapon",
+    type: OBJECT_TYPE.WEAPON,
     stats: { attack: 5 },
     value: 15,
     description: "A corroded blade that has seen better days",
@@ -165,49 +175,49 @@ export const ITEMS: Record<string, Item> = {
   iron_sword: {
     id: "iron_sword",
     name: "Iron Sword",
-    type: "weapon",
+    type: OBJECT_TYPE.WEAPON,
     stats: { attack: 6 },
     value: 50,
   },
   oak_staff: {
     id: "oak_staff",
     name: "Oak Staff",
-    type: "weapon",
+    type: OBJECT_TYPE.WEAPON,
     stats: { magic: 7 },
     value: 80,
   },
   steel_sword: {
     id: "steel_sword",
     name: "Steel Sword",
-    type: "weapon",
+    type: OBJECT_TYPE.WEAPON,
     stats: { attack: 8 },
     value: 75,
   },
   mace: {
     id: "mace",
     name: "Sacred Mace",
-    type: "weapon",
+    type: OBJECT_TYPE.WEAPON,
     stats: { attack: 10 },
     value: 100,
   },
   steel_dagger: {
     id: "steel_dagger",
     name: "Steel Dagger",
-    type: "weapon",
+    type: OBJECT_TYPE.WEAPON,
     stats: { attack: 12 },
     value: 85,
   },
   seraphim_staff: {
     id: "seraphim_staff",
     name: "Seraphim Staff",
-    type: "weapon",
+    type: OBJECT_TYPE.WEAPON,
     stats: { attack: 8, magic: 12 },
     value: 450,
   },
   masterwork_hammer: {
     id: "masterwork_hammer",
     name: "Masterwork Hammer",
-    type: "weapon",
+    type: OBJECT_TYPE.WEAPON,
     stats: { attack: 15 },
     value: 300,
     description: "Exceptional hammer",
@@ -215,7 +225,7 @@ export const ITEMS: Record<string, Item> = {
   dragon_slayer: {
     id: "dragon_slayer",
     name: "Dragon Slayer",
-    type: "weapon",
+    type: OBJECT_TYPE.WEAPON,
     stats: { attack: 18 },
     value: 500,
   },
@@ -224,7 +234,7 @@ export const ITEMS: Record<string, Item> = {
   cloth_robe: {
     id: "cloth_robe",
     name: "Cloth Robe",
-    type: "armor",
+    type: OBJECT_TYPE.ARMOR,
     stats: { defense: 4, magic: 2 },
     value: 30,
     description: "Simple robe favored by spellcasters",
@@ -232,28 +242,28 @@ export const ITEMS: Record<string, Item> = {
   leather_armor: {
     id: "leather_armor",
     name: "Leather Armor",
-    type: "armor",
+    type: OBJECT_TYPE.ARMOR,
     stats: { defense: 5 },
     value: 40,
   },
   chainmail: {
     id: "chainmail",
     name: "Chainmail",
-    type: "armor",
+    type: OBJECT_TYPE.ARMOR,
     stats: { defense: 6 },
     value: 120,
   },
   steel_armor: {
     id: "steel_armor",
     name: "Steel Armor",
-    type: "armor",
+    type: OBJECT_TYPE.ARMOR,
     stats: { defense: 10 },
     value: 200,
   },
   divine_armor: {
     id: "divine_armor",
     name: "Divine Armor",
-    type: "armor",
+    type: OBJECT_TYPE.ARMOR,
     stats: { defense: 15, maxHp: 50 },
     value: 400,
     description: "Armor blessed by the gods",
@@ -263,21 +273,21 @@ export const ITEMS: Record<string, Item> = {
   iron_helmet: {
     id: "iron_helmet",
     name: "Iron Helmet",
-    type: "accessory",
+    type: OBJECT_TYPE.ACCESSORY,
     stats: { defense: 3 },
     value: 60,
   },
   holy_symbol: {
     id: "holy_symbol",
     name: "Holy Symbol",
-    type: "accessory",
+    type: OBJECT_TYPE.ACCESSORY,
     stats: { magic: 5, defense: 3 },
     value: 150,
   },
   magic_amulet: {
     id: "magic_amulet",
     name: "Magic Amulet",
-    type: "accessory",
+    type: OBJECT_TYPE.ACCESSORY,
     stats: { defense: 5, magic: 5 },
     value: 150,
     description: "An amulet that enhances magical abilities",
@@ -286,14 +296,14 @@ export const ITEMS: Record<string, Item> = {
     id: "crown_of_wisdom",
     name: "Crown of Wisdom",
     description: "A pulsating relic of immense power",
-    type: "accessory",
+    type: OBJECT_TYPE.ACCESSORY,
     stats: { defense: 10, magic: 10, maxHp: 50 },
     value: 0,
   },
   bone_charm: {
     id: "bone_charm",
     name: "Bone Charm",
-    type: "accessory",
+    type: OBJECT_TYPE.ACCESSORY,
     description: "A talisman carved from ancient bones, radiating dark power",
     stats: { magic: 3, luck: 2 },
     value: 120,
@@ -303,21 +313,21 @@ export const ITEMS: Record<string, Item> = {
   goblin_ear: {
     id: "goblin_ear",
     name: "Goblin Ear",
-    type: "quest",
+    type: OBJECT_TYPE.QUEST,
     value: 5,
     description: "Proof of goblin slaying",
   },
   ancient_tablet: {
     id: "ancient_tablet",
     name: "Ancient Tablet",
-    type: "quest",
+    type: OBJECT_TYPE.QUEST,
     value: 0,
     description: "Stone slab covered in forgotten runes",
   },
   deciphered_tablet: {
     id: "deciphered_tablet",
     name: "Deciphered Tablet",
-    type: "quest",
+    type: OBJECT_TYPE.QUEST,
     value: 0,
     description:
       "A tablet with translated runes showing a map to the artifact chamber",
@@ -327,49 +337,49 @@ export const ITEMS: Record<string, Item> = {
   bone_fragment: {
     id: "bone_fragment",
     name: "Bone Fragment",
-    type: "material",
+    type: OBJECT_TYPE.MATERIAL,
     value: 15,
     description: "Remains of an ancient skeleton",
   },
   stone_core: {
     id: "stone_core",
     name: "Stone Core",
-    type: "material",
+    type: OBJECT_TYPE.MATERIAL,
     value: 50,
     description: "The magical heart of a stone golem",
   },
   void_essence: {
     id: "void_essence",
     name: "Void Essence",
-    type: "material",
+    type: OBJECT_TYPE.MATERIAL,
     value: 75,
     description: "A shard of pure void energy",
   },
   wolf_pelt: {
     id: "wolf_pelt",
     name: "Wolf Pelt",
-    type: "material",
+    type: OBJECT_TYPE.MATERIAL,
     value: 20,
     description: "Thick fur from a forest wolf",
   },
   fangs: {
     id: "fangs",
     name: "Wolf Fangs",
-    type: "material",
+    type: OBJECT_TYPE.MATERIAL,
     value: 15,
     description: "Sharp teeth from a predator",
   },
   spider_silk: {
     id: "spider_silk",
     name: "Spider Silk",
-    type: "material",
+    type: OBJECT_TYPE.MATERIAL,
     value: 30,
     description: "Incredibly strong and lightweight silk",
   },
   venom_sac: {
     id: "venom_sac",
     name: "Venom Sac",
-    type: "material",
+    type: OBJECT_TYPE.MATERIAL,
     value: 40,
     description: "Toxic substance from a spider",
   },
@@ -378,7 +388,7 @@ export const ITEMS: Record<string, Item> = {
   dark_tome: {
     id: "dark_tome",
     name: "Dark Tome",
-    type: "book",
+    type: OBJECT_TYPE.BOOK,
     value: 150,
     description: "Forbidden knowledge of the void cult",
   },

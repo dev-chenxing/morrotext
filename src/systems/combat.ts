@@ -2,6 +2,11 @@ import chalk from "chalk";
 import inquirer from "inquirer";
 import { generateLoot } from "../world/loot.ts";
 import { CLASSES } from "../classes.ts";
+import {
+  COMBAT_BALANCE,
+  CREATURE_TYPE,
+  OBJECT_TYPE,
+} from "../constants.ts";
 import { ITEMS, useItem } from "../items.ts";
 import type { Player } from "../actors/Player.ts";
 import type { Actor, Enemy, Area } from "../types.ts";
@@ -36,15 +41,25 @@ function getActionChoices(
 
 function calculateDamage(attacker: Actor, defender: Actor) {
   // Base damage + 10% random variance
-  const baseDamage = attacker.attack * (0.9 + Math.random() * 0.2);
+  const baseDamage =
+    attacker.attack *
+    (COMBAT_BALANCE.ATTACK_VARIANCE_MIN +
+      Math.random() * COMBAT_BALANCE.ATTACK_VARIANCE_RANGE);
 
   // Critical hit chance (5% base + luck factor)
-  const critChance = 0.05 + (attacker.luck || 0) / 100;
+  const critChance =
+    COMBAT_BALANCE.CRIT_BASE_CHANCE +
+    (attacker.luck || 0) / COMBAT_BALANCE.LUCK_CRIT_DIVISOR;
   const isCrit = Math.random() < critChance;
 
   const damage = Math.max(
-    1,
-    Math.floor(baseDamage - defender.defense * (0.8 + Math.random() * 0.4)),
+    COMBAT_BALANCE.MIN_DAMAGE,
+    Math.floor(
+      baseDamage -
+        defender.defense *
+          (COMBAT_BALANCE.DEFENSE_VARIANCE_MIN +
+            Math.random() * COMBAT_BALANCE.DEFENSE_VARIANCE_RANGE),
+    ),
   );
 
   return { damage, isCrit };
@@ -115,7 +130,7 @@ export async function startCombat(
 
       case "Use Item":
         const inventoryList = Object.entries(player.inventory)
-          .filter(([id]) => ITEMS[id]?.type === "consumable")
+          .filter(([id]) => ITEMS[id]?.type === OBJECT_TYPE.CONSUMABLE)
           .map(([id, count]) => {
             const item = ITEMS[id];
             return {
@@ -168,7 +183,7 @@ export async function startCombat(
     // Enemy-specific loot drops
     if (enemy.loot) {
       enemy.loot.forEach((itemId) => {
-        if (Math.random() < 0.65) {
+        if (Math.random() < COMBAT_BALANCE.ENEMY_LOOT_DROP_CHANCE) {
           const item = ITEMS[itemId];
           player.addItem(itemId);
           console.log(chalk.blue(`Found ${item.name}!`));
@@ -196,6 +211,7 @@ export async function startCombat(
 // Enemy data
 export const ENEMIES: Record<string, Enemy> = {
   goblin: {
+    type: CREATURE_TYPE.HUMANOID,
     name: "Goblin",
     hp: 45,
     attack: 12,
@@ -205,6 +221,7 @@ export const ENEMIES: Record<string, Enemy> = {
     gold: () => Math.floor(Math.random() * 16) + 10, // Returns 10-25 gold
   },
   goblin_shaman: {
+    type: CREATURE_TYPE.HUMANOID,
     name: "Goblin Shaman",
     hp: 65,
     attack: 18,
@@ -214,7 +231,7 @@ export const ENEMIES: Record<string, Enemy> = {
     gold: () => Math.floor(Math.random() * 21) + 30, // Returns 30-50 gold
   },
   skeleton: {
-    type: "undead",
+    type: CREATURE_TYPE.UNDEAD,
     name: "Ancient Skeleton",
     hp: 60,
     attack: 14,
@@ -224,6 +241,7 @@ export const ENEMIES: Record<string, Enemy> = {
     exp: 50,
   },
   stone_golem: {
+    type: CREATURE_TYPE.NORMAL,
     name: "Stone Golem",
     hp: 120,
     attack: 18,
@@ -233,6 +251,7 @@ export const ENEMIES: Record<string, Enemy> = {
     exp: 100,
   },
   void_cultist: {
+    type: CREATURE_TYPE.HUMANOID,
     name: "Void Cultist",
     hp: 80,
     attack: 20,
@@ -242,7 +261,7 @@ export const ENEMIES: Record<string, Enemy> = {
     exp: 80,
   },
   wolf: {
-    type: "wolf",
+    type: CREATURE_TYPE.NORMAL,
     name: "Timber Wolf",
     hp: 40,
     attack: 10,
@@ -252,7 +271,7 @@ export const ENEMIES: Record<string, Enemy> = {
     exp: 30,
   },
   forest_spider: {
-    type: "spider",
+    type: CREATURE_TYPE.NORMAL,
     name: "Forest Spider",
     hp: 25,
     attack: 12,

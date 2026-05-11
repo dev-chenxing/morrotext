@@ -1,6 +1,6 @@
-import type { Class } from "./types.ts";
+import type { Class, ClassId } from "./types.ts";
 
-export const CLASSES: Record<string, Class> = {
+export const CLASSES: Record<ClassId, Class> = {
   warrior: {
     displayName: "Warrior",
     stats: {
