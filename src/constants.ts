@@ -1,5 +1,5 @@
 export enum OBJECT_TYPE {
-  CONSUMABLE = "consumable",
+  ALCHEMY = "alchemy",
   WEAPON = "weapon",
   ARMOR = "armor",
   ACCESSORY = "accessory",
@@ -69,15 +69,4 @@ export const RUINS_BALANCE = {
   TRAP_DAMAGE_RANGE: 15,
   ARTIFACT_DESTRUCTION_DAMAGE: 30,
   CLERIC_MANA_BONUS: 20,
-} as const;
-
-export const LOOT_RARITIES = {
-  COMMON: "common",
-  RARE: "rare",
-  EPIC: "epic",
-} as const;
-
-export const SHOP_TYPES = {
-  BLACKSMITH: "blacksmith",
-  GENERAL: "general",
 } as const;

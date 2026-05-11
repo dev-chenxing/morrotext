@@ -17,6 +17,21 @@
 - [x] fix: fix the `crown_of_widsom` typo
 - [x] feat: create `src/constants.ts` -- for all hardcoded strings/numbers (e.g., ObjectType)
 
+### Leveled Loot + NPC Barter Migration
+- [ ] refactor: update `constants.ts` to remove loot rarity and shop type constants; introduce `OBJECT_TYPE.ALCHEMY`
+- [ ] refactor: update `types.ts` to remove ShopType/LootRarity and add leveled list and NPC types
+- [ ] refactor: change dialogue option shape from shop to npc.id in `types.ts`
+- [ ] refactor: refactor `loot.ts` from rarity buckets to leveled lists with field `list: LeveledListNode[]`, each node having `levelRequired` and `object` fields
+- [ ] feat: implement `.pickFrom()` method to choose a random item from the list based on the player's level and support nested list traversal with guardrails (visited list/depth limit) to prevent cycles
+- [ ] refactor: refactor `items.ts` to replace consumable typing with alchemy
+- [ ] refactor: update all consumable checks in combat/use flows to alchemy checks
+- [ ] feat: add a new `src/world/npcs.ts` NPC registry file to define NPC objects for blacksmith and innkeeper (inventory/barter flags)
+- [ ] refactor: rename `shop.ts` to `barter.ts` and rename `openShop` to `barter`
+- [ ] refactor: update import and call sites to use the new file path and function name
+- [ ] feat: update barter flow to only show items permitted by NPC barter flags
+- [ ] feat: keep stock inifinite for now (do not decrement NPC inventory)
+- [ ] 
+
 ### Data Separation
 - [ ] refactor: extract creature definitions from `systems/combat.ts` into `src/world/creatures.ts`
 - [ ] refactor: extract NPC dialogue trees from `systems/dialogue.ts` to a separate dialogue content file, keeping only dialogue engine logic
@@ -56,6 +71,9 @@
 
 ### Dialogue Engine Refactor
 - [ ] refactor: no NPC-specific code in dialogue engine
+- [ ] refactor: remove dialogue option `shop`
+- [ ] feat: gate barter dialogue options on NPC barter flags (only show if NPC has at least one set)
+- [ ] refactor: rename menu wording from “Shop” semantics to “Barter” where appropriate
 
 ### Data Handler
 - [ ] feat: create `src/dataHandler/index.ts` as a data handler for data like current area, state, etc. that needs to be globally accessible but isn't player-specific
