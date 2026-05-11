@@ -1,13 +1,13 @@
 import inquirer from "inquirer";
 import chalk from "chalk";
-import { SHOP_PRICES, SHOP_TYPES } from "../constants.ts";
+import { SHOP_PRICES } from "../constants.ts";
 import { ITEMS } from "../items.ts";
-import type { Player, ShopType } from "../types.ts";
+import type { Player } from "../types.ts";
 
-export async function openShop(player: Player, shopType: ShopType) {
+export async function openShop(player: Player, shopType: string) {
   const shopItems: Record<string, string[]> = {
-    [SHOP_TYPES.BLACKSMITH]: ["iron_helmet", "steel_sword"],
-    [SHOP_TYPES.GENERAL]: ["health_potion", "mana_potion"],
+    blacksmith: ["iron_helmet", "steel_sword"],
+    general: ["health_potion", "mana_potion"],
   };
 
   let shopping = true;

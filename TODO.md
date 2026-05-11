@@ -18,8 +18,8 @@
 - [x] feat: create `src/constants.ts` -- for all hardcoded strings/numbers (e.g., ObjectType)
 
 ### Leveled Loot + NPC Barter Migration
-- [ ] refactor: update `constants.ts` to remove loot rarity and shop type constants; introduce `OBJECT_TYPE.ALCHEMY`
-- [ ] refactor: update `types.ts` to remove ShopType/LootRarity and add leveled list and NPC types
+- [x] refactor: update `constants.ts` to remove loot rarity and shop type constants; introduce `OBJECT_TYPE.ALCHEMY`
+- [x] refactor: update `types.ts` to remove ShopType/LootRarity and add leveled item structure
 - [ ] refactor: change dialogue option shape from shop to npc.id in `types.ts`
 - [ ] refactor: refactor `loot.ts` from rarity buckets to leveled lists with field `list: LeveledListNode[]`, each node having `levelRequired` and `object` fields
 - [ ] feat: implement `.pickFrom()` method to choose a random item from the list based on the player's level and support nested list traversal with guardrails (visited list/depth limit) to prevent cycles

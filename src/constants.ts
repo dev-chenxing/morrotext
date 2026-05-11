@@ -1,11 +1,19 @@
 export enum OBJECT_TYPE {
-  ALCHEMY = "alchemy",
-  WEAPON = "weapon",
-  ARMOR = "armor",
   ACCESSORY = "accessory",
-  QUEST = "quest",
-  MATERIAL = "material",
+  ACTOR = "actor",
+  ALCHEMY = "alchemy",
+  ARMOR = "armor",
   BOOK = "book",
+  ITEM = "item",
+  LEVELED_ITEM = "leveled_item",
+  NPC = "npc",
+  QUEST = "quest",
+  WEAPON = "weapon",
+}
+
+export enum MERCHANT_SERVICE {
+  TRAINING = "training",
+  REPAIR = "repair",
 }
 
 export enum SLOT {

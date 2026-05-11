@@ -1,9 +1,8 @@
 import type { Player as PlayerType } from "./actors/Player.ts";
 import {
   CREATURE_TYPE,
-  LOOT_RARITIES,
+  MERCHANT_SERVICE,
   OBJECT_TYPE,
-  SHOP_TYPES,
   SLOT,
 } from "./constants.ts";
 
@@ -30,9 +29,54 @@ export interface ItemEffect {
 export type ItemType = OBJECT_TYPE;
 export type ClassId = "warrior" | "mage" | "cleric";
 export type CreatureType = CREATURE_TYPE;
-export type LootRarity = ValueOf<typeof LOOT_RARITIES>;
 export type QuestObjectiveType = "collect" | "return" | "loot" | "report";
-export type ShopType = ValueOf<typeof SHOP_TYPES>;
+
+export type GameObject = {
+  id: string;
+  objectType: ValueOf<typeof OBJECT_TYPE>;
+};
+
+export type LeveledListNode = {
+  levelRequired: number;
+  object: GameObject;
+};
+
+export interface LeveledItem extends GameObject {
+  list: LeveledListNode[];
+  objectType: OBJECT_TYPE.LEVELED_ITEM;
+  pickFrom: () => Item;
+}
+
+export interface Actor extends GameObject {
+  equipment: Equipment;
+  inventory: Record<string, number>;
+  objectType: OBJECT_TYPE.ACTOR | OBJECT_TYPE.NPC;
+  hasItemEquipped: (item: string) => boolean;
+  offersServices: (service: ValueOf<typeof MERCHANT_SERVICE>) => boolean;
+  tradesItemType: (objectType: ValueOf<typeof OBJECT_TYPE>) => boolean;
+}
+
+export type AiConfig = {
+  barters: {
+    [objectType in ValueOf<typeof OBJECT_TYPE>]?: boolean;
+  };
+  offers: {
+    [service in ValueOf<typeof MERCHANT_SERVICE>]?: boolean;
+  };
+  fight: number;
+};
+
+export interface NPC extends Actor {
+  aiConfig: AiConfig;
+  stats: Stats;
+  class: Class;
+  level: number;
+  name: string;
+  objectType: OBJECT_TYPE.NPC;
+  actions: Action[];
+  dialogues?: Record<string, DialogueState>;
+  quests?: string[];
+}
 
 export interface Item {
   id: string;
@@ -144,7 +188,7 @@ export interface Area {
 export interface DialogueOption {
   text: string;
   action: string;
-  shop?: ShopType;
+  shop?: string;
   quest?: string;
   cost?: number;
   condition?: (player: Player) => boolean;
