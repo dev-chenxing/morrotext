@@ -17,8 +17,8 @@ const NPC_REGISTRY: NPCRegistryEntry[] = [
     level: 1,
     classId: "smith",
     inventory: {
-      iron_helmet: 999,
-      steel_sword: 999,
+      iron_helmet: -1,
+      steel_sword: -1,
     },
   },
   {
@@ -27,8 +27,8 @@ const NPC_REGISTRY: NPCRegistryEntry[] = [
     level: 1,
     classId: "publican",
     inventory: {
-      health_potion: 999,
-      mana_potion: 999,
+      health_potion: -5,
+      mana_potion: -5,
     },
   },
 ];
@@ -84,7 +84,12 @@ function createNPC(entry: NPCRegistryEntry): NPC {
       [SLOT.ARMOR]: null,
       [SLOT.ACCESSORY]: null,
     },
-    inventory: { ...entry.inventory },
+    inventory: Object.fromEntries(
+      Object.entries(entry.inventory ?? {}).map(([id]) => [
+        id,
+        Number.POSITIVE_INFINITY,
+      ]),
+    ),
     aiConfig: {
       barters: { ...(npcClass.barters ?? {}) },
       offers: { ...(npcClass.offers ?? {}) },

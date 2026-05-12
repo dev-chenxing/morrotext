@@ -26,8 +26,7 @@
 - [x] feat: refactor `src/world/npcs.ts` NPC registry file to define NPC objects for smith and publican (inventory/barter flags)
 - [x] refactor: rename `shop.ts` to `barter.ts` and rename `openShop` to `barter`
 - [x] refactor: update barter logic to filter items based on NPC trade capabilities
-- [ ] feat: keep stock inifinite for now (do not decrement NPC inventory)
-- [ ] 
+- [x] refactor: update NPC inventory to use infinite stock for now (do not decrement NPC inventory)
 
 ### Data Separation
 - [ ] refactor: extract creature definitions from `systems/combat.ts` into `src/world/creatures.ts`

@@ -73,6 +73,7 @@ export const CLASSES: ClassEntry[] = [
     barters: {
       [OBJECT_TYPE.WEAPON]: true,
       [OBJECT_TYPE.ARMOR]: true,
+      [OBJECT_TYPE.ACCESSORY]: true,
     },
     description: "A village smith; sells weapons and armor.",
     playable: false,
