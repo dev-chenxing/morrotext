@@ -13,10 +13,7 @@ function shuffle<T>(items: T[]): T[] {
   const shuffled = [...items];
   for (let index = shuffled.length - 1; index > 0; index--) {
     const swapIndex = Math.floor(Math.random() * (index + 1));
-    [shuffled[index], shuffled[swapIndex]] = [
-      shuffled[swapIndex],
-      shuffled[index],
-    ];
+    [shuffled[index], shuffled[swapIndex]] = [shuffled[swapIndex], shuffled[index]];
   }
   return shuffled;
 }
@@ -34,19 +31,12 @@ function pickFromLeveledItem(
   const nextVisited = new Set(visited);
   nextVisited.add(leveledItem.id);
 
-  const eligibleEntries = leveledItem.list.filter(
-    (node) => node.levelRequired <= level,
-  );
+  const eligibleEntries = leveledItem.list.filter((node) => node.levelRequired <= level);
   if (eligibleEntries.length === 0) return null;
 
   for (const entry of shuffle(eligibleEntries)) {
     if (isLeveledItem(entry.object)) {
-      const nestedItem = pickFromLeveledItem(
-        entry.object,
-        level,
-        nextVisited,
-        depth + 1,
-      );
+      const nestedItem = pickFromLeveledItem(entry.object, level, nextVisited, depth + 1);
       if (nestedItem) {
         return nestedItem;
       }

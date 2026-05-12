@@ -27,10 +27,7 @@ export async function handleEquipment(player: Player, item: Item) {
     choices.push({ name: "Equip", value: "equip" });
   }
 
-  choices.push(
-    { name: "Inspect", value: "inspect" },
-    { name: "Cancel", value: "cancel" },
-  );
+  choices.push({ name: "Inspect", value: "inspect" }, { name: "Cancel", value: "cancel" });
 
   const { action } = await inquirer.prompt({
     type: "list",

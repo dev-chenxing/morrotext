@@ -50,8 +50,7 @@ async function handleDialogueAction(
 
       let message = "I've nothing more to say.";
       if (entry?.dialogues?.[action]) {
-        message =
-          resolveDynamic(entry.dialogues[action].question, player) ?? message;
+        message = resolveDynamic(entry.dialogues[action].question, player) ?? message;
       }
 
       return {
@@ -70,10 +69,7 @@ async function handleDialogueAction(
       };
 
     case "start_quest":
-      if (
-        data.quest &&
-        !player.activeQuests.some((q) => q.key === data.quest)
-      ) {
+      if (data.quest && !player.activeQuests.some((q) => q.key === data.quest)) {
         const quest = QUESTS[data.quest];
 
         if (!quest) {
@@ -109,9 +105,7 @@ async function handleDialogueAction(
         }
         // Story progression
         player.storyFlags.artifactSecured = true;
-        console.log(
-          chalk.yellow("\nThe Hermit places the artifact in the town vault."),
-        );
+        console.log(chalk.yellow("\nThe Hermit places the artifact in the town vault."));
         completeQuest(player, "investigate_ruins");
         return {
           exit: true,
@@ -199,12 +193,7 @@ export async function talkToNPC(actor: NPC, player: Player) {
       choices,
     });
 
-    const result = await handleDialogueAction(
-      player,
-      actor,
-      choice.action,
-      choice.data,
-    );
+    const result = await handleDialogueAction(player, actor, choice.action, choice.data);
 
     if (result.nextState) {
       currentState = result.nextState;

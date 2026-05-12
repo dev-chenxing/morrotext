@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node src/game.ts",
     "lint": "oxlint src/**/*.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "format": "oxfmt src/**/*.ts --write"
   },
   "keywords": [],
   "author": "",
@@ -20,6 +21,7 @@
   "devDependencies": {
     "@types/figlet": "^1.7.0",
     "@types/node": "^25.6.2",
+    "oxfmt": "^0.49.0",
     "oxlint": "^1.64.0",
     "typescript": "^6.0.3"
   }

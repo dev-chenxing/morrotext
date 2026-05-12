@@ -46,15 +46,14 @@ async function buyItems(player: Player, availableItems: string[]) {
     return;
   }
 
-  const choices: Array<{ name: string; value: string | null }> =
-    availableItems.map((itemId) => {
-      const item = ITEMS[itemId];
-      const price = Math.ceil(item.value * SHOP_PRICES.BUY_MULTIPLIER);
-      return {
-        name: `${item.name} - ${price} gold`,
-        value: itemId,
-      };
-    });
+  const choices: Array<{ name: string; value: string | null }> = availableItems.map((itemId) => {
+    const item = ITEMS[itemId];
+    const price = Math.ceil(item.value * SHOP_PRICES.BUY_MULTIPLIER);
+    return {
+      name: `${item.name} - ${price} gold`,
+      value: itemId,
+    };
+  });
 
   choices.push({ name: "Cancel", value: null });
 
@@ -80,25 +79,21 @@ async function buyItems(player: Player, availableItems: string[]) {
 }
 
 async function sellItems(player: Player, actor: NPC) {
-  const sellableItems: Array<{ name: string; value: string | null }> =
-    Object.entries(player.inventory)
-      .filter(([id, count]) => {
-        const item = ITEMS[id];
-        return (
-          count > 0 &&
-          Boolean(item) &&
-          item.value > 0 &&
-          actor.tradesItemType(item.objectType)
-        );
-      })
-      .map(([id, count]) => {
-        const item = ITEMS[id];
-        const value = Math.floor(item.value * SHOP_PRICES.SELL_MULTIPLIER);
-        return {
-          name: `${item.name} x${count} - ${value} gold each`,
-          value: id,
-        };
-      });
+  const sellableItems: Array<{ name: string; value: string | null }> = Object.entries(
+    player.inventory,
+  )
+    .filter(([id, count]) => {
+      const item = ITEMS[id];
+      return count > 0 && Boolean(item) && item.value > 0 && actor.tradesItemType(item.objectType);
+    })
+    .map(([id, count]) => {
+      const item = ITEMS[id];
+      const value = Math.floor(item.value * SHOP_PRICES.SELL_MULTIPLIER);
+      return {
+        name: `${item.name} x${count} - ${value} gold each`,
+        value: id,
+      };
+    });
 
   if (sellableItems.length === 0) {
     console.log(chalk.yellow("No items to sell!"));
@@ -127,17 +122,13 @@ async function sellItems(player: Player, actor: NPC) {
       message: `How many to sell? (Max: ${player.inventory[itemId]})`,
       validate: (input) => {
         const num = parseInt(input);
-        return (
-          (num > 0 && num <= player.inventory[itemId]) || "Invalid quantity"
-        );
+        return (num > 0 && num <= player.inventory[itemId]) || "Invalid quantity";
       },
     });
 
     const qty = parseInt(quantity);
     player.removeItem(itemId, qty);
     player.gold += value * qty;
-    console.log(
-      chalk.green(`Sold ${qty}x ${item.name} for ${value * qty} gold!`),
-    );
+    console.log(chalk.green(`Sold ${qty}x ${item.name} for ${value * qty} gold!`));
   }
 }

@@ -11,20 +11,12 @@ import { updateQuestProgress } from "./quests.ts";
 import type { Area } from "../types.ts";
 
 export async function exploreRuins(player: Player, area: Area) {
-  console.log(
-    chalk.yellow(figlet.textSync("ANCIENT RUINS", { font: "Small" })),
-  );
-  console.log(
-    chalk.gray(
-      "You stand before the entrance of a long-forgotten civilization...",
-    ),
-  );
+  console.log(chalk.yellow(figlet.textSync("ANCIENT RUINS", { font: "Small" })));
+  console.log(chalk.gray("You stand before the entrance of a long-forgotten civilization..."));
 
   const hasDecipheredTablet = player.hasItem("deciphered_tablet");
   if (hasDecipheredTablet) {
-    console.log(
-      chalk.green("\nYour deciphered tablet glows, revealing a hidden path!"),
-    );
+    console.log(chalk.green("\nYour deciphered tablet glows, revealing a hidden path!"));
   }
 
   let exploring = true;
@@ -71,11 +63,7 @@ export async function exploreRuins(player: Player, area: Area) {
         break;
 
       case "Explore the central chamber":
-        console.log(
-          chalk.yellow(
-            "\nYou find ancient murals depicting forgotten battles.",
-          ),
-        );
+        console.log(chalk.yellow("\nYou find ancient murals depicting forgotten battles."));
         if (Math.random() > RUINS_BALANCE.CENTRAL_CHAMBER_POTION_THRESHOLD) {
           console.log(chalk.green("Found a health potion in a broken urn!"));
           player.addItem("health_potion");
@@ -92,9 +80,7 @@ export async function exploreRuins(player: Player, area: Area) {
             ),
           );
         } else {
-          console.log(
-            chalk.gray("The remaining tablets are too damaged to read."),
-          );
+          console.log(chalk.gray("The remaining tablets are too damaged to read."));
         }
         break;
 
@@ -129,9 +115,7 @@ export async function exploreRuins(player: Player, area: Area) {
 
 async function handleArtifactChamber(player: Player) {
   console.log(
-    chalk.yellow(
-      "\nYou enter a massive chamber with a glowing artifact on a pedestal...",
-    ),
+    chalk.yellow("\nYou enter a massive chamber with a glowing artifact on a pedestal..."),
   );
 
   if (player.activeQuests.some((q) => q.key === "investigate_ruins")) {
@@ -141,20 +125,13 @@ async function handleArtifactChamber(player: Player) {
       type: "list",
       name: "action",
       message: "What do you do?",
-      choices: [
-        "Take the artifact",
-        "Examine it carefully",
-        "Destroy it",
-        "Leave it alone",
-      ],
+      choices: ["Take the artifact", "Examine it carefully", "Destroy it", "Leave it alone"],
     });
 
     switch (action) {
       case "Take the artifact":
         if (player.addItem("crown_of_wisdom")) {
-          console.log(
-            chalk.yellow("You carefully lift the artifact from its pedestal."),
-          );
+          console.log(chalk.yellow("You carefully lift the artifact from its pedestal."));
           player.storyFlags.hasArtifact = true;
 
           updateQuestProgress(
@@ -168,19 +145,13 @@ async function handleArtifactChamber(player: Player) {
 
       case "Examine it carefully":
         if (player.class.id === "cleric" && player.hasItem("holy_symbol")) {
-          console.log(
-            chalk.cyan(
-              "\nYou notice faint inscriptions matching your holy symbol...",
-            ),
-          );
+          console.log(chalk.cyan("\nYou notice faint inscriptions matching your holy symbol..."));
           console.log(chalk.green("Divine energy flows through you!"));
           player.stats.maxMana += RUINS_BALANCE.CLERIC_MANA_BONUS;
           player.stats.mana = player.stats.maxMana;
         } else {
           console.log(
-            chalk.cyan(
-              "\nYou study the artifact carefully but can't decipher its markings.",
-            ),
+            chalk.cyan("\nYou study the artifact carefully but can't decipher its markings."),
           );
         }
         break;
@@ -188,10 +159,7 @@ async function handleArtifactChamber(player: Player) {
       case "Destroy it":
         console.log(chalk.red("You smash the artifact with your weapon!"));
         console.log("A wave of dark energy explodes outward...");
-        player.stats.hp = Math.max(
-          1,
-          player.stats.hp - RUINS_BALANCE.ARTIFACT_DESTRUCTION_DAMAGE,
-        );
+        player.stats.hp = Math.max(1, player.stats.hp - RUINS_BALANCE.ARTIFACT_DESTRUCTION_DAMAGE);
         player.storyFlags.artifactDestroyed = true;
         return true;
 

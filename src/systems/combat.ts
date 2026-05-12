@@ -9,9 +9,7 @@ import { COMBAT_BALANCE, OBJECT_TYPE } from "../constants.ts";
 import { useItem } from "../items.ts";
 import type { Area, Creature, NPC, Stats } from "../types.ts";
 
-function getActionChoices(
-  player: Player,
-): Array<{ name: string; value: string }> {
+function getActionChoices(player: Player): Array<{ name: string; value: string }> {
   const choices = [
     { name: "Attack", value: "Attack" },
     { name: "Use Item", value: "Use Item" },
@@ -27,20 +25,15 @@ function getActionChoices(
   return choices;
 }
 
-function calculateDamage(
-  attacker: Creature | NPC | Player,
-  defender: Creature | NPC | Player,
-) {
+function calculateDamage(attacker: Creature | NPC | Player, defender: Creature | NPC | Player) {
   // Base damage + 10% random variance
   const baseDamage =
     attacker.stats.attack *
-    (COMBAT_BALANCE.ATTACK_VARIANCE_MIN +
-      Math.random() * COMBAT_BALANCE.ATTACK_VARIANCE_RANGE);
+    (COMBAT_BALANCE.ATTACK_VARIANCE_MIN + Math.random() * COMBAT_BALANCE.ATTACK_VARIANCE_RANGE);
 
   // Critical hit chance (5% base + luck factor)
   const critChance =
-    COMBAT_BALANCE.CRIT_BASE_CHANCE +
-    (attacker.stats.luck || 0) / COMBAT_BALANCE.LUCK_CRIT_DIVISOR;
+    COMBAT_BALANCE.CRIT_BASE_CHANCE + (attacker.stats.luck || 0) / COMBAT_BALANCE.LUCK_CRIT_DIVISOR;
   const isCrit = Math.random() < critChance;
 
   const damage = Math.max(
@@ -91,22 +84,14 @@ export async function startCombat(player: Player, enemy: Creature, area: Area) {
 
     switch (action) {
       case "Attack":
-        const { damage: playerDmg, isCrit: playerCrit } = calculateDamage(
-          player,
-          enemy,
-        );
+        const { damage: playerDmg, isCrit: playerCrit } = calculateDamage(player, enemy);
         applyDamage(enemy, playerDmg);
         console.log(
-          chalk.red(
-            `You deal ${playerDmg} damage${playerCrit ? " CRITICAL HIT!" : ""}!`,
-          ),
+          chalk.red(`You deal ${playerDmg} damage${playerCrit ? " CRITICAL HIT!" : ""}!`),
         );
 
         // Enemy counterattack
-        const { damage: enemyDmg, isCrit: enemyCrit } = calculateDamage(
-          enemy,
-          player,
-        );
+        const { damage: enemyDmg, isCrit: enemyCrit } = calculateDamage(enemy, player);
         applyDamage(player, enemyDmg);
         console.log(
           chalk.yellow(

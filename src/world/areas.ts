@@ -33,8 +33,7 @@ export const areas: Record<string, Area> = {
   },
   ruins: {
     name: "Ancient Ruins",
-    description:
-      "Crumbling stone structures covered in vines. An eerie silence hangs in the air.",
+    description: "Crumbling stone structures covered in vines. An eerie silence hangs in the air.",
     enemies: ["skeleton", "stone_golem", "void_cultist"],
     lootTable: "ruins",
     npcs: [],

@@ -66,13 +66,9 @@ export function completeQuest(player: Player, questKey: string) {
 
   // Show completion message
   console.log(chalk.green(`\nQuest "${quest.title}" completed!`));
-  console.log(
-    `Rewards: ${questData.reward.gold} gold, ${questData.reward.exp} EXP`,
-  );
+  console.log(`Rewards: ${questData.reward.gold} gold, ${questData.reward.exp} EXP`);
   if (questData.reward.items && questData.reward.items.length > 0) {
-    console.log(
-      `Items: ${questData.reward.items.map((id) => ITEMS[id].name).join(", ")}`,
-    );
+    console.log(`Items: ${questData.reward.items.map((id) => ITEMS[id].name).join(", ")}`);
   }
 
   // Apply rewards
@@ -109,8 +105,7 @@ export const QUESTS: Record<string, Quest> = {
         type: "loot",
         item: "goblin_ear",
         count: 5,
-        description:
-          "Slay the goblins in Darkwood Forest and collect 3 goblin ears as proof",
+        description: "Slay the goblins in Darkwood Forest and collect 3 goblin ears as proof",
       },
       {
         type: "report",

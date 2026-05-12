@@ -8,13 +8,9 @@ export function showPlayerStats(player: Player) {
   console.log(chalk.blue("\n=== Character Stats ==="));
   console.log(chalk.blue(`\n=== ${player.name} (Level ${player.level}) ===`));
   console.log(`Class: ${chalk.yellow(player.class.name.toUpperCase())}`);
-  console.log(
-    `HP:    ${chalk.green(player.stats.hp)}/${chalk.green(player.stats.maxHp)}`,
-  );
+  console.log(`HP:    ${chalk.green(player.stats.hp)}/${chalk.green(player.stats.maxHp)}`);
   if (player.stats.maxMana > 0) {
-    console.log(
-      `Mana:  ${chalk.blue(player.stats.mana)}/${chalk.blue(player.stats.maxMana)}`,
-    );
+    console.log(`Mana:  ${chalk.blue(player.stats.mana)}/${chalk.blue(player.stats.maxMana)}`);
   }
 
   console.log(`\n${chalk.underline("Attributes")}`);
@@ -27,9 +23,7 @@ export function showPlayerStats(player: Player) {
   console.log(
     `Weapon: ${player.equipment.weapon ? ITEMS[player.equipment.weapon.id].name : "None"}`,
   );
-  console.log(
-    `Armor:  ${player.equipment.armor ? ITEMS[player.equipment.armor.id].name : "None"}`,
-  );
+  console.log(`Armor:  ${player.equipment.armor ? ITEMS[player.equipment.armor.id].name : "None"}`);
 
   console.log(`\nGold:   ${chalk.yellow(player.gold)}`);
 

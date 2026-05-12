@@ -213,8 +213,7 @@ export const ITEMS: Record<string, Item> = {
     name: "Deciphered Tablet",
     objectType: OBJECT_TYPE.MISC,
     value: 0,
-    description:
-      "A tablet with translated runes showing a map to the artifact chamber",
+    description: "A tablet with translated runes showing a map to the artifact chamber",
   },
 
   // Materials

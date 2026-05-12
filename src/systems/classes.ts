@@ -4,9 +4,7 @@ import type { Class as GameClass, ValueOf } from "../types.ts";
 import type { ClassEntry } from "../classes.ts";
 
 export function createClass(entry: ClassEntry): GameClass {
-  const Barters: Record<ValueOf<typeof OBJECT_TYPE>, boolean> = Object.values(
-    OBJECT_TYPE,
-  ).reduce(
+  const Barters: Record<ValueOf<typeof OBJECT_TYPE>, boolean> = Object.values(OBJECT_TYPE).reduce(
     (acc, key) => {
       acc[key as ValueOf<typeof OBJECT_TYPE>] =
         entry.barters?.[key as ValueOf<typeof OBJECT_TYPE>] ?? false;
@@ -15,10 +13,9 @@ export function createClass(entry: ClassEntry): GameClass {
     {} as Record<ValueOf<typeof OBJECT_TYPE>, boolean>,
   );
 
-  const Offers: Record<
-    ValueOf<typeof MERCHANT_SERVICE>,
-    boolean
-  > = Object.values(MERCHANT_SERVICE).reduce(
+  const Offers: Record<ValueOf<typeof MERCHANT_SERVICE>, boolean> = Object.values(
+    MERCHANT_SERVICE,
+  ).reduce(
     (acc, key) => {
       acc[key as ValueOf<typeof MERCHANT_SERVICE>] =
         entry.offers?.[key as ValueOf<typeof MERCHANT_SERVICE>] ?? false;

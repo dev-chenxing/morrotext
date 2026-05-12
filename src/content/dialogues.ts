@@ -39,17 +39,14 @@ export const npcDialogues: Record<string, Dialogue> = {
             text: "[Hand over materials] I have everything",
             action: "complete_special_orders",
             condition: (player) =>
-              player.activeQuests.some(
-                (quest: ActiveQuest) => quest.key === "special_orders",
-              ) && player.getInventoryCount("void_essence") >= 5,
+              player.activeQuests.some((quest: ActiveQuest) => quest.key === "special_orders") &&
+              player.getInventoryCount("void_essence") >= 5,
           },
           {
             text: "I'm still gathering materials",
             action: "leave",
             condition: (player) =>
-              player.activeQuests.some(
-                (quest: ActiveQuest) => quest.key === "special_orders",
-              ),
+              player.activeQuests.some((quest: ActiveQuest) => quest.key === "special_orders"),
           },
           {
             text: "What do you need exactly?",
@@ -75,9 +72,7 @@ export const npcDialogues: Record<string, Dialogue> = {
             text: "I'm still gathering materials",
             action: "leave",
             condition: (player) =>
-              player.activeQuests.some(
-                (quest: ActiveQuest) => quest.key === "special_orders",
-              ),
+              player.activeQuests.some((quest: ActiveQuest) => quest.key === "special_orders"),
           },
         ],
       },
@@ -134,8 +129,7 @@ export const npcDialogues: Record<string, Dialogue> = {
         ],
       },
       hermit_area: {
-        question:
-          "He lives in a shack deep in Darkwood Forest. But beware - the way is dangerous!",
+        question: "He lives in a shack deep in Darkwood Forest. But beware - the way is dangerous!",
         options: [{ text: "I'll take my chances", action: "leave" }],
       },
       relic_details: {
@@ -150,11 +144,7 @@ export const npcDialogues: Record<string, Dialogue> = {
     dialogues: {
       initial: {
         question: (player) => {
-          if (
-            player.completedQuests.some(
-              (q: ActiveQuest) => q.key === "investigate_ruins",
-            )
-          ) {
+          if (player.completedQuests.some((q: ActiveQuest) => q.key === "investigate_ruins")) {
             return "The artifact is safe, thanks to you. The forest is at peace now.";
           }
           return "The ancient ruins are dangerous... but the artifact must be recovered!";
@@ -163,8 +153,7 @@ export const npcDialogues: Record<string, Dialogue> = {
           {
             text: "I've retrieved the ancient artifact",
             action: "return_artifact",
-            condition: (player) =>
-              player.getInventoryCount("crown_of_wisdom") > 0,
+            condition: (player) => player.getInventoryCount("crown_of_wisdom") > 0,
           },
           {
             text: "I found this ancient tablet",
@@ -175,8 +164,7 @@ export const npcDialogues: Record<string, Dialogue> = {
             text: "Accept quest",
             action: "start_quest",
             quest: "investigate_ruins",
-            condition: (player) =>
-              isQuestAvailable(player, "investigate_ruins"),
+            condition: (player) => isQuestAvailable(player, "investigate_ruins"),
           },
           { text: "Maybe later", action: "leave" },
         ],
@@ -202,8 +190,7 @@ export const npcDialogues: Record<string, Dialogue> = {
         ],
       },
       return_artifact: {
-        question:
-          "By the gods! You've done it! This will help us protect our town.",
+        question: "By the gods! You've done it! This will help us protect our town.",
         options: [
           {
             text: "[Hand over artifact]",
@@ -235,13 +222,11 @@ export const npcDialogues: Record<string, Dialogue> = {
         ],
       },
       artifact_info: {
-        question:
-          "A relic of immense power from the First Age. It could save or doom us all.",
+        question: "A relic of immense power from the First Age. It could save or doom us all.",
         options: [{ text: "I understand", action: "return" }],
       },
       cultists_info: {
-        question:
-          "Followers of the Void God. They seek to unleash ancient evils upon the world.",
+        question: "Followers of the Void God. They seek to unleash ancient evils upon the world.",
         options: [{ text: "I'll stop them", action: "return" }],
       },
     },
@@ -257,12 +242,8 @@ export const npcDialogues: Record<string, Dialogue> = {
             action: "complete_quest",
             quest: "slay_goblins",
             condition: (player) => {
-              const quest = player.activeQuests.find(
-                (q: ActiveQuest) => q.key === "slay_goblins",
-              );
-              return Boolean(
-                quest && player.getInventoryCount("goblin_ear") >= 5,
-              );
+              const quest = player.activeQuests.find((q: ActiveQuest) => q.key === "slay_goblins");
+              return Boolean(quest && player.getInventoryCount("goblin_ear") >= 5);
             },
           },
           {

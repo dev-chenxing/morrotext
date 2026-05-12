@@ -58,10 +58,7 @@ function createNPC(entry: NPCRegistryEntry): NPC {
       [SLOT.ACCESSORY]: null,
     },
     inventory: Object.fromEntries(
-      Object.entries(entry.inventory ?? {}).map(([id]) => [
-        id,
-        Number.POSITIVE_INFINITY,
-      ]),
+      Object.entries(entry.inventory ?? {}).map(([id]) => [id, Number.POSITIVE_INFINITY]),
     ),
     aiConfig: {
       barters: npcClass.barters,
