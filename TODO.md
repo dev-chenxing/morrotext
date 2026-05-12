@@ -31,7 +31,7 @@
 ### Data Separation
 - [x] refactor: extract creature definitions from `systems/combat.ts` into `src/world/creatures.ts`
 - [x] refactor: extract NPC dialogue into a separate content file
-- [ ] refactor: keep `items.ts` as pure data registry + `useItem()` logic, move `handleEquipment()` UI logic to a new `src/systems/equipment.ts`
+- [x] refactor: reorganize item definitions in `items.ts` and extract equipment logic into `src/systems/equipment.ts`
 
 ### Action System
 - [ ] feat: create `src/systems/action.ts` with

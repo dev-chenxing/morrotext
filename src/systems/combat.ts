@@ -1,13 +1,13 @@
 import chalk from "chalk";
 import inquirer from "inquirer";
 import type { Player } from "../actors/Player.ts";
+import { ITEMS } from "../world/items.ts";
 import { generateLoot } from "../world/loot.ts";
 import { ACTIONS } from "../actions.ts";
 import { CLASSES } from "../classes.ts";
-import { COMBAT_BALANCE, CREATURE_TYPE, OBJECT_TYPE } from "../constants.ts";
-import { ITEMS, useItem } from "../items.ts";
-import type { Area, Creature, NPC, Stats, ValueOf } from "../types.ts";
-import { CREATURES, createCreature, type CreatureEntry } from "../world/creatures.ts";
+import { COMBAT_BALANCE, OBJECT_TYPE } from "../constants.ts";
+import { useItem } from "../items.ts";
+import type { Area, Creature, NPC, Stats } from "../types.ts";
 
 function getActionChoices(
   player: Player,
@@ -202,5 +202,3 @@ export async function startCombat(player: Player, enemy: Creature, area: Area) {
     process.exit();
   }
 }
-
-
