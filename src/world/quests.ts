@@ -1,6 +1,6 @@
 import chalk from "chalk";
-import { ITEMS } from "../items.ts";
 import type { Player, Quest } from "../types.ts";
+import { ITEMS } from "../world/items.ts";
 
 export function isQuestAvailable(player: Player, questKey: string): boolean {
   // Check if already completed

@@ -1,7 +1,7 @@
 import { OBJECT_TYPE } from "../constants.ts";
 import { game } from "../gameState.ts";
-import { ITEMS } from "../items.ts";
 import type { GameObject, Item, LeveledItem } from "../types.ts";
+import { ITEMS } from "../world/items.ts";
 
 const MAX_LEVELED_ITEM_DEPTH = 10;
 

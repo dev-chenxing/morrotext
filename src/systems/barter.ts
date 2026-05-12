@@ -1,8 +1,8 @@
 import inquirer from "inquirer";
 import chalk from "chalk";
 import { SHOP_PRICES } from "../constants.ts";
-import { ITEMS } from "../items.ts";
 import type { NPC, Player } from "../types.ts";
+import { ITEMS } from "../world/items.ts";
 
 export async function barter(player: Player, actor: NPC) {
   let availableItems: string[] = [];

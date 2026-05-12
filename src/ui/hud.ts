@@ -1,8 +1,8 @@
 import chalk from "chalk";
 import { PROGRESSION } from "../constants.ts";
-import { getNextLevelExp } from "../utils/expLevels.ts";
-import { ITEMS } from "../items.ts";
 import type { Player } from "../types.ts";
+import { getNextLevelExp } from "../utils/expLevels.ts";
+import { ITEMS } from "../world/items.ts";
 
 export function showPlayerStats(player: Player) {
   console.log(chalk.blue("\n=== Character Stats ==="));
