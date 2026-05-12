@@ -1,17 +1,16 @@
 {
   "name": "text-rpg",
   "version": "1.0.0",
-  "description": "",
   "main": "src/game.ts",
   "scripts": {
     "start": "node src/game.ts",
     "lint": "oxlint src/**/*.ts",
     "typecheck": "tsc --noEmit",
-    "format": "oxfmt src/**/*.ts --write"
+    "format": "oxfmt src/**/*.ts --write",
+    "test": "vitest"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "dev-chenxing",
+  "license": "MIT",
   "type": "module",
   "dependencies": {
     "chalk": "^5.4.1",
