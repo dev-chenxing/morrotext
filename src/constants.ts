@@ -1,4 +1,4 @@
-export const OBJECT_TYPE = {
+const OBJECT_TYPES = {
   ACCESSORY: "accessory",
   ACTOR: "actor",
   ALCHEMY: "alchemy",
@@ -12,32 +12,74 @@ export const OBJECT_TYPE = {
   WEAPON: "weapon",
 } as const;
 
-export type OBJECT_TYPE = (typeof OBJECT_TYPE)[keyof typeof OBJECT_TYPE];
+export const OBJECT_TYPE = OBJECT_TYPES;
 
-export const MERCHANT_SERVICE = {
+export type OBJECT_TYPE =
+  (typeof OBJECT_TYPES)[keyof typeof OBJECT_TYPES];
+
+export namespace OBJECT_TYPE {
+  export type ACCESSORY = typeof OBJECT_TYPES.ACCESSORY;
+  export type ACTOR = typeof OBJECT_TYPES.ACTOR;
+  export type ALCHEMY = typeof OBJECT_TYPES.ALCHEMY;
+  export type ARMOR = typeof OBJECT_TYPES.ARMOR;
+  export type BOOK = typeof OBJECT_TYPES.BOOK;
+  export type ITEM = typeof OBJECT_TYPES.ITEM;
+  export type LEVELED_ITEM = typeof OBJECT_TYPES.LEVELED_ITEM;
+  export type MISC = typeof OBJECT_TYPES.MISC;
+  export type NPC = typeof OBJECT_TYPES.NPC;
+  export type QUEST = typeof OBJECT_TYPES.QUEST;
+  export type WEAPON = typeof OBJECT_TYPES.WEAPON;
+}
+
+const MERCHANT_SERVICE_VALUES = {
   TRAINING: "training",
   REPAIR: "repair",
 } as const;
 
-export type MERCHANT_SERVICE =
-  (typeof MERCHANT_SERVICE)[keyof typeof MERCHANT_SERVICE];
+export const MERCHANT_SERVICE = MERCHANT_SERVICE_VALUES;
 
-export const SLOT = {
+export type MERCHANT_SERVICE =
+  (typeof MERCHANT_SERVICE_VALUES)[keyof typeof MERCHANT_SERVICE_VALUES];
+
+export namespace MERCHANT_SERVICE {
+  export type TRAINING = typeof MERCHANT_SERVICE_VALUES.TRAINING;
+  export type REPAIR = typeof MERCHANT_SERVICE_VALUES.REPAIR;
+}
+
+const SLOT_VALUES = {
   WEAPON: "weapon",
   ARMOR: "armor",
   ACCESSORY: "accessory",
 } as const;
 
-export type SLOT = (typeof SLOT)[keyof typeof SLOT];
+export const SLOT = SLOT_VALUES;
 
-export const CREATURE_TYPE = {
+export type SLOT = (typeof SLOT_VALUES)[keyof typeof SLOT_VALUES];
+
+export namespace SLOT {
+  export type WEAPON = typeof SLOT_VALUES.WEAPON;
+  export type ARMOR = typeof SLOT_VALUES.ARMOR;
+  export type ACCESSORY = typeof SLOT_VALUES.ACCESSORY;
+}
+
+const CREATURE_TYPE_VALUES = {
   NORMAL: "normal",
   DAEDRA: "daedra",
   UNDEAD: "undead",
   HUMANOID: "humanoid",
 } as const;
 
-export type CREATURE_TYPE = (typeof CREATURE_TYPE)[keyof typeof CREATURE_TYPE];
+export const CREATURE_TYPE = CREATURE_TYPE_VALUES;
+
+export type CREATURE_TYPE =
+  (typeof CREATURE_TYPE_VALUES)[keyof typeof CREATURE_TYPE_VALUES];
+
+export namespace CREATURE_TYPE {
+  export type NORMAL = typeof CREATURE_TYPE_VALUES.NORMAL;
+  export type DAEDRA = typeof CREATURE_TYPE_VALUES.DAEDRA;
+  export type UNDEAD = typeof CREATURE_TYPE_VALUES.UNDEAD;
+  export type HUMANOID = typeof CREATURE_TYPE_VALUES.HUMANOID;
+}
 
 export const GAME_SETTINGS = {};
 
