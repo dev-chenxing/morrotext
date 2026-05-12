@@ -29,8 +29,8 @@
 - [x] refactor: update NPC inventory to use infinite stock for now (do not decrement NPC inventory)
 
 ### Data Separation
-- [ ] refactor: extract creature definitions from `systems/combat.ts` into `src/world/creatures.ts`
-- [ ] refactor: extract NPC dialogue trees from `systems/dialogue.ts` to a separate dialogue content file, keeping only dialogue engine logic
+- [x] refactor: extract creature definitions from `systems/combat.ts` into `src/world/creatures.ts`
+- [x] refactor: extract NPC dialogue into a separate content file
 - [ ] refactor: keep `items.ts` as pure data registry + `useItem()` logic, move `handleEquipment()` UI logic to a new `src/systems/equipment.ts`
 
 ### Action System
