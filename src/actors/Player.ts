@@ -55,11 +55,17 @@ export class Player {
     this.exp = PLAYER_DEFAULTS.EXP;
     this.level = PLAYER_DEFAULTS.LEVEL;
 
-    this.class = CLASSES.find((c) => c.id === classId) as Class;
-    const classStats = this.class?.stats;
-    if (!classStats) {
+    const selectedClass = CLASSES.find((c) => c.id === classId);
+    if (!selectedClass) {
       throw new Error(`Unknown class: ${classId}`);
     }
+
+    if (!selectedClass.playable) {
+      throw new Error(`Class is not playable: ${classId}`);
+    }
+
+    this.class = selectedClass as Class;
+    const classStats = this.class.stats;
 
     this.stats = {
       hp: classStats.maxHp ?? 10,

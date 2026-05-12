@@ -225,9 +225,9 @@ async function startGame() {
     name = response.name.trim();
   }
 
-  const classChoices = Object.entries(CLASSES).map(([key, cls]) => ({
+  const classChoices = CLASSES.filter((cls) => cls.playable).map((cls) => ({
     name: cls.name,
-    value: key,
+    value: cls.id,
   }));
 
   const { className } = await inquirer.prompt<{ className: string }>({

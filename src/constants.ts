@@ -1,34 +1,43 @@
-export enum OBJECT_TYPE {
-  ACCESSORY = "accessory",
-  ACTOR = "actor",
-  ALCHEMY = "alchemy",
-  ARMOR = "armor",
-  BOOK = "book",
-  ITEM = "item",
-  LEVELED_ITEM = "leveled_item",
-  MISC = "misc",
-  NPC = "npc",
-  QUEST = "quest",
-  WEAPON = "weapon",
-}
+export const OBJECT_TYPE = {
+  ACCESSORY: "accessory",
+  ACTOR: "actor",
+  ALCHEMY: "alchemy",
+  ARMOR: "armor",
+  BOOK: "book",
+  ITEM: "item",
+  LEVELED_ITEM: "leveled_item",
+  MISC: "misc",
+  NPC: "npc",
+  QUEST: "quest",
+  WEAPON: "weapon",
+} as const;
 
-export enum MERCHANT_SERVICE {
-  TRAINING = "training",
-  REPAIR = "repair",
-}
+export type OBJECT_TYPE = (typeof OBJECT_TYPE)[keyof typeof OBJECT_TYPE];
 
-export enum SLOT {
-  WEAPON = "weapon",
-  ARMOR = "armor",
-  ACCESSORY = "accessory",
-}
+export const MERCHANT_SERVICE = {
+  TRAINING: "training",
+  REPAIR: "repair",
+} as const;
 
-export enum CREATURE_TYPE {
-  NORMAL = "normal",
-  DAEDRA = "daedra",
-  UNDEAD = "undead",
-  HUMANOID = "humanoid",
-}
+export type MERCHANT_SERVICE =
+  (typeof MERCHANT_SERVICE)[keyof typeof MERCHANT_SERVICE];
+
+export const SLOT = {
+  WEAPON: "weapon",
+  ARMOR: "armor",
+  ACCESSORY: "accessory",
+} as const;
+
+export type SLOT = (typeof SLOT)[keyof typeof SLOT];
+
+export const CREATURE_TYPE = {
+  NORMAL: "normal",
+  DAEDRA: "daedra",
+  UNDEAD: "undead",
+  HUMANOID: "humanoid",
+} as const;
+
+export type CREATURE_TYPE = (typeof CREATURE_TYPE)[keyof typeof CREATURE_TYPE];
 
 export const GAME_SETTINGS = {};
 

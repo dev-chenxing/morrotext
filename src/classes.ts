@@ -14,13 +14,14 @@ export type ClassEntry = {
     [service in ValueOf<typeof MERCHANT_SERVICE>]?: boolean;
   };
   description: string;
-  playable?: boolean;
+  playable: boolean;
 };
 
 export const CLASSES: ClassEntry[] = [
   {
     id: "warrior",
     name: "Warrior",
+    playable: true,
     description:
       "A strong and resilient fighter, skilled with weapons and armor.",
     stats: {
@@ -34,6 +35,7 @@ export const CLASSES: ClassEntry[] = [
   {
     id: "mage",
     name: "Mage",
+    playable: true,
     stats: {
       attack: 8,
       defense: 5,
@@ -50,6 +52,7 @@ export const CLASSES: ClassEntry[] = [
   {
     id: "cleric",
     name: "Cleric",
+    playable: true,
     stats: {
       attack: 8,
       defense: 12,
