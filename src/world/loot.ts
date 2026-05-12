@@ -1,21 +1,78 @@
 import { OBJECT_TYPE } from "../constants.ts";
+import { game } from "../gameState.ts";
 import { ITEMS } from "../items.ts";
-import type { Item, LeveledItem } from "../types.ts";
+import type { GameObject, Item, LeveledItem } from "../types.ts";
+
+const MAX_LEVELED_ITEM_DEPTH = 10;
+
+function isLeveledItem(object: GameObject): object is LeveledItem {
+  return object.objectType === OBJECT_TYPE.LEVELED_ITEM;
+}
+
+function shuffle<T>(items: T[]): T[] {
+  const shuffled = [...items];
+  for (let index = shuffled.length - 1; index > 0; index--) {
+    const swapIndex = Math.floor(Math.random() * (index + 1));
+    [shuffled[index], shuffled[swapIndex]] = [
+      shuffled[swapIndex],
+      shuffled[index],
+    ];
+  }
+  return shuffled;
+}
+
+function pickFromLeveledItem(
+  leveledItem: LeveledItem,
+  level: number,
+  visited = new Set<string>(),
+  depth = 0,
+): Item | null {
+  if (depth >= MAX_LEVELED_ITEM_DEPTH || visited.has(leveledItem.id)) {
+    return null;
+  }
+
+  const nextVisited = new Set(visited);
+  nextVisited.add(leveledItem.id);
+
+  const eligibleEntries = leveledItem.list.filter(
+    (node) => node.levelRequired <= level,
+  );
+  if (eligibleEntries.length === 0) return null;
+
+  for (const entry of shuffle(eligibleEntries)) {
+    if (isLeveledItem(entry.object)) {
+      const nestedItem = pickFromLeveledItem(
+        entry.object,
+        level,
+        nextVisited,
+        depth + 1,
+      );
+      if (nestedItem) {
+        return nestedItem;
+      }
+      continue;
+    }
+
+    const item = ITEMS[entry.object.id];
+    if (item) {
+      return item;
+    }
+  }
+
+  return null;
+}
 
 function createLeveledItem(id: string, list: LeveledItem["list"]): LeveledItem {
   return {
     id,
     objectType: OBJECT_TYPE.LEVELED_ITEM,
     list,
-    pickFrom(level: number): Item | null {
-      const eligibleEntries = this.list.filter(
-        (node) => node.levelRequired <= level,
-      );
-      if (eligibleEntries.length === 0) return null;
+    pickFrom(): Item | null {
+      if (!game.player) {
+        return null;
+      }
 
-      const selection =
-        eligibleEntries[Math.floor(Math.random() * eligibleEntries.length)];
-      return ITEMS[selection.object.id] ?? null;
+      return pickFromLeveledItem(this, game.player.level);
     },
   };
 }
@@ -37,12 +94,9 @@ const LEVELED_ITEMS: Record<string, LeveledItem> = {
   ]),
 };
 
-export function generateLoot(
-  leveledItemId: string,
-  level: number,
-): string | null {
+export function generateLoot(leveledItemId: string): string | null {
   const table = LEVELED_ITEMS[leveledItemId];
   if (!table) return null;
 
-  return table.pickFrom(level)?.id ?? null;
+  return table.pickFrom()?.id ?? null;
 }

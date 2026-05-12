@@ -23,7 +23,7 @@ export type LeveledListNode = {
 export interface LeveledItem extends GameObject {
   list: LeveledListNode[];
   objectType: OBJECT_TYPE.LEVELED_ITEM;
-  pickFrom: (level: number) => Item | null;
+  pickFrom: () => Item | null;
 }
 
 export interface Actor extends GameObject {

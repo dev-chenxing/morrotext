@@ -186,9 +186,7 @@ export async function startCombat(player: Player, enemy: Creature, area: Area) {
     }
 
     // Procedural loot generation
-    const lootId = area.lootTable
-      ? generateLoot(area.lootTable, player.level)
-      : null;
+    const lootId = area.lootTable ? generateLoot(area.lootTable) : null;
     if (lootId) {
       const proceduralItem = ITEMS[lootId];
       player.addItem(lootId);

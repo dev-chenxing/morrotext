@@ -107,7 +107,7 @@ export async function exploreRuins(player: Player, area: Area) {
         break;
 
       case "Check for hidden rooms":
-        const loot = generateLoot("ruins", player.level);
+        const loot = generateLoot("ruins");
         if (Math.random() > RUINS_BALANCE.HIDDEN_ROOM_LOOT_THRESHOLD && loot) {
           console.log(chalk.green("\nYou discover a hidden alcove!"));
           player.addItem(loot);
