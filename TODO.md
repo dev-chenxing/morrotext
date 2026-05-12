@@ -25,8 +25,7 @@
 - [x] refactor: refactor `items.ts` to replace consumable typing with alchemy
 - [x] feat: refactor `src/world/npcs.ts` NPC registry file to define NPC objects for smith and publican (inventory/barter flags)
 - [x] refactor: rename `shop.ts` to `barter.ts` and rename `openShop` to `barter`
-- [ ] refactor: update import and call sites to use the new file path and function name
-- [ ] feat: update barter flow to only show items permitted by NPC barter flags
+- [x] refactor: update barter logic to filter items based on NPC trade capabilities
 - [ ] feat: keep stock inifinite for now (do not decrement NPC inventory)
 - [ ] 
 

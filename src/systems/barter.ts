@@ -8,11 +8,13 @@ export async function barter(player: Player, actor: NPC) {
   let availableItems: string[] = [];
   const invKeys = Object.keys(actor.inventory || {});
   if (invKeys.length > 0) {
-    availableItems = invKeys.filter((id) => !!ITEMS[id]);
+    availableItems = invKeys.filter((id) => {
+      const item = ITEMS[id];
+      return Boolean(item) && actor.tradesItemType(item.objectType);
+    });
   } else {
-    const allowedTypes = new Set(Object.keys(actor.aiConfig?.barters ?? {}));
     availableItems = Object.entries(ITEMS)
-      .filter(([, item]) => allowedTypes.has(item.objectType ?? ""))
+      .filter(([, item]) => actor.tradesItemType(item.objectType))
       .map(([id]) => id);
   }
 
@@ -30,7 +32,7 @@ export async function barter(player: Player, actor: NPC) {
         await buyItems(player, availableItems);
         break;
       case "Sell Items":
-        await sellItems(player);
+        await sellItems(player, actor);
         break;
       default:
         shopping = false;
@@ -39,6 +41,11 @@ export async function barter(player: Player, actor: NPC) {
 }
 
 async function buyItems(player: Player, availableItems: string[]) {
+  if (availableItems.length === 0) {
+    console.log(chalk.yellow("This merchant has nothing available for trade."));
+    return;
+  }
+
   const choices: Array<{ name: string; value: string | null }> =
     availableItems.map((itemId) => {
       const item = ITEMS[itemId];
@@ -72,10 +79,18 @@ async function buyItems(player: Player, availableItems: string[]) {
   }
 }
 
-async function sellItems(player: Player) {
+async function sellItems(player: Player, actor: NPC) {
   const sellableItems: Array<{ name: string; value: string | null }> =
     Object.entries(player.inventory)
-      .filter(([id, count]) => count > 0 && ITEMS[id].value > 0)
+      .filter(([id, count]) => {
+        const item = ITEMS[id];
+        return (
+          count > 0 &&
+          Boolean(item) &&
+          item.value > 0 &&
+          actor.tradesItemType(item.objectType)
+        );
+      })
       .map(([id, count]) => {
         const item = ITEMS[id];
         const value = Math.floor(item.value * SHOP_PRICES.SELL_MULTIPLIER);
