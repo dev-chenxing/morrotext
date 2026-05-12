@@ -127,7 +127,6 @@ export async function useItem(
 }
 
 export const ITEMS: Record<string, Item> = {
-  // Consumable
   herbs: {
     id: "herbs",
     name: "Medicinal Herbs",

@@ -6,7 +6,6 @@ import { resolveDynamic } from "../utils/dynamicUtils.ts";
 import { barter } from "./barter.ts";
 import type {
   ActiveQuest,
-  Actor,
   DialogueActionResult,
   DialogueOption,
   Dialogue,
@@ -14,8 +13,8 @@ import type {
 } from "../types.ts";
 
 export const npcDialogues: Record<string, Dialogue> = {
-  blacksmith: {
-    name: "Blacksmith",
+  smith: {
+    name: "Smith",
     dialogues: {
       initial: {
         question: "Steel and iron! What can I forge for you today?",
@@ -23,7 +22,7 @@ export const npcDialogues: Record<string, Dialogue> = {
           {
             text: "Browse weapons and armor",
             action: "open_shop",
-            shop: "blacksmith",
+            shop: "smith",
           },
           {
             text: "Ask about special orders",
@@ -107,8 +106,8 @@ Take this masterwork hammer - it should serve you well.",
       },
     },
   },
-  innkeeper: {
-    name: "Innkeeper",
+  publican: {
+    name: "Publican",
     dialogues: {
       initial: {
         question: "Welcome to the Rusty Tankard! What'll it be?",

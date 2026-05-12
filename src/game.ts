@@ -11,6 +11,7 @@ import { GAME_TIMINGS } from "./constants.ts";
 import { game } from "./gameState.ts";
 import { createCreature } from "./systems/combat.ts";
 import { exploreRuins } from "./world/ruins.ts";
+import { getNPC } from "./world/npcs.ts";
 import { resolveDynamic } from "./utils/dynamicUtils.ts";
 import { showPlayerStats } from "./ui/hud.ts";
 import type { ActiveQuest, Area } from "./types.ts";
@@ -166,7 +167,7 @@ export async function enterArea(player: Player, area: Area) {
 
       if (action.startsWith("npc:")) {
         const npcKey = action.split(":")[1];
-        await talkToNPC(npcKey, player);
+        await talkToNPC(getNPC(npcKey), player);
 
         return enterArea(player, area);
       } else if (action === "explore") {

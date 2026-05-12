@@ -74,7 +74,7 @@ export const CLASSES: ClassEntry[] = [
       [OBJECT_TYPE.WEAPON]: true,
       [OBJECT_TYPE.ARMOR]: true,
     },
-    description: "A village blacksmith; sells weapons and armor.",
+    description: "A village smith; sells weapons and armor.",
     playable: false,
   },
   {
@@ -84,7 +84,7 @@ export const CLASSES: ClassEntry[] = [
     barters: {
       [OBJECT_TYPE.ALCHEMY]: true,
     },
-    description: "Innkeeper and purveyor of potions.",
+    description: "Publican and purveyor of potions.",
     playable: false,
   },
 ];

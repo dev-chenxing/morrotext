@@ -22,9 +22,8 @@
 - [x] refactor: update `types.ts` to remove ShopType/LootRarity and add leveled item structure
 - [x] refactor: refactor `loot.ts` from rarity buckets to leveled lists with field `list: LeveledListNode[]`, each node having `levelRequired` and `object` fields
 - [x] feat: implement `.pickFrom()` method to choose a random item from the list based on the player's level and support nested list traversal with guardrails (visited list/depth limit) to prevent cycles
-- [ ] refactor: refactor `items.ts` to replace consumable typing with alchemy
-- [ ] refactor: update all consumable checks in combat/use flows to alchemy checks
-- [ ] feat: add a new `src/world/npcs.ts` NPC registry file to define NPC objects for blacksmith and innkeeper (inventory/barter flags)
+- [x] refactor: refactor `items.ts` to replace consumable typing with alchemy
+- [x] feat: refactor `src/world/npcs.ts` NPC registry file to define NPC objects for smith and publican (inventory/barter flags)
 - [x] refactor: rename `shop.ts` to `barter.ts` and rename `openShop` to `barter`
 - [ ] refactor: update import and call sites to use the new file path and function name
 - [ ] feat: update barter flow to only show items permitted by NPC barter flags

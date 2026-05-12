@@ -125,7 +125,7 @@ export const QUESTS: Record<string, Quest> = {
     },
   },
   special_orders: {
-    title: "Special Orders for the Blacksmith",
+    title: "Special Orders for the Smith",
     objectives: [
       {
         description: "Obtain 5 Void Essence",
@@ -134,9 +134,9 @@ export const QUESTS: Record<string, Quest> = {
         count: 5,
       },
       {
-        description: "Deliver materials to the Blacksmith",
+        description: "Deliver materials to the Smith",
         type: "return",
-        npc: "blacksmith",
+        npc: "smith",
       },
     ],
     reward: {

@@ -6,7 +6,7 @@ export const areas: Record<string, Area> = {
     name: "Havenwood",
     description: "A bustling town with a marketplace and inn.",
     quests: ["investigate_ruins"],
-    npcs: ["blacksmith", "innkeeper"],
+    npcs: ["smith", "publican"],
   },
   temple: {
     name: "Temple of Light",

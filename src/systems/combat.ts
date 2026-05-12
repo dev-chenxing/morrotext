@@ -116,7 +116,7 @@ export async function startCombat(player: Player, enemy: Creature, area: Area) {
 
       case "Use Item":
         const inventoryList = Object.entries(player.inventory)
-          .filter(([id]) => ITEMS[id]?.objectType === OBJECT_TYPE.ALCHEMY)
+          .filter(([id]) => ITEMS[id].objectType === OBJECT_TYPE.ALCHEMY)
           .map(([id, count]) => {
             const item = ITEMS[id];
             return {
