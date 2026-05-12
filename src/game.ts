@@ -9,7 +9,7 @@ import { ITEMS, useItem } from "./items.ts";
 import { CLASSES } from "./classes.ts";
 import { GAME_TIMINGS } from "./constants.ts";
 import { game } from "./gameState.ts";
-import { createCreature } from "./systems/combat.ts";
+import { createCreature } from "./world/creatures.ts";
 import { exploreRuins } from "./world/ruins.ts";
 import { getNPC } from "./world/npcs.ts";
 import { resolveDynamic } from "./utils/dynamicUtils.ts";
