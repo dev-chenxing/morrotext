@@ -37,10 +37,10 @@ export interface Actor extends GameObject {
 
 export type AiConfig = {
   barters: {
-    [objectType in ValueOf<typeof OBJECT_TYPE>]?: boolean;
+    [objectType in ValueOf<typeof OBJECT_TYPE>]: boolean;
   };
   offers: {
-    [service in ValueOf<typeof MERCHANT_SERVICE>]?: boolean;
+    [service in ValueOf<typeof MERCHANT_SERVICE>]: boolean;
   };
   fight: number;
 };
@@ -148,21 +148,14 @@ export interface Action {
 
 export interface Class extends GameObject {
   name: string;
-  stats: {
-    attack: number;
-    defense: number;
-    maxHp: number;
-    magic?: number;
-    maxMana?: number;
-    luck?: number;
-  };
+  stats: Stats;
   startingItems: string[];
   actions?: Record<string, Action>;
-  barters?: {
-    [objectType in ValueOf<typeof OBJECT_TYPE>]?: boolean;
+  barters: {
+    [objectType in ValueOf<typeof OBJECT_TYPE>]: boolean;
   };
-  offers?: {
-    [service in ValueOf<typeof MERCHANT_SERVICE>]?: boolean;
+  offers: {
+    [service in ValueOf<typeof MERCHANT_SERVICE>]: boolean;
   };
   description: string;
   playable: boolean;

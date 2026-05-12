@@ -4,13 +4,7 @@ import type { Player } from "../actors/Player.ts";
 import { completeQuest, QUESTS } from "../world/quests.ts";
 import { resolveDynamic } from "../utils/dynamicUtils.ts";
 import { barter } from "./barter.ts";
-import type {
-  ActiveQuest,
-  DialogueActionResult,
-  DialogueOption,
-  Dialogue,
-  NPC,
-} from "../types.ts";
+import type { DialogueActionResult, DialogueOption, NPC } from "../types.ts";
 import npcDialogues from "../content/dialogues.ts";
 
 async function handleDialogueAction(

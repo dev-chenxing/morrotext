@@ -1,6 +1,6 @@
-import { CLASSES } from "../classes.ts";
 import { OBJECT_TYPE, SLOT } from "../constants.ts";
-import type { Class, NPC } from "../types.ts";
+import type { NPC, Class } from "../types.ts";
+import { getClass } from "../systems/classes.ts";
 
 type NPCRegistryEntry = {
   id: string;
@@ -34,30 +34,12 @@ const NPC_REGISTRY: NPCRegistryEntry[] = [
 ];
 
 function getNPCClass(classId: string): Class {
-  const classEntry = CLASSES.find((entry) => entry.id === classId);
-  if (!classEntry) {
+  const npcClass = getClass(classId);
+  if (!npcClass) {
     throw new Error(`Unknown NPC class: ${classId}`);
   }
 
-  return {
-    id: classEntry.id,
-    objectType: OBJECT_TYPE.ACTOR,
-    name: classEntry.name,
-    stats: {
-      attack: classEntry.stats?.attack ?? 0,
-      defense: classEntry.stats?.defense ?? 0,
-      maxHp: classEntry.stats?.maxHp ?? 1,
-      magic: classEntry.stats?.magic,
-      maxMana: classEntry.stats?.maxMana,
-      luck: classEntry.stats?.luck,
-    },
-    startingItems: classEntry.startingItems ?? [],
-    actions: {},
-    barters: classEntry.barters,
-    offers: classEntry.offers,
-    description: classEntry.description,
-    playable: classEntry.playable,
-  };
+  return npcClass;
 }
 
 function createNPC(entry: NPCRegistryEntry): NPC {
@@ -69,16 +51,7 @@ function createNPC(entry: NPCRegistryEntry): NPC {
     name: entry.name,
     level: entry.level ?? 1,
     class: npcClass,
-    stats: {
-      hp: npcClass.stats.maxHp,
-      maxHp: npcClass.stats.maxHp,
-      attack: npcClass.stats.attack,
-      defense: npcClass.stats.defense,
-      magic: npcClass.stats.magic ?? 0,
-      maxMana: npcClass.stats.maxMana ?? 0,
-      mana: npcClass.stats.maxMana ?? 0,
-      luck: npcClass.stats.luck ?? 0,
-    },
+    stats: npcClass.stats,
     equipment: {
       [SLOT.WEAPON]: null,
       [SLOT.ARMOR]: null,
@@ -91,8 +64,8 @@ function createNPC(entry: NPCRegistryEntry): NPC {
       ]),
     ),
     aiConfig: {
-      barters: { ...(npcClass.barters ?? {}) },
-      offers: { ...(npcClass.offers ?? {}) },
+      barters: npcClass.barters,
+      offers: npcClass.offers,
       fight: 0,
     },
     actions: [],

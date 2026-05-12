@@ -5,7 +5,8 @@
   "main": "src/game.ts",
   "scripts": {
     "start": "node src/game.ts",
-    "lint": "oxlint src/**/*.ts"
+    "lint": "oxlint src/**/*.ts",
+    "typecheck": "tsc --noEmit"
   },
   "keywords": [],
   "author": "",
