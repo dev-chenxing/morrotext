@@ -102,7 +102,7 @@ function createNPC(entry: NPCRegistryEntry): NPC {
 }
 
 export const NPCS: Record<string, NPC> = Object.fromEntries(
-  Object.entries(NPC_REGISTRY).map(([key, entry]) => [key, createNPC(entry)]),
+  NPC_REGISTRY.map((entry) => [entry.id, createNPC(entry)]),
 ) as Record<string, NPC>;
 
 export function getNPC(npcId: string): NPC {
