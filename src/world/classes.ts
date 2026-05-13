@@ -1,5 +1,5 @@
-import { MERCHANT_SERVICE, OBJECT_TYPE } from "./constants.ts";
-import type { Stats, ValueOf } from "./types.ts";
+import { MERCHANT_SERVICE, OBJECT_TYPE } from "../constants.ts";
+import type { Stats, ValueOf } from "../types.ts";
 
 export type ClassEntry = {
   id: string;

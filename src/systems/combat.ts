@@ -3,10 +3,10 @@ import inquirer from "inquirer";
 import type { Player } from "../actors/Player.ts";
 import { ITEMS } from "../world/items.ts";
 import { generateLoot } from "../world/loot.ts";
-import { ACTIONS } from "../actions.ts";
-import { CLASSES } from "../classes.ts";
+import { ACTIONS } from "../world/actions.ts";
+import { CLASSES } from "../world/classes.ts";
 import { COMBAT_BALANCE, OBJECT_TYPE } from "../constants.ts";
-import { useItem } from "../items.ts";
+import { useItem } from "./item.ts";
 import type { Area, Creature, NPC, Stats } from "../types.ts";
 
 function getActionChoices(player: Player): Array<{ name: string; value: string }> {

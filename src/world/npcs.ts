@@ -1,6 +1,6 @@
 import { OBJECT_TYPE, SLOT } from "../constants.ts";
 import type { NPC, Class } from "../types.ts";
-import { getClass } from "../systems/classes.ts";
+import { getClass } from "../systems/class.ts";
 
 type NPCRegistryEntry = {
   id: string;
@@ -58,7 +58,10 @@ function createNPC(entry: NPCRegistryEntry): NPC {
       [SLOT.ACCESSORY]: null,
     },
     inventory: Object.fromEntries(
-      Object.entries(entry.inventory ?? {}).map(([id]) => [id, Number.POSITIVE_INFINITY]),
+      Object.entries(entry.inventory ?? {}).map(([id]) => [
+        id,
+        Number.POSITIVE_INFINITY,
+      ]),
     ),
     aiConfig: {
       barters: npcClass.barters,

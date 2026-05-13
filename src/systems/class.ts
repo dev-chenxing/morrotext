@@ -1,7 +1,7 @@
-import { CLASSES } from "../classes.ts";
+import { CLASSES } from "../world/classes.ts";
 import { OBJECT_TYPE, MERCHANT_SERVICE } from "../constants.ts";
 import type { Class as GameClass, ValueOf } from "../types.ts";
-import type { ClassEntry } from "../classes.ts";
+import type { ClassEntry } from "../world/classes.ts";
 
 export function createClass(entry: ClassEntry): GameClass {
   const Barters: Record<ValueOf<typeof OBJECT_TYPE>, boolean> = Object.values(OBJECT_TYPE).reduce(

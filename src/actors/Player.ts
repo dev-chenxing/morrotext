@@ -1,5 +1,5 @@
 import chalk from "chalk";
-import { CLASSES } from "../classes.ts";
+import { CLASSES } from "../world/classes.ts";
 import { OBJECT_TYPE, PLAYER_DEFAULTS, SLOT } from "../constants.ts";
 import { EXP_LEVELS } from "../utils/expLevels.ts";
 import { ITEMS } from "../world/items.ts";
