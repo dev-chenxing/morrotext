@@ -37,7 +37,6 @@
 - [ ] feat: create `src/systems/action.ts` with
   - [x] `Action` interface with properties like `id`, `name`, `description`, `execute(player, target?)`, `condition?(player, target?)`
   - [x] `ACTIONS` registry with `fireball`, `cure_wounds`, `divine_smite`, etc.
-  - [ ] `getClassActions(className: string): Action[]` function to return available actions for a given class
   - [x] refactor: remove `castFireball()` and `divineHeal()` from `Player` class
   - [ ] refactor: update `systems/combat.ts`'s `getAvailableActions()` and combat loop to use action registry instead of hardcoded logic
 

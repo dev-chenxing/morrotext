@@ -2,8 +2,7 @@ import chalk from "chalk";
 import { OBJECT_TYPE, PLAYER_DEFAULTS, SLOT } from "../constants.ts";
 import { EXP_LEVELS } from "../utils/expLevels.ts";
 import { EFFECTS } from "../effects.ts";
-import { getObject } from "../gameState.ts";
-import { getClass } from "../systems/class.ts";
+import { getClass, getObject } from "../gameState.ts";
 import type {
   ActiveEffect,
   ActiveQuest,
@@ -15,7 +14,9 @@ import type {
   ValueOf,
 } from "../types.ts";
 
-function getSlotForItemType(objectType: ValueOf<typeof OBJECT_TYPE>): SLOT | null {
+function getSlotForItemType(
+  objectType: ValueOf<typeof OBJECT_TYPE>,
+): SLOT | null {
   switch (objectType) {
     case OBJECT_TYPE.WEAPON:
       return SLOT.WEAPON;
@@ -95,7 +96,11 @@ export class Player {
     this.killCount = {};
   }
 
-  private adjustStat(stat: keyof Stats, amount: number, preserveHealthRatio = false) {
+  private adjustStat(
+    stat: keyof Stats,
+    amount: number,
+    preserveHealthRatio = false,
+  ) {
     switch (stat) {
       case "attack":
         this.stats.attack += amount;
@@ -137,7 +142,9 @@ export class Player {
       return;
     }
 
-    for (const [stat, value] of Object.entries(stats ?? {}) as Array<[keyof Stats, number]>) {
+    for (const [stat, value] of Object.entries(stats ?? {}) as Array<
+      [keyof Stats, number]
+    >) {
       if (typeof value !== "number") continue;
       this.adjustStat(stat, value * multiplier, preserveHealthRatio);
     }
@@ -153,7 +160,9 @@ export class Player {
     if (!effect) return false;
 
     // Check for existing effect of same type
-    const existingIndex = this.activeEffects.findIndex((e) => e.id === effectId);
+    const existingIndex = this.activeEffects.findIndex(
+      (e) => e.id === effectId,
+    );
 
     // Remove existing effect first
     if (existingIndex !== -1) {
@@ -168,7 +177,9 @@ export class Player {
       // Remove from array
       this.activeEffects.splice(existingIndex, 1);
 
-      console.log(chalk.yellow("\nExisting blessing removed before applying new one."));
+      console.log(
+        chalk.yellow("\nExisting blessing removed before applying new one."),
+      );
     }
 
     // Apply effect new stat boosts
@@ -221,7 +232,9 @@ export class Player {
 
   addItem(itemId: string, count = 1) {
     if (!getObject(itemId)) {
-      console.error(chalk.red(`[WARNING] Tried to add invalid item: ${itemId}`));
+      console.error(
+        chalk.red(`[WARNING] Tried to add invalid item: ${itemId}`),
+      );
       return false;
     }
     if (!this.inventory[itemId]) this.inventory[itemId] = 0;
@@ -251,7 +264,10 @@ export class Player {
 
   addExp(amount: number) {
     this.exp += amount;
-    while (this.level < EXP_LEVELS.length && this.exp >= EXP_LEVELS[this.level]) {
+    while (
+      this.level < EXP_LEVELS.length &&
+      this.exp >= EXP_LEVELS[this.level]
+    ) {
       this.levelUp();
     }
   }
@@ -305,7 +321,8 @@ export class Player {
           console.log(chalk.green(`Equipped ${item.name}!`));
           break;
         case SLOT.ACCESSORY:
-          if (this.equipment.accessory) this.unequipItem(this.equipment.accessory);
+          if (this.equipment.accessory)
+            this.unequipItem(this.equipment.accessory);
           this.equipment.accessory = item;
           this.applyItemStats(item);
           console.log(chalk.green(`Equipped ${item.name} in accessory slot!`));

@@ -1,5 +1,4 @@
 import { OBJECT_TYPE, MERCHANT_SERVICE } from "../constants.ts";
-import { getClass } from "../gameState.ts";
 import type { Action, Class, ValueOf } from "../types.ts";
 import type { ClassEntry } from "../world/classes.ts";
 
@@ -48,5 +47,3 @@ export function createClass(entry: ClassEntry, actionRegistry: Action[] = []): C
     playable: entry.playable,
   };
 }
-
-export default { createClass, getClass };
