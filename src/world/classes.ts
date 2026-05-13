@@ -1,10 +1,14 @@
-import { MERCHANT_SERVICE, OBJECT_TYPE } from "../constants.ts";
-import type { Stats, ValueOf } from "../types.ts";
+import { MERCHANT_SERVICE, OBJECT_TYPE, ATTRIBUTES, SKILL } from "../constants.ts";
+import type { ValueOf } from "../types.ts";
 
 export type ClassEntry = {
   id: string;
   name: string;
-  stats?: Partial<Stats>;
+  // two attribute IDs from ATTRIBUTES
+  attributes?: ValueOf<typeof ATTRIBUTES>[];
+  // major/minor skill IDs from SKILL
+  majorSkills?: ValueOf<typeof SKILL>[];
+  minorSkills?: ValueOf<typeof SKILL>[];
   startingItems?: string[];
   actions?: string[];
   barters?: {
@@ -23,26 +27,42 @@ export const CLASSES: ClassEntry[] = [
     name: "Warrior",
     playable: true,
     description: "A strong and resilient fighter, skilled with weapons and armor.",
-    stats: {
-      attack: 15,
-      defense: 10,
-      maxHp: 120,
-      luck: 3, // Lower crit chance
-    },
+    attributes: [ATTRIBUTES.STRENGTH, ATTRIBUTES.ENDURANCE],
+    majorSkills: [
+      SKILL.LONG_BLADE,
+      SKILL.AXE,
+      SKILL.HEAVY_ARMOR,
+      SKILL.SHORT_BLADE,
+      SKILL.MARKSMAN,
+    ],
+    minorSkills: [
+      SKILL.SPEECHCRAFT,
+      SKILL.LIGHT_ARMOR,
+      SKILL.ALCHEMY,
+      SKILL.DESTRUCTION,
+      SKILL.RESTORATION,
+    ],
     startingItems: ["iron_sword", "leather_armor"],
   },
   {
     id: "mage",
     name: "Mage",
     playable: true,
-    stats: {
-      attack: 8,
-      defense: 5,
-      maxHp: 80,
-      magic: 20,
-      maxMana: 150,
-      luck: 7,
-    },
+    attributes: [ATTRIBUTES.INTELLIGENCE, ATTRIBUTES.WILLPOWER],
+    majorSkills: [
+      SKILL.DESTRUCTION,
+      SKILL.ILLUSION,
+      SKILL.CONJURATION,
+      SKILL.ALTERATION,
+      SKILL.RESTORATION,
+    ],
+    minorSkills: [
+      SKILL.ALCHEMY,
+      SKILL.MARKSMAN,
+      SKILL.SPEECHCRAFT,
+      SKILL.LIGHT_ARMOR,
+      SKILL.SHORT_BLADE,
+    ],
     startingItems: ["oak_staff", "mana_potion", "cloth_robe"],
     actions: ["fireball"],
     description:
@@ -52,14 +72,21 @@ export const CLASSES: ClassEntry[] = [
     id: "cleric",
     name: "Cleric",
     playable: true,
-    stats: {
-      attack: 8,
-      defense: 12,
-      maxHp: 100,
-      magic: 15,
-      maxMana: 100,
-      luck: 5,
-    },
+    attributes: [ATTRIBUTES.WILLPOWER, ATTRIBUTES.PERSONALITY],
+    majorSkills: [
+      SKILL.RESTORATION,
+      SKILL.DESTRUCTION,
+      SKILL.SPEECHCRAFT,
+      SKILL.ALTERATION,
+      SKILL.CONJURATION,
+    ],
+    minorSkills: [
+      SKILL.ALCHEMY,
+      SKILL.HEAVY_ARMOR,
+      SKILL.LONG_BLADE,
+      SKILL.LIGHT_ARMOR,
+      SKILL.MARKSMAN,
+    ],
     startingItems: ["mace", "holy_symbol", "cloth_robe"],
     actions: ["divineHeal"],
     description: "A devoted healer, using divine magic to support allies and smite foes.",
@@ -67,7 +94,7 @@ export const CLASSES: ClassEntry[] = [
   {
     id: "smith",
     name: "Smith",
-    stats: { attack: 0, defense: 0, maxHp: 50 },
+    attributes: [ATTRIBUTES.STRENGTH, ATTRIBUTES.ENDURANCE],
     barters: {
       [OBJECT_TYPE.WEAPON]: true,
       [OBJECT_TYPE.ARMOR]: true,
@@ -79,7 +106,7 @@ export const CLASSES: ClassEntry[] = [
   {
     id: "publican",
     name: "Publican",
-    stats: { attack: 0, defense: 0, maxHp: 40 },
+    attributes: [ATTRIBUTES.PERSONALITY, ATTRIBUTES.LUCK],
     barters: {
       [OBJECT_TYPE.ALCHEMY]: true,
     },

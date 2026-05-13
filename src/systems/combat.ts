@@ -5,7 +5,7 @@ import type { Player } from "../actors/Player.ts";
 import { generateLoot } from "../world/loot.ts";
 import { COMBAT_BALANCE, OBJECT_TYPE } from "../constants.ts";
 import { useItem } from "./item.ts";
-import type { Action, Area, Creature, NPC, Stats } from "../types.ts";
+import type { Area, Creature, NPC } from "../types.ts";
 
 function getActionChoices(player: Player): Array<{ name: string; value: string }> {
   const choices = [
@@ -20,26 +20,26 @@ function getActionChoices(player: Player): Array<{ name: string; value: string }
   return choices;
 }
 
-function getPlayerAction(player: Player, actionId: string): Action | undefined {
-  return player.class.actions.find((action) => action.id === actionId);
-}
+function calculateDamage(attacker: any, defender: any) {
+  // Derive basic attack/defense from attributes for now
+  const attackRating = attacker.strength?.base ?? attacker.intelligence?.base ?? 0;
+  const defenseRating = defender.endurance?.base ?? defender.agility?.base ?? 0;
 
-function calculateDamage(attacker: Creature | NPC | Player, defender: Creature | NPC | Player) {
-  // Base damage + 10% random variance
+  // Base damage + variance
   const baseDamage =
-    attacker.stats.attack *
+    attackRating *
     (COMBAT_BALANCE.ATTACK_VARIANCE_MIN + Math.random() * COMBAT_BALANCE.ATTACK_VARIANCE_RANGE);
 
-  // Critical hit chance (5% base + luck factor)
   const critChance =
-    COMBAT_BALANCE.CRIT_BASE_CHANCE + (attacker.stats.luck || 0) / COMBAT_BALANCE.LUCK_CRIT_DIVISOR;
+    COMBAT_BALANCE.CRIT_BASE_CHANCE +
+    (attacker.luck?.current ?? 0) / COMBAT_BALANCE.LUCK_CRIT_DIVISOR;
   const isCrit = Math.random() < critChance;
 
   const damage = Math.max(
     COMBAT_BALANCE.MIN_DAMAGE,
     Math.floor(
       baseDamage -
-        defender.stats.defense *
+        defenseRating *
           (COMBAT_BALANCE.DEFENSE_VARIANCE_MIN +
             Math.random() * COMBAT_BALANCE.DEFENSE_VARIANCE_RANGE),
     ),
@@ -48,9 +48,8 @@ function calculateDamage(attacker: Creature | NPC | Player, defender: Creature |
   return { damage, isCrit };
 }
 
-function formatCombatStatus(entity: { name: string; stats: Stats }) {
-  // Ensure HP never shows negative and add space
-  const currentHP = Math.max(0, entity.stats.hp);
+function formatCombatStatus(entity: any) {
+  const currentHP = Math.max(0, entity.health?.current ?? 0);
   return `${entity.name}: ${currentHP} HP`;
 }
 
@@ -61,10 +60,10 @@ function updateBattleDisplay(player: Player, enemy: Creature) {
   console.log(chalk.cyan("================\n"));
 }
 
-function applyDamage(target: { stats: Stats }, damage: number) {
-  const newHP = Math.max(0, target.stats.hp - damage);
-  const actualDamage = target.stats.hp - newHP;
-  target.stats.hp = newHP;
+function applyDamage(target: any, damage: number) {
+  const newHP = Math.max(0, (target.health?.current ?? 0) - damage);
+  const actualDamage = (target.health?.current ?? 0) - newHP;
+  if (target.health) target.health.current = newHP;
   return actualDamage;
 }
 
@@ -73,7 +72,7 @@ export async function startCombat(player: Player, enemy: Creature, area: Area) {
 
   updateBattleDisplay(player, enemy);
 
-  while (player.stats.hp > 0 && enemy.stats.hp > 0) {
+  while ((player.health?.current ?? 0) > 0 && (enemy.health?.current ?? 0) > 0) {
     const { action } = await inquirer.prompt({
       type: "list",
       name: "action",
@@ -127,12 +126,12 @@ export async function startCombat(player: Player, enemy: Creature, area: Area) {
         break;
 
       default: {
-        const classAction = getPlayerAction(player, action);
+        const classAction = player.class.actions.find((a) => a.id === action);
         const result = classAction?.execute(player, enemy);
 
         if (typeof result === "number" && result > 0) {
           if (classAction?.id === "divineHeal") {
-            console.log(chalk.cyan(`\n${player.name}: ${player.stats.hp}HP`));
+            console.log(chalk.cyan(`\n${player.name}: ${player.health.current}HP`));
             continue;
           }
 
@@ -150,7 +149,7 @@ export async function startCombat(player: Player, enemy: Creature, area: Area) {
   }
 
   // Victory handling
-  if (player.stats.hp > 0) {
+  if ((player.health?.current ?? 0) > 0) {
     player.recordKill(enemy.type ?? enemy.name);
 
     const gold = enemy.gold();

@@ -9,8 +9,6 @@ function getSlotForItemType(item: Item): SLOT | null {
       return SLOT.WEAPON;
     case OBJECT_TYPE.ARMOR:
       return SLOT.ARMOR;
-    case OBJECT_TYPE.ACCESSORY:
-      return SLOT.ACCESSORY;
     default:
       return null;
   }
@@ -43,9 +41,13 @@ export async function handleEquipment(player: Player, item: Item) {
   } else if (action === "inspect") {
     console.log(chalk.yellow(`\n${item.name}:`));
     console.log(`Type: ${item.objectType}`);
-    console.log(`Value: ${item.value} gold`);
-    if (item.stats)
-      Object.entries(item.stats).forEach(([stat, val]) =>
+    // `value` exists on valued item subtypes (weapon/armor/alchemy)
+    if ("value" in (item as any)) console.log(`Value: ${(item as any).value} gold`);
+    // Show armor rating for armor items
+    if ("armorRating" in (item as any)) console.log(`Armor: ${(item as any).armorRating}`);
+    // Show generic stats for items that expose a `stats` map (accessories, etc.)
+    if ("stats" in (item as any) && (item as any).stats)
+      Object.entries((item as any).stats).forEach(([stat, val]) =>
         console.log(`${stat}: ${val > 0 ? "+" : ""}${val}`),
       );
     if (item.description) console.log(`\n${item.description}`);

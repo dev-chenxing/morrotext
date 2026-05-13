@@ -1,4 +1,4 @@
-import { OBJECT_TYPE, SLOT } from "../constants.ts";
+import { OBJECT_TYPE, SLOT, SKILL } from "../constants.ts";
 import { getNPC } from "../gameState.ts";
 import type { NPC, Class } from "../types.ts";
 
@@ -45,21 +45,39 @@ function getNPCClass(classId: string, classes: Class[]): Class {
 export function createNPC(entry: NPCRegistryEntry, classes: Class[]): NPC {
   const npcClass = getNPCClass(entry.classId, classes);
 
+  const classStats = (npcClass as any).stats as Record<string, number> | undefined;
   return {
     id: entry.id,
     objectType: OBJECT_TYPE.NPC,
     name: entry.name,
     level: entry.level ?? 1,
     class: npcClass,
-    stats: { ...npcClass.stats },
     equipment: {
       [SLOT.WEAPON]: null,
       [SLOT.ARMOR]: null,
-      [SLOT.ACCESSORY]: null,
     },
     inventory: Object.fromEntries(
       Object.entries(entry.inventory ?? {}).map(([id]) => [id, Number.POSITIVE_INFINITY]),
     ),
+    health: {
+      base: classStats?.maxHp ?? 10,
+      current: classStats?.hp ?? classStats?.maxHp ?? 10,
+    },
+    magicka: { base: classStats?.maxMana ?? 0, current: classStats?.mana ?? 0 },
+    luck: { base: classStats?.luck ?? 0, current: classStats?.luck ?? 0 },
+    strength: {
+      base: classStats?.attack ?? 0,
+      current: classStats?.attack ?? 0,
+    },
+    endurance: {
+      base: classStats?.defense ?? 0,
+      current: classStats?.defense ?? 0,
+    },
+    intelligence: {
+      base: classStats?.magic ?? 0,
+      current: classStats?.magic ?? 0,
+    },
+    skills: new Array(Object.keys(SKILL).length).fill(0),
     aiConfig: {
       barters: npcClass.barters,
       offers: npcClass.offers,
@@ -81,13 +99,11 @@ function cloneNPC(npc: NPC): NPC {
     ...npc,
     class: {
       ...npc.class,
-      stats: { ...npc.class.stats },
       startingItems: [...npc.class.startingItems],
       actions: [...npc.class.actions],
       barters: { ...npc.class.barters },
       offers: { ...npc.class.offers },
     },
-    stats: { ...npc.stats },
     inventory: { ...npc.inventory },
     equipment: { ...npc.equipment },
     aiConfig: {
@@ -96,6 +112,7 @@ function cloneNPC(npc: NPC): NPC {
       offers: { ...npc.aiConfig.offers },
     },
     actions: [...npc.actions],
+    skills: npc.skills ? [...npc.skills] : [],
   };
 }
 

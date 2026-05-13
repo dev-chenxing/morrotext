@@ -12,9 +12,10 @@ export const ACTIONS: Action[] = [
     execute(player: Player) {
       const manaCost = this.manaCost ?? 0;
       const damageMultiplier = this.damageMultiplier ?? 0;
-      if (player.stats.mana >= manaCost) {
-        player.stats.mana -= manaCost;
-        return Math.floor(player.stats.magic * damageMultiplier);
+      if (player.magicka.current >= manaCost) {
+        player.magicka.current -= manaCost;
+        // Temporary mapping: use intelligence as a proxy for magic power
+        return Math.floor(player.intelligence.base * damageMultiplier);
       }
 
       console.log(chalk.red("Not enough mana!"));
@@ -30,13 +31,13 @@ export const ACTIONS: Action[] = [
     execute(player: Player) {
       const manaCost = this.manaCost ?? 0;
       const healMultiplier = this.healMultiplier ?? 0;
-      if (player.stats.mana >= manaCost) {
-        player.stats.mana -= manaCost;
+      if (player.magicka.current >= manaCost) {
+        player.magicka.current -= manaCost;
         const healAmount = Math.min(
-          player.stats.magic * healMultiplier,
-          player.stats.maxHp - player.stats.hp,
+          player.intelligence.base * healMultiplier,
+          player.health.base - player.health.current,
         );
-        player.stats.hp += healAmount;
+        player.health.current += healAmount;
 
         console.log(chalk.yellow(`Divine healing restored ${healAmount} HP!`));
         return healAmount;

@@ -20,11 +20,11 @@ export async function exploreRuins(player: Player, area: Area) {
   }
 
   let exploring = true;
-  while (exploring && player.stats.hp > 0) {
+  while (exploring && player.health.current > 0) {
     // Random encounters
     if (
       exploring &&
-      player.stats.hp > 0 &&
+      player.health.current > 0 &&
       Math.random() > RUINS_BALANCE.RANDOM_ENCOUNTER_THRESHOLD
     ) {
       const enemies = ["skeleton", "skeleton", "stone_golem", "void_cultist"];
@@ -89,7 +89,7 @@ export async function exploreRuins(player: Player, area: Area) {
         const trapDamage =
           Math.floor(Math.random() * RUINS_BALANCE.TRAP_DAMAGE_RANGE) +
           RUINS_BALANCE.TRAP_DAMAGE_MIN;
-        player.stats.hp = Math.max(1, player.stats.hp - trapDamage);
+        player.health.current = Math.max(1, player.health.current - trapDamage);
         console.log(`Took ${trapDamage} damage!`);
         break;
 
@@ -147,8 +147,8 @@ async function handleArtifactChamber(player: Player) {
         if (player.class.id === "cleric" && player.hasItem("holy_symbol")) {
           console.log(chalk.cyan("\nYou notice faint inscriptions matching your holy symbol..."));
           console.log(chalk.green("Divine energy flows through you!"));
-          player.stats.maxMana += RUINS_BALANCE.CLERIC_MANA_BONUS;
-          player.stats.mana = player.stats.maxMana;
+          player.magicka.base += RUINS_BALANCE.CLERIC_MANA_BONUS;
+          player.magicka.current = player.magicka.base;
         } else {
           console.log(
             chalk.cyan("\nYou study the artifact carefully but can't decipher its markings."),
@@ -159,7 +159,10 @@ async function handleArtifactChamber(player: Player) {
       case "Destroy it":
         console.log(chalk.red("You smash the artifact with your weapon!"));
         console.log("A wave of dark energy explodes outward...");
-        player.stats.hp = Math.max(1, player.stats.hp - RUINS_BALANCE.ARTIFACT_DESTRUCTION_DAMAGE);
+        player.health.current = Math.max(
+          1,
+          player.health.current - RUINS_BALANCE.ARTIFACT_DESTRUCTION_DAMAGE,
+        );
         player.storyFlags.artifactDestroyed = true;
         return true;
 

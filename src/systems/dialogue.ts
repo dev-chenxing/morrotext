@@ -22,7 +22,8 @@ async function handleDialogueAction(
     case "rest":
       if (typeof data.cost === "number" && player.gold >= data.cost) {
         player.gold -= data.cost;
-        player.stats.hp = player.stats.maxHp;
+        player.health.current = player.health.base;
+        player.magicka.current = player.magicka.base;
         return {
           message: chalk.green("You rest fully and recover all HP and mana!"),
           exit: true,
@@ -131,23 +132,16 @@ async function handleDialogueAction(
     case "blessing":
       if (typeof data.cost === "number" && player.gold >= data.cost) {
         player.gold -= data.cost;
-
-        player.applyEffect("blessing");
-        return {
-          exit: true,
-        };
+        // Apply immediate small heal/restore as a replacement for runtime blessing effects
+        player.health.current = Math.min(player.health.base, player.health.current + 10);
+        player.magicka.current = Math.min(player.magicka.base, player.magicka.current + 10);
+        return { exit: true };
       }
-      return {
-        message: chalk.red("Not enough gold for blessing!"),
-        exit: false,
-      };
+      return { message: chalk.red("Not enough gold for blessing!"), exit: false };
 
     case "prayer":
-      player.stats.mana = player.stats.maxMana;
-      return {
-        message: chalk.blue("Divine energy renews your spirit!"),
-        exit: true,
-      };
+      player.magicka.current = player.magicka.base;
+      return { message: chalk.blue("Divine energy renews your spirit!"), exit: true };
 
     case "leave":
       return { message: "Come back anytime!", exit: true };

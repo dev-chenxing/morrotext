@@ -19,32 +19,11 @@ export async function useItem(
 
   switch (item.objectType) {
     case OBJECT_TYPE.ALCHEMY:
-      if (item.effect) {
-        if (item.effect.hp) {
-          const oldHP = player.stats.hp;
-          player.stats.hp = Math.min(player.stats.maxHp, player.stats.hp + item.effect.hp);
-          message = `Restored ${player.stats.hp - oldHP} HP!`;
-        }
-        if (item.effect.mana) {
-          const oldMana = player.stats.mana;
-          player.stats.mana = Math.min(player.stats.maxMana, player.stats.mana + item.effect.mana);
-          message = `Restored ${player.stats.mana - oldMana} mana!`;
-        }
-        if (item.effect.damageUndead) {
-          if (enemy && enemy.type === CREATURE_TYPE.UNDEAD) {
-            const damage = item.effect.damageUndead;
-            if (typeof enemy.hp === "number") {
-              enemy.hp = Math.max(0, enemy.hp - damage);
-            }
-            message = `The holy water burns ${enemy.name || "the enemy"} for ${damage} damage!`;
-          }
-        }
-      }
+      message = `You use the ${item.name}.`;
       break;
 
     case OBJECT_TYPE.WEAPON:
     case OBJECT_TYPE.ARMOR:
-    case OBJECT_TYPE.ACCESSORY:
       await handleEquipment(player, item);
       break;
 

@@ -1,5 +1,12 @@
 import type { Player as PlayerType } from "./actors/Player.ts";
-import { CREATURE_TYPE, MERCHANT_SERVICE, OBJECT_TYPE, SLOT } from "./constants.ts";
+import {
+  CREATURE_TYPE,
+  MERCHANT_SERVICE,
+  OBJECT_TYPE,
+  SLOT,
+  ATTRIBUTES,
+  SKILL,
+} from "./constants.ts";
 
 export type Player = PlayerType;
 
@@ -23,7 +30,7 @@ export interface LeveledItem extends GameObject {
 
 export interface Actor extends GameObject {
   equipment: Equipment;
-  inventory: Record<string, number>;
+  inventory: Inventory;
   objectType: OBJECT_TYPE.ACTOR | OBJECT_TYPE.NPC;
   hasItemEquipped: (item: string) => boolean;
   offersServices: (service: ValueOf<typeof MERCHANT_SERVICE>) => boolean;
@@ -40,20 +47,24 @@ export type AiConfig = {
   fight: number;
 };
 
-export type Stats = {
-  hp: number;
-  maxHp: number;
-  attack: number;
-  defense: number;
-  magic: number;
-  maxMana: number;
-  mana: number;
-  luck: number;
-};
+export interface Statistic {
+  base: number;
+  current: number;
+}
 
 export interface NPC extends Actor {
   aiConfig: AiConfig;
-  stats: Stats;
+  health: Statistic;
+  magicka: Statistic;
+  luck: Statistic;
+  strength: Statistic;
+  intelligence: Statistic;
+  willpower: Statistic;
+  agility: Statistic;
+  speed: Statistic;
+  endurance: Statistic;
+  personality: Statistic;
+  skills: number[];
   class: Class;
   level: number;
   name: string;
@@ -61,26 +72,58 @@ export interface NPC extends Actor {
   actions: Action[];
 }
 
-export interface Item {
-  id: string;
+export interface Item extends GameObject {
+  // Minimal base Item: includes `id` and `objectType` from GameObject
   name: string;
-  objectType: ValueOf<typeof OBJECT_TYPE>;
-  value: number;
   description?: string;
-  stats?: Partial<Stats>;
-  effect?: ItemEffect;
+}
+
+export interface Alchemy extends Item {
+  value: number;
+  effect: any;
+}
+
+export interface Weapon extends Item {
+  value: number;
+  min: number;
+  max: number;
+}
+
+export interface Armor extends Item {
+  value: number;
+  armorRating: number;
+}
+
+export interface ItemStack {
+  count: number;
+  object: Item;
+}
+
+export interface Inventory {
+  items: ItemStack[];
+  addItem: (item: Item | string, count?: number) => number;
+  removeItem: (item: Item | string, count?: number) => number;
+  contains: (item: Item | string) => boolean;
 }
 
 export interface Equipment {
-  [SLOT.WEAPON]: Item | null;
-  [SLOT.ARMOR]: Item | null;
-  [SLOT.ACCESSORY]: Item | null;
+  [SLOT.WEAPON]: Weapon | null;
+  [SLOT.ARMOR]: Armor | null;
 }
 
 export interface Creature extends Actor {
   type: ValueOf<typeof CREATURE_TYPE>;
   name: string;
-  stats: Stats;
+  health: Statistic;
+  magicka: Statistic;
+  luck: Statistic;
+  strength: Statistic;
+  intelligence: Statistic;
+  willpower: Statistic;
+  agility: Statistic;
+  speed: Statistic;
+  endurance: Statistic;
+  personality: Statistic;
   exp: number;
   loot?: string[];
   gold: () => number;
@@ -115,20 +158,6 @@ export interface ActiveQuest extends Quest {
 
 export type StoryFlags = Record<string, boolean>;
 
-export interface Effect {
-  id: string;
-  name: string;
-  duration: number;
-  stats?: Partial<Stats>;
-  onApply?: (player: Player) => void;
-  onExpire?: (player: Player) => void;
-}
-
-export interface ActiveEffect extends Effect {
-  expiresAt: number;
-  timerId?: ReturnType<typeof setTimeout>;
-}
-
 export interface Action {
   id: string;
   name: string;
@@ -143,7 +172,11 @@ export interface Action {
 
 export interface Class extends GameObject {
   name: string;
-  stats: Stats;
+  // Two attribute IDs associated with the class (maps to `ATTRIBUTES`).
+  attributes: ValueOf<typeof ATTRIBUTES>[];
+  // Major and minor skills for the class (maps to `SKILL`).
+  majorSkills: ValueOf<typeof SKILL>[];
+  minorSkills: ValueOf<typeof SKILL>[];
   startingItems: string[];
   actions: Action[];
   barters: {
@@ -194,12 +227,6 @@ export interface DialogueActionResult {
   exit?: boolean;
   nextState?: string;
   effect?: () => void;
-}
-
-export interface ItemEffect {
-  hp?: number;
-  mana?: number;
-  damageUndead?: number;
 }
 
 export type QuestObjectiveType = "collect" | "return" | "loot" | "report";

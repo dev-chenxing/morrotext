@@ -1,29 +1,26 @@
 import chalk from "chalk";
-import { OBJECT_TYPE, PLAYER_DEFAULTS, SLOT } from "../constants.ts";
+import { OBJECT_TYPE, PLAYER_DEFAULTS, SLOT, SKILL } from "../constants.ts";
 import { EXP_LEVELS } from "../utils/expLevels.ts";
-import { EFFECTS } from "../effects.ts";
 import { getClass, getObject } from "../gameState.ts";
 import type {
-  ActiveEffect,
   ActiveQuest,
   Class,
   Equipment,
   Item,
-  Stats,
   StoryFlags,
+  Statistic,
   ValueOf,
+  Weapon,
+  Armor,
+  Alchemy,
 } from "../types.ts";
 
-function getSlotForItemType(
-  objectType: ValueOf<typeof OBJECT_TYPE>,
-): SLOT | null {
+function getSlotForItemType(objectType: ValueOf<typeof OBJECT_TYPE>): SLOT | null {
   switch (objectType) {
     case OBJECT_TYPE.WEAPON:
       return SLOT.WEAPON;
     case OBJECT_TYPE.ARMOR:
       return SLOT.ARMOR;
-    case OBJECT_TYPE.ACCESSORY:
-      return SLOT.ACCESSORY;
     default:
       return null;
   }
@@ -38,8 +35,10 @@ export class Player {
   exp: number;
   level: number;
   class: Class;
-  stats: Stats;
-  activeEffects: ActiveEffect[];
+  health: Statistic;
+  magicka: Statistic;
+  luck: Statistic;
+  skills: number[];
   equipment: Equipment;
   inventory: Record<string, number>;
   gold: number;
@@ -64,25 +63,32 @@ export class Player {
     }
 
     this.class = selectedClass as Class;
-    const classStats = this.class.stats;
+    const classStats = (this.class as any).stats as Record<string, number> | undefined;
 
-    this.stats = {
-      hp: classStats.maxHp ?? 10,
-      maxHp: classStats.maxHp ?? 10,
-      attack: classStats.attack ?? 0,
-      defense: classStats.defense ?? 0,
-      magic: classStats.magic ?? 0,
-      maxMana: classStats.maxMana ?? 0,
-      mana: classStats.maxMana ?? 0,
-      luck: classStats.luck ?? 0,
-    };
+    // Initialize skills array sized to the number of defined SKILL constants
+    const skillCount = Object.keys(SKILL).length;
+    this.skills = new Array(skillCount).fill(0);
 
-    this.activeEffects = [];
+    const maxHp = classStats?.maxHp ?? 10;
+    const hp = classStats?.hp ?? maxHp;
+    this.health = { base: maxHp, current: hp };
+
+    // Deprecated mana fields removed from player initialization. Magicka
+    // remains but starts at zero; mana should be handled by specific systems.
+    this.magicka = { base: 0, current: 0 };
+
+    // Initialize `luck` alongside other attributes.
+    this.luck =
+      classStats && classStats["luck"]
+        ? (classStats["luck"] as Statistic)
+        : {
+            base: PLAYER_DEFAULTS.LUCK ?? 0,
+            current: PLAYER_DEFAULTS.LUCK ?? 0,
+          };
 
     this.equipment = {
       weapon: null,
       armor: null,
-      accessory: null,
     };
     this.inventory = {}; // {itemId: count}
     this.addStartingItems();
@@ -96,57 +102,43 @@ export class Player {
     this.killCount = {};
   }
 
-  private adjustStat(
-    stat: keyof Stats,
-    amount: number,
-    preserveHealthRatio = false,
-  ) {
-    switch (stat) {
-      case "attack":
-        this.stats.attack += amount;
-        break;
-      case "defense":
-        this.stats.defense += amount;
-        break;
-      case "magic":
-        this.stats.magic += amount;
-        break;
-      case "luck":
-        this.stats.luck += amount;
-        break;
-      case "maxMana":
-        this.stats.maxMana += amount;
-        this.stats.mana = Math.min(this.stats.mana, this.stats.maxMana);
-        break;
-      case "maxHp": {
-        const oldMax = this.stats.maxHp;
-        this.stats.maxHp += amount;
-
-        if (preserveHealthRatio && oldMax > 0) {
-          const hpPercent = this.stats.hp / oldMax;
-          this.stats.hp = Math.max(1, Math.floor(this.stats.maxHp * hpPercent));
-        } else {
-          this.stats.hp = Math.min(this.stats.hp, this.stats.maxHp);
-        }
-        break;
-      }
-    }
-  }
-
-  private applyStats(
-    stats: Partial<Stats> | undefined,
-    multiplier: 1 | -1,
-    preserveHealthRatio = false,
-  ) {
-    if (!stats) {
-      return;
-    }
-
-    for (const [stat, value] of Object.entries(stats ?? {}) as Array<
-      [keyof Stats, number]
-    >) {
+  // Apply item stat modifiers to player attributes, ignoring deprecated
+  // HP/Mana keys. Items should not directly mutate HP/mana via equip/unequip.
+  private applyItemModifiers(stats: Record<string, number> | undefined, multiplier: 1 | -1) {
+    if (!stats) return;
+    for (const [key, value] of Object.entries(stats)) {
       if (typeof value !== "number") continue;
-      this.adjustStat(stat, value * multiplier, preserveHealthRatio);
+      const adj = value * multiplier;
+
+      switch (key) {
+        case "luck":
+          this.luck.base += adj;
+          this.luck.current += adj;
+          break;
+        case "strength":
+        case "intelligence":
+        case "willpower":
+        case "agility":
+        case "speed":
+        case "endurance":
+        case "personality": {
+          const attr = (this as any)[key] as { base: number; current: number } | undefined;
+          if (attr) {
+            attr.base += adj;
+            attr.current = Math.max(0, attr.current + adj);
+          }
+          break;
+        }
+        case "hp":
+        case "maxHp":
+        case "mana":
+        case "maxMana":
+          console.log(chalk.yellow(`Ignored deprecated stat modifier '${key}' on equip/unequip`));
+          break;
+        default:
+          console.log(chalk.yellow(`Unknown stat key on item: ${key}`));
+          break;
+      }
     }
   }
 
@@ -155,67 +147,8 @@ export class Player {
     this.killCount[enemyType]++;
   }
 
-  applyEffect(effectId: string) {
-    const effect = EFFECTS[effectId];
-    if (!effect) return false;
-
-    // Check for existing effect of same type
-    const existingIndex = this.activeEffects.findIndex(
-      (e) => e.id === effectId,
-    );
-
-    // Remove existing effect first
-    if (existingIndex !== -1) {
-      const existing = this.activeEffects[existingIndex];
-
-      // Remove stat boosts
-      this.applyStats(existing.stats, -1);
-
-      // Cancel expiration timer
-      clearTimeout(existing.timerId);
-
-      // Remove from array
-      this.activeEffects.splice(existingIndex, 1);
-
-      console.log(
-        chalk.yellow("\nExisting blessing removed before applying new one."),
-      );
-    }
-
-    // Apply effect new stat boosts
-    this.applyStats(effect.stats, 1);
-
-    // Set expiration
-    const effectClone: ActiveEffect = {
-      ...effect,
-      expiresAt: Date.now() + effect.duration * 1000,
-    };
-    this.activeEffects.push(effectClone);
-
-    // Trigger callback
-    if (effect.onApply) effect.onApply(this);
-
-    console.log(chalk.yellow(`\n${effect.name} applied!`));
-
-    return true;
-  }
-
-  updateEffects() {
-    const now = Date.now();
-    this.activeEffects = this.activeEffects.filter((effect) => {
-      if (effect.expiresAt <= now) {
-        // Remove effect stats
-        this.applyStats(effect.stats, -1);
-
-        // Trigger expiration callback
-        if (effect.onExpire) effect.onExpire(this);
-
-        console.log(chalk.yellow(`\n${effect.name} has worn off.`));
-        return false;
-      }
-      return true;
-    });
-  }
+  // Runtime effect lifecycle removed from Player. Effects should be applied
+  // directly by systems.
 
   addStartingItems() {
     const startingItems = this.class.startingItems ?? [];
@@ -223,18 +156,15 @@ export class Player {
       this.addItem(itemId);
 
       // Auto-equip weapons and armor
-      const item = getObject(itemId);
+      const item = getObject(itemId) as Item | Weapon | Armor | Alchemy | undefined;
       if (item && isEquipmentItem(item)) {
-        this.equipItem(item);
+        this.equipItem(item as Item);
       }
     });
   }
-
   addItem(itemId: string, count = 1) {
     if (!getObject(itemId)) {
-      console.error(
-        chalk.red(`[WARNING] Tried to add invalid item: ${itemId}`),
-      );
+      console.error(chalk.red(`[WARNING] Tried to add invalid item: ${itemId}`));
       return false;
     }
     if (!this.inventory[itemId]) this.inventory[itemId] = 0;
@@ -264,28 +194,21 @@ export class Player {
 
   addExp(amount: number) {
     this.exp += amount;
-    while (
-      this.level < EXP_LEVELS.length &&
-      this.exp >= EXP_LEVELS[this.level]
-    ) {
+    while (this.level < EXP_LEVELS.length && this.exp >= EXP_LEVELS[this.level]) {
       this.levelUp();
     }
   }
 
   levelUp() {
     this.level++;
-    this.stats.maxHp += PLAYER_DEFAULTS.LEVEL_UP_HP_GAIN;
-    this.stats.hp = this.stats.maxHp;
+    this.health.base += PLAYER_DEFAULTS.LEVEL_UP_HP_GAIN;
+    this.health.current = this.health.base;
     console.log(chalk.yellow(`\n=== LEVEL UP! (${this.level}) ===`));
-    console.log(`Max HP increased to ${this.stats.maxHp}`);
+    console.log(`Max HP increased to ${this.health.base}`);
   }
 
   isItemEquipped(itemId: string) {
-    return (
-      this.equipment.weapon?.id === itemId ||
-      this.equipment.armor?.id === itemId ||
-      this.equipment.accessory?.id === itemId
-    );
+    return this.equipment.weapon?.id === itemId || this.equipment.armor?.id === itemId;
   }
 
   unequipItemById(itemId: string) {
@@ -293,8 +216,6 @@ export class Player {
       this.unequipItem(this.equipment.weapon);
     } else if (this.equipment.armor?.id === itemId) {
       this.unequipItem(this.equipment.armor);
-    } else if (this.equipment.accessory?.id === itemId) {
-      this.unequipItem(this.equipment.accessory);
     }
   }
 
@@ -308,24 +229,20 @@ export class Player {
       switch (slot) {
         case SLOT.WEAPON:
           if (this.equipment.weapon) this.unequipItem(this.equipment.weapon);
-          this.equipment.weapon = item;
-          this.applyItemStats(item);
+          this.equipment.weapon = item as Weapon;
+          if ("stats" in (item as any) && (item as any).stats) this.applyItemStats(item);
 
           console.log(chalk.green(`Equipped ${item.name}!`));
           break;
         case SLOT.ARMOR:
           if (this.equipment.armor) this.unequipItem(this.equipment.armor);
-          this.equipment.armor = item;
-          this.applyItemStats(item);
+          this.equipment.armor = item as Armor;
+          if ("stats" in (item as any) && (item as any).stats) this.applyItemStats(item);
 
           console.log(chalk.green(`Equipped ${item.name}!`));
           break;
-        case SLOT.ACCESSORY:
-          if (this.equipment.accessory)
-            this.unequipItem(this.equipment.accessory);
-          this.equipment.accessory = item;
-          this.applyItemStats(item);
-          console.log(chalk.green(`Equipped ${item.name} in accessory slot!`));
+        default:
+          // No other slots supported
           break;
       }
     } catch (error) {
@@ -344,8 +261,7 @@ export class Player {
       case SLOT.ARMOR:
         this.equipment.armor = null;
         break;
-      case SLOT.ACCESSORY:
-        this.equipment.accessory = null;
+      default:
         break;
     }
 
@@ -353,10 +269,14 @@ export class Player {
   }
 
   applyItemStats(item: Item) {
-    this.applyStats(item.stats, 1, true);
+    if ("stats" in (item as any) && (item as any).stats) {
+      this.applyItemModifiers((item as any).stats as Record<string, number>, 1);
+    }
   }
 
   removeItemStats(item: Item) {
-    this.applyStats(item.stats, -1, true);
+    if ("stats" in (item as any) && (item as any).stats) {
+      this.applyItemModifiers((item as any).stats as Record<string, number>, -1);
+    }
   }
 }

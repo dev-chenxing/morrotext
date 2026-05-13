@@ -6,7 +6,12 @@ import { startCombat } from "./systems/combat.ts";
 import { talkToNPC } from "./systems/dialogue.ts";
 import { useItem } from "./systems/item.ts";
 import { GAME_TIMINGS } from "./constants.ts";
-import { game, getDialogue, getNonDynamicData, getObject } from "./gameState.ts";
+import {
+  game,
+  getDialogue,
+  getNonDynamicData,
+  getObject,
+} from "./gameState.ts";
 import { initializeGameData } from "./initialize.ts";
 import { createCreatureInstance } from "./world/creatures.ts";
 import { exploreRuins } from "./world/ruins.ts";
@@ -34,7 +39,13 @@ export async function showMainMenu(player: Player) {
     type: "list",
     name: "action",
     message: "What would you like to do?",
-    choices: ["Travel", "Check Stats", "View Inventory", "View Quests", "Exit Game"],
+    choices: [
+      "Travel",
+      "Check Stats",
+      "View Inventory",
+      "View Quests",
+      "Exit Game",
+    ],
   });
 
   switch (action) {
@@ -140,7 +151,7 @@ export async function enterArea(player: Player, area: Area) {
     await exploreRuins(player, area);
   } else {
     let inArea = true;
-    while (inArea && player.stats.hp > 0) {
+    while (inArea && player.health.current > 0) {
       console.log(chalk.cyan(`\n=== ${area.name} ===`));
       console.log(chalk.hex("#8B4513")(description));
 
@@ -199,7 +210,9 @@ async function showTravelMenu(player: Player) {
 
   if (destination === "Cancel") return showMainMenu(player);
 
-  const selectedArea = getNonDynamicData().areas.find((loc) => loc.name === destination);
+  const selectedArea = getNonDynamicData().areas.find(
+    (loc) => loc.name === destination,
+  );
   if (!selectedArea) {
     console.log(chalk.red("Unknown destination selected."));
     return showMainMenu(player);
@@ -219,7 +232,8 @@ async function startGame() {
       type: "input",
       name: "name",
       message: "Enter your name:",
-      validate: (input: string) => input.trim() !== "" || "Name cannot be empty!",
+      validate: (input: string) =>
+        input.trim() !== "" || "Name cannot be empty!",
     });
     name = response.name.trim();
   }
@@ -240,10 +254,6 @@ async function startGame() {
 
   const player = new Player(name, className);
   game.player = player;
-
-  setInterval(() => {
-    player.updateEffects();
-  }, GAME_TIMINGS.EFFECT_TICK_INTERVAL_MS);
 
   await showMainMenu(player);
 }

@@ -1,12 +1,12 @@
 import { getCreature } from "../gameState.ts";
-import type { Creature, Stats, ValueOf } from "../types.ts";
+import type { Creature, ValueOf } from "../types.ts";
 import { CREATURE_TYPE, OBJECT_TYPE } from "../constants.ts";
 
 export type CreatureEntry = {
   type: ValueOf<typeof CREATURE_TYPE>;
   id: string;
   name?: string;
-  stats: Partial<Stats>;
+  stats: Partial<Record<string, number>>;
   exp: number;
   loot?: string[];
   gold: () => number;
@@ -82,7 +82,7 @@ export function createCreature(creature: CreatureEntry): Creature {
   return {
     id: creature.id,
     objectType: OBJECT_TYPE.ACTOR,
-    equipment: { weapon: null, armor: null, accessory: null },
+    equipment: { weapon: null, armor: null },
     inventory: {},
     hasItemEquipped: (_id: string) => false,
     offersServices: (_service) => false,
@@ -90,15 +90,29 @@ export function createCreature(creature: CreatureEntry): Creature {
 
     type: creature.type,
     name: creature.name ?? creature.id,
-    stats: {
-      hp: creature.stats.hp ?? 10,
-      maxHp: creature.stats.maxHp ?? creature.stats.hp ?? 10,
-      attack: creature.stats.attack ?? 0,
-      defense: creature.stats.defense ?? 0,
-      magic: creature.stats.magic ?? 0,
-      maxMana: creature.stats.maxMana ?? 0,
-      mana: creature.stats.mana ?? 0,
-      luck: creature.stats.luck ?? 0,
+    health: {
+      base: creature.stats.maxHp ?? creature.stats.hp ?? 10,
+      current: creature.stats.hp ?? creature.stats.maxHp ?? 10,
+    },
+    magicka: {
+      base: creature.stats.maxMana ?? 0,
+      current: creature.stats.mana ?? 0,
+    },
+    luck: {
+      base: creature.stats.luck ?? 0,
+      current: creature.stats.luck ?? 0,
+    },
+    strength: {
+      base: creature.stats.attack ?? 0,
+      current: creature.stats.attack ?? 0,
+    },
+    endurance: {
+      base: creature.stats.defense ?? 0,
+      current: creature.stats.defense ?? 0,
+    },
+    intelligence: {
+      base: creature.stats.magic ?? 0,
+      current: creature.stats.magic ?? 0,
     },
     exp: creature.exp,
     loot: creature.loot,
@@ -111,7 +125,12 @@ function cloneCreature(creature: Creature): Creature {
     ...creature,
     equipment: { ...creature.equipment },
     inventory: { ...creature.inventory },
-    stats: { ...creature.stats },
+    health: { ...creature.health },
+    magicka: { ...creature.magicka },
+    luck: { ...creature.luck },
+    strength: { ...creature.strength },
+    endurance: { ...creature.endurance },
+    intelligence: { ...creature.intelligence },
     loot: creature.loot ? [...creature.loot] : undefined,
   };
 }

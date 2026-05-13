@@ -70,7 +70,8 @@ const CREATURE_TYPE_VALUES = {
 
 export const CREATURE_TYPE = CREATURE_TYPE_VALUES;
 
-export type CREATURE_TYPE = (typeof CREATURE_TYPE_VALUES)[keyof typeof CREATURE_TYPE_VALUES];
+export type CREATURE_TYPE =
+  (typeof CREATURE_TYPE_VALUES)[keyof typeof CREATURE_TYPE_VALUES];
 
 export namespace CREATURE_TYPE {
   export type NORMAL = typeof CREATURE_TYPE_VALUES.NORMAL;
@@ -128,3 +129,45 @@ export const RUINS_BALANCE = {
   ARTIFACT_DESTRUCTION_DAMAGE: 30,
   CLERIC_MANA_BONUS: 20,
 } as const;
+
+export const ATTRIBUTES = {
+  STRENGTH: "strength",
+  INTELLIGENCE: "intelligence",
+  WILLPOWER: "willpower",
+  AGILITY: "agility",
+  SPEED: "speed",
+  ENDURANCE: "endurance",
+  PERSONALITY: "personality",
+  LUCK: "luck",
+} as const;
+
+export type ATTRIBUTES = (typeof ATTRIBUTES)[keyof typeof ATTRIBUTES];
+
+export namespace ATTRIBUTES {
+  export type STRENGTH = typeof ATTRIBUTES.STRENGTH;
+  export type INTELLIGENCE = typeof ATTRIBUTES.INTELLIGENCE;
+  export type WILLPOWER = typeof ATTRIBUTES.WILLPOWER;
+  export type AGILITY = typeof ATTRIBUTES.AGILITY;
+  export type SPEED = typeof ATTRIBUTES.SPEED;
+  export type ENDURANCE = typeof ATTRIBUTES.ENDURANCE;
+  export type PERSONALITY = typeof ATTRIBUTES.PERSONALITY;
+  export type LUCK = typeof ATTRIBUTES.LUCK;
+}
+
+export const SKILL = {
+  HEAVY_ARMOR: 0,
+  LONG_BLADE: 1,
+  AXE: 2,
+  DESTRUCTION: 3,
+  ALTERATION: 4,
+  ILLUSION: 5,
+  CONJURATION: 6,
+  RESTORATION: 7,
+  ALCHEMY: 8,
+  LIGHT_ARMOR: 9,
+  SHORT_BLADE: 10,
+  MARKSMAN: 11,
+  SPEECHCRAFT: 12,
+} as const;
+
+export type SKILL = (typeof SKILL)[keyof typeof SKILL];

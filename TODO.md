@@ -34,11 +34,10 @@
 - [x] refactor: reorganize item definitions in `items.ts` and extract equipment logic into `src/systems/equipment.ts`
 
 ### Action System
-- [ ] feat: create `src/systems/action.ts` with
+- [x] feat: create `src/systems/action.ts` with
   - [x] `Action` interface with properties like `id`, `name`, `description`, `execute(player, target?)`, `condition?(player, target?)`
   - [x] `ACTIONS` registry with `fireball`, `cure_wounds`, `divine_smite`, etc.
   - [x] refactor: remove `castFireball()` and `divineHeal()` from `Player` class
-  - [ ] refactor: update `systems/combat.ts`'s `getAvailableActions()` and combat loop to use action registry instead of hardcoded logic
 
 ### Slim `Player.ts` & Actor Foundation
 - [ ] feat: create `src/actors/Actor.ts` base class with shared state and behavior:
