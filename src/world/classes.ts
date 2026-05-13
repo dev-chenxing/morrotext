@@ -22,8 +22,7 @@ export const CLASSES: ClassEntry[] = [
     id: "warrior",
     name: "Warrior",
     playable: true,
-    description:
-      "A strong and resilient fighter, skilled with weapons and armor.",
+    description: "A strong and resilient fighter, skilled with weapons and armor.",
     stats: {
       attack: 15,
       defense: 10,
@@ -63,8 +62,7 @@ export const CLASSES: ClassEntry[] = [
     },
     startingItems: ["mace", "holy_symbol", "cloth_robe"],
     actions: ["divineHeal"],
-    description:
-      "A devoted healer, using divine magic to support allies and smite foes.",
+    description: "A devoted healer, using divine magic to support allies and smite foes.",
   },
   {
     id: "smith",

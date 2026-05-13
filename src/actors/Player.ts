@@ -1,9 +1,9 @@
 import chalk from "chalk";
-import { CLASSES } from "../world/classes.ts";
 import { OBJECT_TYPE, PLAYER_DEFAULTS, SLOT } from "../constants.ts";
 import { EXP_LEVELS } from "../utils/expLevels.ts";
-import { ITEMS } from "../world/items.ts";
 import { EFFECTS } from "../effects.ts";
+import { getObject } from "../gameState.ts";
+import { getClass } from "../systems/class.ts";
 import type {
   ActiveEffect,
   ActiveQuest,
@@ -53,7 +53,7 @@ export class Player {
     this.exp = PLAYER_DEFAULTS.EXP;
     this.level = PLAYER_DEFAULTS.LEVEL;
 
-    const selectedClass = CLASSES.find((c) => c.id === classId);
+    const selectedClass = getClass(classId);
     if (!selectedClass) {
       throw new Error(`Unknown class: ${classId}`);
     }
@@ -212,7 +212,7 @@ export class Player {
       this.addItem(itemId);
 
       // Auto-equip weapons and armor
-      const item = ITEMS[itemId];
+      const item = getObject(itemId);
       if (item && isEquipmentItem(item)) {
         this.equipItem(item);
       }
@@ -220,7 +220,7 @@ export class Player {
   }
 
   addItem(itemId: string, count = 1) {
-    if (!ITEMS[itemId]) {
+    if (!getObject(itemId)) {
       console.error(chalk.red(`[WARNING] Tried to add invalid item: ${itemId}`));
       return false;
     }

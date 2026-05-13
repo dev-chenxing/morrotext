@@ -1,3 +1,4 @@
+import { getCreature } from "../gameState.ts";
 import type { Creature, Stats, ValueOf } from "../types.ts";
 import { CREATURE_TYPE, OBJECT_TYPE } from "../constants.ts";
 
@@ -77,14 +78,8 @@ export const CREATURES: CreatureEntry[] = [
   },
 ];
 
-export function createCreature(type: string): Creature {
-  const creature = CREATURES.find((e) => e.id === type);
-
-  if (!creature) {
-    throw new Error(`Unknown creature type: ${type}`);
-  }
-
-  const runtime: Creature = {
+export function createCreature(creature: CreatureEntry): Creature {
+  return {
     id: creature.id,
     objectType: OBJECT_TYPE.ACTOR,
     equipment: { weapon: null, armor: null, accessory: null },
@@ -109,6 +104,29 @@ export function createCreature(type: string): Creature {
     loot: creature.loot,
     gold: creature.gold,
   };
+}
 
-  return runtime;
+function cloneCreature(creature: Creature): Creature {
+  return {
+    ...creature,
+    equipment: { ...creature.equipment },
+    inventory: { ...creature.inventory },
+    stats: { ...creature.stats },
+    loot: creature.loot ? [...creature.loot] : undefined,
+  };
+}
+
+export function createCreatureInstance(id: string): Creature {
+  const exists = getCreature(id);
+  if (exists) {
+    return cloneCreature(exists);
+  }
+
+  const creature = CREATURES.find((entry) => entry.id === id);
+
+  if (!creature) {
+    throw new Error(`Unknown creature id: ${id}`);
+  }
+
+  return createCreature(creature);
 }

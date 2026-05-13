@@ -1,10 +1,12 @@
 import chalk from "chalk";
 import { PROGRESSION } from "../constants.ts";
+import { getObject } from "../gameState.ts";
 import type { Player } from "../types.ts";
 import { getNextLevelExp } from "../utils/expLevels.ts";
-import { ITEMS } from "../world/items.ts";
 
 export function showPlayerStats(player: Player) {
+  const equippedWeapon = player.equipment.weapon ? getObject(player.equipment.weapon.id) : null;
+  const equippedArmor = player.equipment.armor ? getObject(player.equipment.armor.id) : null;
   console.log(chalk.blue("\n=== Character Stats ==="));
   console.log(chalk.blue(`\n=== ${player.name} (Level ${player.level}) ===`));
   console.log(`Class: ${chalk.yellow(player.class.name.toUpperCase())}`);
@@ -20,10 +22,8 @@ export function showPlayerStats(player: Player) {
   console.log(`Luck:    ${chalk.cyan(player.stats.luck)}`);
 
   console.log(`\nEquipment:`);
-  console.log(
-    `Weapon: ${player.equipment.weapon ? ITEMS[player.equipment.weapon.id].name : "None"}`,
-  );
-  console.log(`Armor:  ${player.equipment.armor ? ITEMS[player.equipment.armor.id].name : "None"}`);
+  console.log(`Weapon: ${equippedWeapon ? equippedWeapon.name : "None"}`);
+  console.log(`Armor:  ${equippedArmor ? equippedArmor.name : "None"}`);
 
   console.log(`\nGold:   ${chalk.yellow(player.gold)}`);
 

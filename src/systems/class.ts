@@ -1,9 +1,9 @@
-import { CLASSES } from "../world/classes.ts";
 import { OBJECT_TYPE, MERCHANT_SERVICE } from "../constants.ts";
-import type { Class as GameClass, ValueOf } from "../types.ts";
+import { getClass } from "../gameState.ts";
+import type { Action, Class, ValueOf } from "../types.ts";
 import type { ClassEntry } from "../world/classes.ts";
 
-export function createClass(entry: ClassEntry): GameClass {
+export function createClass(entry: ClassEntry, actionRegistry: Action[] = []): Class {
   const Barters: Record<ValueOf<typeof OBJECT_TYPE>, boolean> = Object.values(OBJECT_TYPE).reduce(
     (acc, key) => {
       acc[key as ValueOf<typeof OBJECT_TYPE>] =
@@ -39,20 +39,14 @@ export function createClass(entry: ClassEntry): GameClass {
       luck: entry.stats?.luck ?? 0,
     },
     startingItems: entry.startingItems ?? [],
-    actions: {},
+    actions: (entry.actions ?? [])
+      .map((actionId) => actionRegistry.find((action) => action.id === actionId))
+      .filter((action): action is Action => Boolean(action)),
     barters: Barters,
     offers: Offers,
     description: entry.description,
     playable: entry.playable,
   };
-}
-
-export function getClass(classId: string): GameClass | undefined {
-  const classEntry = CLASSES.find((entry) => entry.id === classId);
-  if (!classEntry) {
-    return undefined;
-  }
-  return createClass(classEntry);
 }
 
 export default { createClass, getClass };

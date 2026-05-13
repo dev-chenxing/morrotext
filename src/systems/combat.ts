@@ -1,13 +1,11 @@
 import chalk from "chalk";
 import inquirer from "inquirer";
+import { getObject } from "../gameState.ts";
 import type { Player } from "../actors/Player.ts";
-import { ITEMS } from "../world/items.ts";
 import { generateLoot } from "../world/loot.ts";
-import { ACTIONS } from "../world/actions.ts";
-import { CLASSES } from "../world/classes.ts";
 import { COMBAT_BALANCE, OBJECT_TYPE } from "../constants.ts";
 import { useItem } from "./item.ts";
-import type { Area, Creature, NPC, Stats } from "../types.ts";
+import type { Action, Area, Creature, NPC, Stats } from "../types.ts";
 
 function getActionChoices(player: Player): Array<{ name: string; value: string }> {
   const choices = [
@@ -15,14 +13,15 @@ function getActionChoices(player: Player): Array<{ name: string; value: string }
     { name: "Use Item", value: "Use Item" },
   ];
 
-  const classEntry = CLASSES.find((c) => c.id === player.class.id);
-  const classActions = classEntry?.actions ?? [];
-  for (const actId of classActions) {
-    const act = ACTIONS.find((a) => a.id === actId);
-    if (act) choices.push({ name: act.description, value: actId });
+  for (const action of player.class.actions) {
+    choices.push({ name: action.description, value: action.id });
   }
 
   return choices;
+}
+
+function getPlayerAction(player: Player, actionId: string): Action | undefined {
+  return player.class.actions.find((action) => action.id === actionId);
 }
 
 function calculateDamage(attacker: Creature | NPC | Player, defender: Creature | NPC | Player) {
@@ -102,14 +101,18 @@ export async function startCombat(player: Player, enemy: Creature, area: Area) {
 
       case "Use Item":
         const inventoryList = Object.entries(player.inventory)
-          .filter(([id]) => ITEMS[id].objectType === OBJECT_TYPE.ALCHEMY)
+          .filter(([id]) => getObject(id)?.objectType === OBJECT_TYPE.ALCHEMY)
           .map(([id, count]) => {
-            const item = ITEMS[id];
+            const item = getObject(id);
+            if (!item) {
+              return null;
+            }
             return {
               name: `${item.name} x${count}`,
               value: id,
             };
-          });
+          })
+          .filter((item): item is { name: string; value: string } => Boolean(item));
         const { itemId } = await inquirer.prompt({
           type: "list",
           name: "itemId",
@@ -123,25 +126,19 @@ export async function startCombat(player: Player, enemy: Creature, area: Area) {
         }
         break;
 
-      case "divineHeal": {
-        {
-          const action = ACTIONS.find((a) => a.id === "divineHeal");
-          const result = action?.execute(player, enemy);
-          if (typeof result === "number" && result > 0) {
-            console.log(chalk.cyan(`\n${player.name}: ${player.stats.hp}HP`));
-            continue; // healing skips enemy attack
-          }
-        }
-        break;
-      }
+      default: {
+        const classAction = getPlayerAction(player, action);
+        const result = classAction?.execute(player, enemy);
 
-      case "fireball": {
-        {
-          const action = ACTIONS.find((a) => a.id === "fireball");
-          const fireDmg = action?.execute(player, enemy);
-          if (typeof fireDmg === "number" && fireDmg > 0) {
-            applyDamage(enemy, fireDmg);
-            console.log(chalk.red(`Fireball deals ${fireDmg} damage!`));
+        if (typeof result === "number" && result > 0) {
+          if (classAction?.id === "divineHeal") {
+            console.log(chalk.cyan(`\n${player.name}: ${player.stats.hp}HP`));
+            continue;
+          }
+
+          if (classAction?.id === "fireball") {
+            applyDamage(enemy, result);
+            console.log(chalk.red(`${classAction.name} deals ${result} damage!`));
           }
         }
         break;
@@ -164,7 +161,8 @@ export async function startCombat(player: Player, enemy: Creature, area: Area) {
     if (enemy.loot) {
       enemy.loot.forEach((itemId) => {
         if (Math.random() < COMBAT_BALANCE.ENEMY_LOOT_DROP_CHANCE) {
-          const item = ITEMS[itemId];
+          const item = getObject(itemId);
+          if (!item) return;
           player.addItem(itemId);
           console.log(chalk.blue(`Found ${item.name}!`));
         }
@@ -174,7 +172,10 @@ export async function startCombat(player: Player, enemy: Creature, area: Area) {
     // Procedural loot generation
     const lootId = area.lootTable ? generateLoot(area.lootTable) : null;
     if (lootId) {
-      const proceduralItem = ITEMS[lootId];
+      const proceduralItem = getObject(lootId);
+      if (!proceduralItem) {
+        throw new Error(`Unknown loot item: ${lootId}`);
+      }
       player.addItem(lootId);
       console.log(chalk.blue(`Found ${proceduralItem.name}!`));
     }

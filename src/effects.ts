@@ -9,9 +9,7 @@ export const EFFECTS: Record<string, Effect> = {
     duration: GAME_TIMINGS.BLESSING_DURATION_SECONDS,
     stats: { attack: 5, defense: 5 },
     onApply: () => {
-      console.log(
-        chalk.yellow("\nHoly light surrounds you! You feel empowered."),
-      );
+      console.log(chalk.yellow("\nHoly light surrounds you! You feel empowered."));
     },
   },
 };

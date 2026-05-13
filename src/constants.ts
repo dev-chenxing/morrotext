@@ -14,8 +14,7 @@ const OBJECT_TYPES = {
 
 export const OBJECT_TYPE = OBJECT_TYPES;
 
-export type OBJECT_TYPE =
-  (typeof OBJECT_TYPES)[keyof typeof OBJECT_TYPES];
+export type OBJECT_TYPE = (typeof OBJECT_TYPES)[keyof typeof OBJECT_TYPES];
 
 export namespace OBJECT_TYPE {
   export type ACCESSORY = typeof OBJECT_TYPES.ACCESSORY;
@@ -71,8 +70,7 @@ const CREATURE_TYPE_VALUES = {
 
 export const CREATURE_TYPE = CREATURE_TYPE_VALUES;
 
-export type CREATURE_TYPE =
-  (typeof CREATURE_TYPE_VALUES)[keyof typeof CREATURE_TYPE_VALUES];
+export type CREATURE_TYPE = (typeof CREATURE_TYPE_VALUES)[keyof typeof CREATURE_TYPE_VALUES];
 
 export namespace CREATURE_TYPE {
   export type NORMAL = typeof CREATURE_TYPE_VALUES.NORMAL;

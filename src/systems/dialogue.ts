@@ -1,11 +1,11 @@
 import inquirer from "inquirer";
 import chalk from "chalk";
 import type { Player } from "../actors/Player.ts";
+import { getDialogue } from "../gameState.ts";
 import { completeQuest, QUESTS } from "../world/quests.ts";
 import { resolveDynamic } from "../utils/dynamicUtils.ts";
 import { barter } from "./barter.ts";
 import type { DialogueActionResult, DialogueOption, NPC } from "../types.ts";
-import npcDialogues from "../content/dialogues.ts";
 
 async function handleDialogueAction(
   player: Player,
@@ -13,7 +13,7 @@ async function handleDialogueAction(
   action: string,
   data: DialogueOption,
 ): Promise<DialogueActionResult> {
-  const entry = npcDialogues[actor.id];
+  const entry = getDialogue(actor.id);
   switch (action) {
     case "open_shop":
       await barter(player, actor);
@@ -161,7 +161,7 @@ async function handleDialogueAction(
 }
 
 export async function talkToNPC(actor: NPC, player: Player) {
-  const entry = npcDialogues[actor.id];
+  const entry = getDialogue(actor.id);
 
   if (!entry) {
     console.log(chalk.red(`NPC ${actor.id} not found!`));
@@ -212,8 +212,9 @@ export async function talkToNPC(actor: NPC, player: Player) {
 }
 
 export function getNPCName(npcKey: string) {
-  if (!npcDialogues[npcKey]) {
+  const dialogue = getDialogue(npcKey);
+  if (!dialogue) {
     throw new Error(`Missing NPC data for: ${npcKey}`);
   }
-  return npcDialogues[npcKey].name;
+  return dialogue.name;
 }

@@ -1,10 +1,5 @@
 import type { Player as PlayerType } from "./actors/Player.ts";
-import {
-  CREATURE_TYPE,
-  MERCHANT_SERVICE,
-  OBJECT_TYPE,
-  SLOT,
-} from "./constants.ts";
+import { CREATURE_TYPE, MERCHANT_SERVICE, OBJECT_TYPE, SLOT } from "./constants.ts";
 
 export type Player = PlayerType;
 
@@ -150,7 +145,7 @@ export interface Class extends GameObject {
   name: string;
   stats: Stats;
   startingItems: string[];
-  actions?: Record<string, Action>;
+  actions: Action[];
   barters: {
     [objectType in ValueOf<typeof OBJECT_TYPE>]: boolean;
   };
@@ -164,6 +159,7 @@ export interface Class extends GameObject {
 export type DynamicValue<T> = T | ((player: Player) => T);
 
 export interface Area {
+  id: string;
   name: string;
   description: DynamicValue<string>;
   npcs: string[];
@@ -188,6 +184,7 @@ export interface DialogueState {
 }
 
 export interface Dialogue {
+  id: string;
   name: string;
   dialogues: Record<string, DialogueState>;
 }

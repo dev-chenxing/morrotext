@@ -4,7 +4,7 @@ import figlet from "figlet";
 import { RUINS_BALANCE } from "../constants.ts";
 import type { Player } from "../actors/Player.ts";
 import { startCombat } from "../systems/combat.ts";
-import { createCreature } from "../world/creatures.ts";
+import { createCreatureInstance } from "../world/creatures.ts";
 import { ITEMS } from "../world/items.ts";
 import { generateLoot } from "./loot.ts";
 import { updateQuestProgress } from "./quests.ts";
@@ -29,7 +29,7 @@ export async function exploreRuins(player: Player, area: Area) {
     ) {
       const enemies = ["skeleton", "skeleton", "stone_golem", "void_cultist"];
       const enemyType = enemies[Math.floor(Math.random() * enemies.length)];
-      await startCombat(player, createCreature(enemyType), area);
+      await startCombat(player, createCreatureInstance(enemyType), area);
     }
 
     const hasArtifact = player.hasItem("ancient_artifact");

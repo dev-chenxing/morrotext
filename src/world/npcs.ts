@@ -1,8 +1,8 @@
 import { OBJECT_TYPE, SLOT } from "../constants.ts";
+import { getNPC } from "../gameState.ts";
 import type { NPC, Class } from "../types.ts";
-import { getClass } from "../systems/class.ts";
 
-type NPCRegistryEntry = {
+export type NPCRegistryEntry = {
   id: string;
   name: string;
   level?: number;
@@ -10,7 +10,7 @@ type NPCRegistryEntry = {
   inventory?: Record<string, number>;
 };
 
-const NPC_REGISTRY: NPCRegistryEntry[] = [
+export const NPC_REGISTRY: NPCRegistryEntry[] = [
   {
     id: "smith",
     name: "Smith",
@@ -33,8 +33,8 @@ const NPC_REGISTRY: NPCRegistryEntry[] = [
   },
 ];
 
-function getNPCClass(classId: string): Class {
-  const npcClass = getClass(classId);
+function getNPCClass(classId: string, classes: Class[]): Class {
+  const npcClass = classes.find((gameClass) => gameClass.id === classId);
   if (!npcClass) {
     throw new Error(`Unknown NPC class: ${classId}`);
   }
@@ -42,8 +42,8 @@ function getNPCClass(classId: string): Class {
   return npcClass;
 }
 
-function createNPC(entry: NPCRegistryEntry): NPC {
-  const npcClass = getNPCClass(entry.classId);
+export function createNPC(entry: NPCRegistryEntry, classes: Class[]): NPC {
+  const npcClass = getNPCClass(entry.classId, classes);
 
   return {
     id: entry.id,
@@ -51,24 +51,21 @@ function createNPC(entry: NPCRegistryEntry): NPC {
     name: entry.name,
     level: entry.level ?? 1,
     class: npcClass,
-    stats: npcClass.stats,
+    stats: { ...npcClass.stats },
     equipment: {
       [SLOT.WEAPON]: null,
       [SLOT.ARMOR]: null,
       [SLOT.ACCESSORY]: null,
     },
     inventory: Object.fromEntries(
-      Object.entries(entry.inventory ?? {}).map(([id]) => [
-        id,
-        Number.POSITIVE_INFINITY,
-      ]),
+      Object.entries(entry.inventory ?? {}).map(([id]) => [id, Number.POSITIVE_INFINITY]),
     ),
     aiConfig: {
       barters: npcClass.barters,
       offers: npcClass.offers,
       fight: 0,
     },
-    actions: [],
+    actions: [...npcClass.actions],
     hasItemEquipped: () => false,
     offersServices(service) {
       return Boolean(this.aiConfig.offers[service]);
@@ -79,18 +76,18 @@ function createNPC(entry: NPCRegistryEntry): NPC {
   };
 }
 
-export const NPCS: Record<string, NPC> = Object.fromEntries(
-  NPC_REGISTRY.map((entry) => [entry.id, createNPC(entry)]),
-) as Record<string, NPC>;
-
-export function getNPC(npcId: string): NPC {
-  const npc = NPCS[npcId];
-  if (!npc) {
-    throw new Error(`Missing NPC registry entry for: ${npcId}`);
-  }
-
+function cloneNPC(npc: NPC): NPC {
   return {
     ...npc,
+    class: {
+      ...npc.class,
+      stats: { ...npc.class.stats },
+      startingItems: [...npc.class.startingItems],
+      actions: [...npc.class.actions],
+      barters: { ...npc.class.barters },
+      offers: { ...npc.class.offers },
+    },
+    stats: { ...npc.stats },
     inventory: { ...npc.inventory },
     equipment: { ...npc.equipment },
     aiConfig: {
@@ -102,4 +99,13 @@ export function getNPC(npcId: string): NPC {
   };
 }
 
-export default NPCS;
+export function createNPCInstance(npcId: string): NPC {
+  const npc = getNPC(npcId);
+  if (!npc) {
+    throw new Error(`Missing NPC registry entry for: ${npcId}`);
+  }
+
+  return cloneNPC(npc);
+}
+
+export default { createNPC, createNPCInstance };

@@ -3,6 +3,7 @@ import { isQuestAvailable } from "../world/quests.ts";
 
 export const npcDialogues: Record<string, Dialogue> = {
   smith: {
+    id: "smith",
     name: "Smith",
     dialogues: {
       initial: {
@@ -90,6 +91,7 @@ export const npcDialogues: Record<string, Dialogue> = {
     },
   },
   publican: {
+    id: "publican",
     name: "Publican",
     dialogues: {
       initial: {
@@ -140,6 +142,7 @@ export const npcDialogues: Record<string, Dialogue> = {
     },
   },
   hermit: {
+    id: "hermit",
     name: "Old Hermit",
     dialogues: {
       initial: {
@@ -202,6 +205,7 @@ export const npcDialogues: Record<string, Dialogue> = {
     },
   },
   priestess: {
+    id: "priestess",
     name: "High Prietess Elara",
     dialogues: {
       initial: {
@@ -232,6 +236,7 @@ export const npcDialogues: Record<string, Dialogue> = {
     },
   },
   forest_warden: {
+    id: "forest_warden",
     name: "Ranger Alden",
     dialogues: {
       initial: {

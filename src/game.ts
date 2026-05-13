@@ -1,19 +1,16 @@
 import inquirer from "inquirer";
 import chalk from "chalk";
 import figlet from "figlet";
-import { areas } from "./world/areas.ts";
 import { Player } from "./actors/Player.ts";
 import { startCombat } from "./systems/combat.ts";
 import { talkToNPC } from "./systems/dialogue.ts";
-import npcDialogues from "./content/dialogues.ts";
 import { useItem } from "./systems/item.ts";
-import { CLASSES } from "./world/classes.ts";
 import { GAME_TIMINGS } from "./constants.ts";
-import { game } from "./gameState.ts";
-import { createCreature } from "./world/creatures.ts";
-import { ITEMS } from "./world/items.ts";
+import { game, getDialogue, getNonDynamicData, getObject } from "./gameState.ts";
+import { initializeGameData } from "./initialize.ts";
+import { createCreatureInstance } from "./world/creatures.ts";
 import { exploreRuins } from "./world/ruins.ts";
-import { getNPC } from "./world/npcs.ts";
+import { createNPCInstance } from "./world/npcs.ts";
 import { resolveDynamic } from "./utils/dynamicUtils.ts";
 import { showPlayerStats } from "./ui/hud.ts";
 import type { ActiveQuest, Area } from "./types.ts";
@@ -37,13 +34,7 @@ export async function showMainMenu(player: Player) {
     type: "list",
     name: "action",
     message: "What would you like to do?",
-    choices: [
-      "Travel",
-      "Check Stats",
-      "View Inventory",
-      "View Quests",
-      "Exit Game",
-    ],
+    choices: ["Travel", "Check Stats", "View Inventory", "View Quests", "Exit Game"],
   });
 
   switch (action) {
@@ -66,14 +57,19 @@ export async function showMainMenu(player: Player) {
 }
 
 export async function showInventory(player: Player) {
-  const inventoryList = Object.entries(player.inventory).map(([id, count]) => {
-    const item = ITEMS[id];
-    const isEquipped = player.isItemEquipped(id);
-    return {
-      name: `${item.name}${isEquipped ? " (Equipped)" : ""} x${count}`,
-      value: id,
-    };
-  });
+  const inventoryList = Object.entries(player.inventory)
+    .map(([id, count]) => {
+      const item = getObject(id);
+      if (!item) {
+        return null;
+      }
+      const isEquipped = player.isItemEquipped(id);
+      return {
+        name: `${item.name}${isEquipped ? " (Equipped)" : ""} x${count}`,
+        value: id,
+      };
+    })
+    .filter((item): item is { name: string; value: string } => Boolean(item));
 
   if (inventoryList.length === 0) {
     console.log(chalk.red("\nYour inventory is empty!"));
@@ -89,7 +85,7 @@ export async function showInventory(player: Player) {
 
   if (!itemId) return showMainMenu(player);
 
-  const item = ITEMS[itemId];
+  const item = getObject(itemId);
   if (item) {
     const result = await useItem(player, itemId);
     if (result) console.log(chalk.yellow(`\n${result}\n`));
@@ -132,7 +128,7 @@ function getRandomCreature(areaEnemies: string[]) {
   const creatureTypes = areaEnemies;
   const totalWeight = creatureTypes.length;
   const selected = creatureTypes[Math.floor(Math.random() * totalWeight)];
-  return createCreature(selected);
+  return createCreatureInstance(selected);
 }
 
 export async function enterArea(player: Player, area: Area) {
@@ -150,7 +146,7 @@ export async function enterArea(player: Player, area: Area) {
 
       const choices = [
         ...area.npcs.map((npcKey: string) => ({
-          name: `Talk to ${npcDialogues[npcKey]?.name || npcKey}`,
+          name: `Talk to ${getDialogue(npcKey)?.name || npcKey}`,
           value: `npc:${npcKey}`,
         })),
         { name: "Return to Main Menu", value: "return" },
@@ -169,7 +165,7 @@ export async function enterArea(player: Player, area: Area) {
 
       if (action.startsWith("npc:")) {
         const npcKey = action.split(":")[1];
-        await talkToNPC(getNPC(npcKey), player);
+        await talkToNPC(createNPCInstance(npcKey), player);
 
         return enterArea(player, area);
       } else if (action === "explore") {
@@ -186,7 +182,7 @@ export async function enterArea(player: Player, area: Area) {
 }
 
 async function showTravelMenu(player: Player) {
-  const availableAreas = Object.values(areas).filter((loc) => {
+  const availableAreas = getNonDynamicData().areas.filter((loc) => {
     // Check travel conditions
     if (loc.travelCondition && !loc.travelCondition(player)) {
       return false;
@@ -203,9 +199,7 @@ async function showTravelMenu(player: Player) {
 
   if (destination === "Cancel") return showMainMenu(player);
 
-  const selectedArea = Object.values(areas).find(
-    (loc) => loc.name === destination,
-  );
+  const selectedArea = getNonDynamicData().areas.find((loc) => loc.name === destination);
   if (!selectedArea) {
     console.log(chalk.red("Unknown destination selected."));
     return showMainMenu(player);
@@ -217,22 +211,25 @@ async function showTravelMenu(player: Player) {
 
 // Initialize game
 async function startGame() {
+  initializeGameData();
+
   let name = "";
   while (!name.trim()) {
     const response = await inquirer.prompt<{ name: string }>({
       type: "input",
       name: "name",
       message: "Enter your name:",
-      validate: (input: string) =>
-        input.trim() !== "" || "Name cannot be empty!",
+      validate: (input: string) => input.trim() !== "" || "Name cannot be empty!",
     });
     name = response.name.trim();
   }
 
-  const classChoices = CLASSES.filter((cls) => cls.playable).map((cls) => ({
-    name: cls.name,
-    value: cls.id,
-  }));
+  const classChoices = getNonDynamicData()
+    .classes.filter((cls) => cls.playable)
+    .map((cls) => ({
+      name: cls.name,
+      value: cls.id,
+    }));
 
   const { className } = await inquirer.prompt<{ className: string }>({
     type: "list",

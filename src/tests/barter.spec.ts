@@ -1,7 +1,8 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
 import inquirer from "inquirer";
+import { initializeGameData } from "../initialize.ts";
 import { talkToNPC } from "../systems/dialogue.ts";
-import { getNPC } from "../world/npcs.ts";
+import { createNPCInstance } from "../world/npcs.ts";
 import { areas } from "../world/areas.ts";
 import { Player } from "../actors/Player.ts";
 import { ITEMS } from "../world/items.ts";
@@ -13,6 +14,8 @@ describe("barter", () => {
   });
 
   it("Player travels to Havenwood and buys a Health Potion from the Publican", async () => {
+    initializeGameData();
+
     // Verify Havenwood exists (travel target)
     expect(areas.town.name).toBe("Havenwood");
 
@@ -33,7 +36,7 @@ describe("barter", () => {
     const player = new Player("Tester", "warrior");
     player.gold = 1000;
 
-    const publican = getNPC("publican");
+    const publican = createNPCInstance("publican");
 
     await talkToNPC(publican, player);
 
