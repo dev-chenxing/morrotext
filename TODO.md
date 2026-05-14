@@ -27,7 +27,7 @@
 - [x] refactor: rename `shop.ts` to `barter.ts` and rename `openShop` to `barter`
 - [x] refactor: update barter logic to filter items based on NPC trade capabilities
 - [x] refactor: update NPC inventory to use infinite stock for now (do not decrement NPC inventory)
-- [ ] refactor: update NPC inventory logic to support finite stock and restocking over time
+- [x] refactor: update NPC inventory logic to support finite stock and restocking over time
 
 ### Data Separation
 - [x] refactor: extract creature definitions from `systems/combat.ts` into `src/world/creatures.ts`

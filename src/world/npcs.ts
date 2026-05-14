@@ -19,7 +19,6 @@ export const NPC_REGISTRY: NPCRegistryEntry[] = [
     level: 1,
     classId: "smith",
     inventory: {
-      iron_helmet: -1,
       steel_sword: -1,
     },
   },

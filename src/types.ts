@@ -104,6 +104,7 @@ export interface Inventory {
   addItem: (item: Item | string, count?: number) => number;
   removeItem: (item: Item | string, count?: number) => number;
   contains: (item: Item | string) => boolean;
+  restock: () => void;
 }
 
 export interface Equipment {

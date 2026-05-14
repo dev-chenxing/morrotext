@@ -11,12 +11,15 @@ function isValuedItem(item: Item | undefined): item is ValuedItem {
 }
 
 export async function barter(player: Player, actor: NPC) {
+  // Ensure NPC restocks any restockable items before showing available items
+  actor.inventory.restock();
   const invKeys = actor.inventory.items.map((stack) => stack.object.id);
   const availableItems = invKeys.filter((id) => {
     const item = getObject(id);
     if (!item) return false;
 
-    return actor.tradesItemType(item.objectType);
+    // only include items the NPC trades and that have >0 available currently
+    return actor.tradesItemType(item.objectType) && actor.inventory.contains(id);
   });
 
   let shopping = true;
@@ -30,7 +33,7 @@ export async function barter(player: Player, actor: NPC) {
 
     switch (action) {
       case "Buy Items":
-        await buyItems(player, availableItems);
+        await buyItems(player, actor, availableItems);
         break;
       case "Sell Items":
         await sellItems(player, actor);
@@ -41,7 +44,7 @@ export async function barter(player: Player, actor: NPC) {
   }
 }
 
-async function buyItems(player: Player, availableItems: string[]) {
+async function buyItems(player: Player, actor: NPC, availableItems: string[]) {
   if (availableItems.length === 0) {
     console.log(chalk.yellow("This merchant has nothing available for trade."));
     return;
@@ -82,6 +85,13 @@ async function buyItems(player: Player, availableItems: string[]) {
     const price = Math.ceil(item.value * SHOP_PRICES.BUY_MULTIPLIER);
 
     if (player.gold >= price) {
+      // attempt to remove from merchant inventory first
+      const removed = actor.inventory.removeItem(itemId, 1);
+      if (removed <= 0) {
+        console.log(chalk.red("Item no longer in stock."));
+        return;
+      }
+
       player.gold -= price;
       player.addItem(itemId);
       console.log(chalk.green(`Purchased ${item.name}!`));
@@ -152,6 +162,19 @@ async function sellItems(player: Player, actor: NPC) {
 
     const qty = parseInt(quantity);
     player.removeItem(itemId, qty);
+    // increase merchant stock appropriately (restockable stacks grow, finite stacks increase)
+    const stack = actor.inventory.items.find((s) => s.object.id === itemId);
+    if (stack) {
+      if (stack.count < 0) {
+        const newAmount = Math.abs(stack.count) + qty;
+        stack.count = -newAmount;
+      } else {
+        stack.count += qty;
+      }
+    } else {
+      const resolved = getObject(itemId);
+      if (resolved) actor.inventory.items.push({ object: resolved, count: qty });
+    }
     player.gold += value * qty;
     console.log(chalk.green(`Sold ${qty}x ${item.name} for ${value * qty} gold!`));
   }
