@@ -48,7 +48,6 @@ export namespace MERCHANT_SERVICE {
 const SLOT_VALUES = {
   WEAPON: "weapon",
   ARMOR: "armor",
-  ACCESSORY: "accessory",
 } as const;
 
 export const SLOT = SLOT_VALUES;
@@ -58,7 +57,6 @@ export type SLOT = (typeof SLOT_VALUES)[keyof typeof SLOT_VALUES];
 export namespace SLOT {
   export type WEAPON = typeof SLOT_VALUES.WEAPON;
   export type ARMOR = typeof SLOT_VALUES.ARMOR;
-  export type ACCESSORY = typeof SLOT_VALUES.ACCESSORY;
 }
 
 const CREATURE_TYPE_VALUES = {
@@ -70,8 +68,7 @@ const CREATURE_TYPE_VALUES = {
 
 export const CREATURE_TYPE = CREATURE_TYPE_VALUES;
 
-export type CREATURE_TYPE =
-  (typeof CREATURE_TYPE_VALUES)[keyof typeof CREATURE_TYPE_VALUES];
+export type CREATURE_TYPE = (typeof CREATURE_TYPE_VALUES)[keyof typeof CREATURE_TYPE_VALUES];
 
 export namespace CREATURE_TYPE {
   export type NORMAL = typeof CREATURE_TYPE_VALUES.NORMAL;

@@ -1,5 +1,7 @@
-import { OBJECT_TYPE, SLOT, SKILL } from "../constants.ts";
+import { ATTRIBUTES, OBJECT_TYPE, SLOT } from "../constants.ts";
 import { getNPC } from "../gameState.ts";
+import { createClassActorProfile } from "../systems/class.ts";
+import { cloneInventory, createInventoryFromRecord } from "../systems/inventory.ts";
 import type { NPC, Class } from "../types.ts";
 
 export type NPCRegistryEntry = {
@@ -44,8 +46,8 @@ function getNPCClass(classId: string, classes: Class[]): Class {
 
 export function createNPC(entry: NPCRegistryEntry, classes: Class[]): NPC {
   const npcClass = getNPCClass(entry.classId, classes);
+  const classProfile = createClassActorProfile(npcClass);
 
-  const classStats = (npcClass as any).stats as Record<string, number> | undefined;
   return {
     id: entry.id,
     objectType: OBJECT_TYPE.NPC,
@@ -56,28 +58,18 @@ export function createNPC(entry: NPCRegistryEntry, classes: Class[]): NPC {
       [SLOT.WEAPON]: null,
       [SLOT.ARMOR]: null,
     },
-    inventory: Object.fromEntries(
-      Object.entries(entry.inventory ?? {}).map(([id]) => [id, Number.POSITIVE_INFINITY]),
-    ),
-    health: {
-      base: classStats?.maxHp ?? 10,
-      current: classStats?.hp ?? classStats?.maxHp ?? 10,
-    },
-    magicka: { base: classStats?.maxMana ?? 0, current: classStats?.mana ?? 0 },
-    luck: { base: classStats?.luck ?? 0, current: classStats?.luck ?? 0 },
-    strength: {
-      base: classStats?.attack ?? 0,
-      current: classStats?.attack ?? 0,
-    },
-    endurance: {
-      base: classStats?.defense ?? 0,
-      current: classStats?.defense ?? 0,
-    },
-    intelligence: {
-      base: classStats?.magic ?? 0,
-      current: classStats?.magic ?? 0,
-    },
-    skills: new Array(Object.keys(SKILL).length).fill(0),
+    inventory: createInventoryFromRecord(entry.inventory ?? {}),
+    health: { ...classProfile.health },
+    magicka: { ...classProfile.magicka },
+    luck: { ...classProfile.attributes[ATTRIBUTES.LUCK] },
+    strength: { ...classProfile.attributes[ATTRIBUTES.STRENGTH] },
+    intelligence: { ...classProfile.attributes[ATTRIBUTES.INTELLIGENCE] },
+    willpower: { ...classProfile.attributes[ATTRIBUTES.WILLPOWER] },
+    agility: { ...classProfile.attributes[ATTRIBUTES.AGILITY] },
+    speed: { ...classProfile.attributes[ATTRIBUTES.SPEED] },
+    endurance: { ...classProfile.attributes[ATTRIBUTES.ENDURANCE] },
+    personality: { ...classProfile.attributes[ATTRIBUTES.PERSONALITY] },
+    skills: [...classProfile.skills],
     aiConfig: {
       barters: npcClass.barters,
       offers: npcClass.offers,
@@ -99,12 +91,15 @@ function cloneNPC(npc: NPC): NPC {
     ...npc,
     class: {
       ...npc.class,
+      attributes: [...npc.class.attributes],
+      majorSkills: [...npc.class.majorSkills],
+      minorSkills: [...npc.class.minorSkills],
       startingItems: [...npc.class.startingItems],
       actions: [...npc.class.actions],
       barters: { ...npc.class.barters },
       offers: { ...npc.class.offers },
     },
-    inventory: { ...npc.inventory },
+    inventory: cloneInventory(npc.inventory),
     equipment: { ...npc.equipment },
     aiConfig: {
       ...npc.aiConfig,

@@ -1,29 +1,10 @@
 import chalk from "chalk";
 import { SLOT } from "../constants.ts";
 import { getObject } from "../gameState.ts";
+import { getSlotForItemType } from "../systems/equipment.ts";
 import { createInventory } from "../systems/inventory.ts";
-import type {
-  Equipment,
-  Item,
-  Inventory,
-  Statistic,
-  ValueOf,
-  Weapon,
-  Armor,
-  Alchemy,
-} from "../types.ts";
-
-function getSlotForItemType(objectType: ValueOf<typeof SLOT> | any): SLOT | null {
-  // SLOT enum values are used as keys elsewhere; resolve by known object types
-  switch (objectType) {
-    case "WEAPON":
-      return SLOT.WEAPON;
-    case "ARMOR":
-      return SLOT.ARMOR;
-    default:
-      return null;
-  }
-}
+import type { Equipment, Item, Inventory, Statistic, Weapon, Armor, Alchemy } from "../types.ts";
+import type { ValueOf } from "../types.ts";
 
 export class Actor {
   id: string;
@@ -106,12 +87,6 @@ export class Actor {
           }
           break;
         }
-        case "hp":
-        case "maxHp":
-        case "mana":
-        case "maxMana":
-          console.log(chalk.yellow(`Ignored deprecated stat modifier '${key}' on equip/unequip`));
-          break;
         default:
           console.log(chalk.yellow(`Unknown stat key on item: ${key}`));
           break;
@@ -126,7 +101,7 @@ export class Actor {
       return false;
     }
 
-    const slot = getSlotForItemType(item.objectType as any);
+    const slot = getSlotForItemType(item.objectType);
     if (!slot) {
       console.log(chalk.red(`Item ${item.name} is not equippable.`));
       return false;
@@ -147,7 +122,7 @@ export class Actor {
     return true;
   }
 
-  unequip(itemId?: string, slot?: SLOT) {
+  unequip(itemId?: string, slot?: ValueOf<typeof SLOT>) {
     if (itemId) {
       if (this.equipment.weapon?.id === itemId) this.unequip(undefined, SLOT.WEAPON);
       if (this.equipment.armor?.id === itemId) this.unequip(undefined, SLOT.ARMOR);
@@ -155,7 +130,7 @@ export class Actor {
     }
 
     if (typeof slot !== "undefined") {
-      const item = this.equipment[slot] as Weapon | Armor | null;
+      const item = this.equipment[slot];
       if (!item) return false;
       if ("stats" in (item as any) && (item as any).stats) {
         this.applyItemModifiers((item as any).stats as Record<string, number>, -1);

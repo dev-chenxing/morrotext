@@ -27,6 +27,7 @@
 - [x] refactor: rename `shop.ts` to `barter.ts` and rename `openShop` to `barter`
 - [x] refactor: update barter logic to filter items based on NPC trade capabilities
 - [x] refactor: update NPC inventory to use infinite stock for now (do not decrement NPC inventory)
+- [ ] refactor: update NPC inventory logic to support finite stock and restocking over time
 
 ### Data Separation
 - [x] refactor: extract creature definitions from `systems/combat.ts` into `src/world/creatures.ts`
@@ -40,9 +41,9 @@
   - [x] refactor: remove `castFireball()` and `divineHeal()` from `Player` class
 
 ### Slim `Player.ts` & Actor Foundation
-- [ ] feat: create `src/actors/Actor.ts` base class with shared state and behavior:
-  - [ ] state: stats, level, inventory, equipment, effects
-  - [ ] methods: inventory add/remove, equipment equip/unequip + stat recomputation, effect apply/tick/expire
+- [x] feat: create `src/actors/Actor.ts` base class with shared state and behavior:
+  - [x] state: attributes, level, inventory, equipment
+  - [x] methods: inventory add/remove, equipment equip/unequip
 - [ ] feat: create `src/actors/Creature.ts` class that extends `Actor` with creature-specific state/behavior (e.g., name, description)
 - [ ] feat: create `src/actors/NPC.ts` class that extends `Actor` with NPC-specific state/behavior (e.g., name, description, class, barter gold)
 - [ ] refactor: move shared logic from current `Player.ts` into `Actor.ts`

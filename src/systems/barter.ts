@@ -1,22 +1,23 @@
 import inquirer from "inquirer";
 import chalk from "chalk";
 import { SHOP_PRICES } from "../constants.ts";
-import type { NPC, Player } from "../types.ts";
-import { ITEMS } from "../world/items.ts";
+import { getObject } from "../gameState.ts";
+import type { Armor, Item, NPC, Player, Weapon, Alchemy } from "../types.ts";
+
+type ValuedItem = Alchemy | Armor | Weapon;
+
+function isValuedItem(item: Item | undefined): item is ValuedItem {
+  return typeof item === "object" && item !== null && "value" in item;
+}
 
 export async function barter(player: Player, actor: NPC) {
-  let availableItems: string[] = [];
-  const invKeys = Object.keys(actor.inventory || {});
-  if (invKeys.length > 0) {
-    availableItems = invKeys.filter((id) => {
-      const item = ITEMS[id];
-      return Boolean(item) && actor.tradesItemType(item.objectType);
-    });
-  } else {
-    availableItems = Object.entries(ITEMS)
-      .filter(([, item]) => actor.tradesItemType(item.objectType))
-      .map(([id]) => id);
-  }
+  const invKeys = actor.inventory.items.map((stack) => stack.object.id);
+  const availableItems = invKeys.filter((id) => {
+    const item = getObject(id);
+    if (!item) return false;
+
+    return actor.tradesItemType(item.objectType);
+  });
 
   let shopping = true;
   while (shopping) {
@@ -47,7 +48,14 @@ async function buyItems(player: Player, availableItems: string[]) {
   }
 
   const choices: Array<{ name: string; value: string | null }> = availableItems.map((itemId) => {
-    const item = ITEMS[itemId];
+    const item = getObject(itemId);
+    if (!isValuedItem(item)) {
+      return {
+        name: `${itemId} - unavailable`,
+        value: null,
+      };
+    }
+
     const price = Math.ceil(item.value * SHOP_PRICES.BUY_MULTIPLIER);
     return {
       name: `${item.name} - ${price} gold`,
@@ -65,7 +73,12 @@ async function buyItems(player: Player, availableItems: string[]) {
   });
 
   if (itemId) {
-    const item = ITEMS[itemId];
+    const item = getObject(itemId);
+    if (!isValuedItem(item)) {
+      console.log(chalk.red("That item cannot be purchased."));
+      return;
+    }
+
     const price = Math.ceil(item.value * SHOP_PRICES.BUY_MULTIPLIER);
 
     if (player.gold >= price) {
@@ -79,21 +92,27 @@ async function buyItems(player: Player, availableItems: string[]) {
 }
 
 async function sellItems(player: Player, actor: NPC) {
-  const sellableItems: Array<{ name: string; value: string | null }> = Object.entries(
-    player.inventory,
-  )
-    .filter(([id, count]) => {
-      const item = ITEMS[id];
-      return count > 0 && Boolean(item) && item.value > 0 && actor.tradesItemType(item.objectType);
-    })
-    .map(([id, count]) => {
-      const item = ITEMS[id];
-      const value = Math.floor(item.value * SHOP_PRICES.SELL_MULTIPLIER);
-      return {
-        name: `${item.name} x${count} - ${value} gold each`,
-        value: id,
-      };
+  const sellableItems = Object.entries(player.inventory).reduce<
+    Array<{ name: string; value: string | null }>
+  >((choices, [id, count]) => {
+    const item = getObject(id);
+    if (
+      count <= 0 ||
+      !isValuedItem(item) ||
+      item.value <= 0 ||
+      !actor.tradesItemType(item.objectType)
+    ) {
+      return choices;
+    }
+
+    const value = Math.floor(item.value * SHOP_PRICES.SELL_MULTIPLIER);
+    choices.push({
+      name: `${item.name} x${count} - ${value} gold each`,
+      value: id,
     });
+
+    return choices;
+  }, []);
 
   if (sellableItems.length === 0) {
     console.log(chalk.yellow("No items to sell!"));
@@ -111,10 +130,15 @@ async function sellItems(player: Player, actor: NPC) {
 
   if (itemId) {
     if (player.isItemEquipped(itemId)) {
-      player.unequipItemById(itemId);
+      player.unequip(itemId);
     }
 
-    const item = ITEMS[itemId];
+    const item = getObject(itemId);
+    if (!isValuedItem(item)) {
+      console.log(chalk.red("That item cannot be sold."));
+      return;
+    }
+
     const value = Math.floor(item.value * SHOP_PRICES.SELL_MULTIPLIER);
     const { quantity } = await inquirer.prompt({
       type: "input",

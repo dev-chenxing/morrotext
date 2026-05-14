@@ -5,7 +5,7 @@ class DefaultInventory implements Inventory {
   items: ItemStack[] = [];
 
   addItem(item: Item | string, count = 1) {
-    const resolved: Item | null = typeof item === "string" ? getObject(item) : item;
+    const resolved: Item | null = typeof item === "string" ? (getObject(item) ?? null) : item;
     if (!resolved) return 0;
 
     const existing = this.items.find((s) => s.object.id === resolved.id);
@@ -37,4 +37,26 @@ class DefaultInventory implements Inventory {
 
 export function createInventory(): Inventory {
   return new DefaultInventory();
+}
+
+export function cloneInventory(inventory: Inventory): Inventory {
+  const cloned = createInventory();
+
+  inventory.items.forEach((stack) => {
+    cloned.addItem(stack.object, stack.count);
+  });
+
+  return cloned;
+}
+
+export function createInventoryFromRecord(items: Record<string, number>): Inventory {
+  const inventory = createInventory();
+
+  Object.entries(items).forEach(([itemId, count]) => {
+    if (count === 0) return;
+
+    inventory.addItem(itemId, count < 0 ? Number.POSITIVE_INFINITY : count);
+  });
+
+  return inventory;
 }

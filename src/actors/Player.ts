@@ -1,7 +1,9 @@
 import chalk from "chalk";
-import { OBJECT_TYPE, PLAYER_DEFAULTS, SLOT, SKILL } from "../constants.ts";
+import { ATTRIBUTES, PLAYER_DEFAULTS, SLOT } from "../constants.ts";
 import { EXP_LEVELS } from "../utils/expLevels.ts";
 import { getClass, getObject } from "../gameState.ts";
+import { createClassActorProfile } from "../systems/class.ts";
+import { getSlotForItemType, isEquipmentItem } from "../systems/equipment.ts";
 import type {
   ActiveQuest,
   Class,
@@ -15,21 +17,6 @@ import type {
   Alchemy,
 } from "../types.ts";
 
-function getSlotForItemType(objectType: ValueOf<typeof OBJECT_TYPE>): SLOT | null {
-  switch (objectType) {
-    case OBJECT_TYPE.WEAPON:
-      return SLOT.WEAPON;
-    case OBJECT_TYPE.ARMOR:
-      return SLOT.ARMOR;
-    default:
-      return null;
-  }
-}
-
-function isEquipmentItem(item: Item): boolean {
-  return getSlotForItemType(item.objectType) !== null;
-}
-
 export class Player {
   name: string;
   exp: number;
@@ -38,6 +25,13 @@ export class Player {
   health: Statistic;
   magicka: Statistic;
   luck: Statistic;
+  strength: Statistic;
+  intelligence: Statistic;
+  willpower: Statistic;
+  agility: Statistic;
+  speed: Statistic;
+  endurance: Statistic;
+  personality: Statistic;
   skills: number[];
   equipment: Equipment;
   inventory: Record<string, number>;
@@ -62,29 +56,20 @@ export class Player {
       throw new Error(`Class is not playable: ${classId}`);
     }
 
-    this.class = selectedClass as Class;
-    const classStats = (this.class as any).stats as Record<string, number> | undefined;
+    this.class = selectedClass;
 
-    // Initialize skills array sized to the number of defined SKILL constants
-    const skillCount = Object.keys(SKILL).length;
-    this.skills = new Array(skillCount).fill(0);
-
-    const maxHp = classStats?.maxHp ?? 10;
-    const hp = classStats?.hp ?? maxHp;
-    this.health = { base: maxHp, current: hp };
-
-    // Deprecated mana fields removed from player initialization. Magicka
-    // remains but starts at zero; mana should be handled by specific systems.
-    this.magicka = { base: 0, current: 0 };
-
-    // Initialize `luck` alongside other attributes.
-    this.luck =
-      classStats && classStats["luck"]
-        ? (classStats["luck"] as Statistic)
-        : {
-            base: PLAYER_DEFAULTS.LUCK ?? 0,
-            current: PLAYER_DEFAULTS.LUCK ?? 0,
-          };
+    const classProfile = createClassActorProfile(this.class);
+    this.skills = [...classProfile.skills];
+    this.health = { ...classProfile.health };
+    this.magicka = { ...classProfile.magicka };
+    this.strength = { ...classProfile.attributes[ATTRIBUTES.STRENGTH] };
+    this.intelligence = { ...classProfile.attributes[ATTRIBUTES.INTELLIGENCE] };
+    this.willpower = { ...classProfile.attributes[ATTRIBUTES.WILLPOWER] };
+    this.agility = { ...classProfile.attributes[ATTRIBUTES.AGILITY] };
+    this.speed = { ...classProfile.attributes[ATTRIBUTES.SPEED] };
+    this.endurance = { ...classProfile.attributes[ATTRIBUTES.ENDURANCE] };
+    this.personality = { ...classProfile.attributes[ATTRIBUTES.PERSONALITY] };
+    this.luck = { ...classProfile.attributes[ATTRIBUTES.LUCK] };
 
     this.equipment = {
       weapon: null,
@@ -129,12 +114,6 @@ export class Player {
           }
           break;
         }
-        case "hp":
-        case "maxHp":
-        case "mana":
-        case "maxMana":
-          console.log(chalk.yellow(`Ignored deprecated stat modifier '${key}' on equip/unequip`));
-          break;
         default:
           console.log(chalk.yellow(`Unknown stat key on item: ${key}`));
           break;
@@ -211,12 +190,25 @@ export class Player {
     return this.equipment.weapon?.id === itemId || this.equipment.armor?.id === itemId;
   }
 
-  unequipItemById(itemId: string) {
+  unequip(itemId?: string, slot?: ValueOf<typeof SLOT>) {
     if (this.equipment.weapon?.id === itemId) {
-      this.unequipItem(this.equipment.weapon);
+      this.unequip(undefined, SLOT.WEAPON);
     } else if (this.equipment.armor?.id === itemId) {
-      this.unequipItem(this.equipment.armor);
+      this.unequip(undefined, SLOT.ARMOR);
+      return;
     }
+
+    if (typeof slot !== "undefined") {
+      const item = this.equipment[slot];
+      if (!item) return false;
+
+      this.removeItemStats(item);
+      this.equipment[slot] = null;
+      console.log(chalk.yellow(`Unequipped ${item.name}`));
+      return true;
+    }
+
+    return false;
   }
 
   equipItem(item: Item) {
@@ -228,14 +220,14 @@ export class Player {
 
       switch (slot) {
         case SLOT.WEAPON:
-          if (this.equipment.weapon) this.unequipItem(this.equipment.weapon);
+          if (this.equipment.weapon) this.unequip(undefined, SLOT.WEAPON);
           this.equipment.weapon = item as Weapon;
           if ("stats" in (item as any) && (item as any).stats) this.applyItemStats(item);
 
           console.log(chalk.green(`Equipped ${item.name}!`));
           break;
         case SLOT.ARMOR:
-          if (this.equipment.armor) this.unequipItem(this.equipment.armor);
+          if (this.equipment.armor) this.unequip(undefined, SLOT.ARMOR);
           this.equipment.armor = item as Armor;
           if ("stats" in (item as any) && (item as any).stats) this.applyItemStats(item);
 
@@ -249,23 +241,6 @@ export class Player {
       const message = error instanceof Error ? error.message : String(error);
       console.log(chalk.red(`Cannot equip ${item.name}: ${message}`));
     }
-  }
-
-  unequipItem(item: Item) {
-    this.removeItemStats(item);
-
-    switch (getSlotForItemType(item.objectType)) {
-      case SLOT.WEAPON:
-        this.equipment.weapon = null;
-        break;
-      case SLOT.ARMOR:
-        this.equipment.armor = null;
-        break;
-      default:
-        break;
-    }
-
-    console.log(chalk.yellow(`Unequipped ${item.name}`));
   }
 
   applyItemStats(item: Item) {

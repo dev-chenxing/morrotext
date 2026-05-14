@@ -57,23 +57,15 @@ export function initializeGameData() {
     return game.dataHandler.nonDynamicData;
   }
 
-  const actions = createActionRegistry();
-  const objects = createObjectRegistry();
-  const creatures = createCreatureRegistry();
-  const classes = createClassRegistry(actions);
-  const npcs = createNPCRegistry(classes);
-  const dialogues = cloneDialogues(npcDialogues);
-  const hydratedAreas = cloneAreas(areas);
-
-  game.dataHandler.nonDynamicData = {
-    actions,
-    areas: hydratedAreas,
-    classes,
-    creatures,
-    dialogues,
-    npcs,
-    objects,
-  };
+  game.dataHandler.nonDynamicData.actions = createActionRegistry();
+  game.dataHandler.nonDynamicData.objects = createObjectRegistry();
+  game.dataHandler.nonDynamicData.creatures = createCreatureRegistry();
+  game.dataHandler.nonDynamicData.classes = createClassRegistry(
+    game.dataHandler.nonDynamicData.actions,
+  );
+  game.dataHandler.nonDynamicData.npcs = createNPCRegistry(game.dataHandler.nonDynamicData.classes);
+  game.dataHandler.nonDynamicData.dialogues = cloneDialogues(npcDialogues);
+  game.dataHandler.nonDynamicData.areas = cloneAreas(areas);
 
   return game.dataHandler.nonDynamicData;
 }
