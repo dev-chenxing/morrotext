@@ -23,6 +23,7 @@ export type LeveledListNode = {
 };
 
 export interface LeveledItem extends GameObject {
+  chanceForNothing: number; // The percent chance, from 0 to 100, for no object to be chosen.
   list: LeveledListNode[];
   objectType: OBJECT_TYPE.LEVELED_ITEM;
   pickFrom: () => Item | null;
@@ -105,6 +106,8 @@ export interface Inventory {
   removeItem: (item: Item | string, count?: number) => number;
   contains: (item: Item | string) => boolean;
   restock: () => void;
+  getItemCount: (item: Item | string) => number;
+  resolveLeveledItems: (items: Record<string, number>) => void;
 }
 
 export interface Equipment {
@@ -125,9 +128,6 @@ export interface Creature extends Actor {
   speed: Statistic;
   endurance: Statistic;
   personality: Statistic;
-  exp: number;
-  loot?: string[];
-  gold: () => number;
 }
 
 export interface QuestObjective {
@@ -141,7 +141,6 @@ export interface QuestObjective {
 
 export interface QuestReward {
   gold: number;
-  exp: number;
   items?: string[];
 }
 

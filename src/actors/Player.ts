@@ -1,6 +1,5 @@
 import chalk from "chalk";
 import { ATTRIBUTES, PLAYER_DEFAULTS, SLOT } from "../constants.ts";
-import { EXP_LEVELS } from "../utils/expLevels.ts";
 import { getClass, getObject } from "../gameState.ts";
 import { createClassActorProfile } from "../systems/class.ts";
 import { getSlotForItemType, isEquipmentItem } from "../systems/equipment.ts";
@@ -19,7 +18,6 @@ import type {
 
 export class Player {
   name: string;
-  exp: number;
   level: number;
   class: Class;
   health: Statistic;
@@ -35,7 +33,6 @@ export class Player {
   skills: number[];
   equipment: Equipment;
   inventory: Record<string, number>;
-  gold: number;
   activeQuests: ActiveQuest[];
   completedQuests: ActiveQuest[];
   storyFlags: StoryFlags;
@@ -44,7 +41,6 @@ export class Player {
   constructor(name: string, classId: string) {
     this.name = name;
 
-    this.exp = PLAYER_DEFAULTS.EXP;
     this.level = PLAYER_DEFAULTS.LEVEL;
 
     const selectedClass = getClass(classId);
@@ -77,8 +73,6 @@ export class Player {
     };
     this.inventory = {}; // {itemId: count}
     this.addStartingItems();
-
-    this.gold = PLAYER_DEFAULTS.GOLD;
 
     this.activeQuests = [];
     this.completedQuests = [];
@@ -132,7 +126,8 @@ export class Player {
   addStartingItems() {
     const startingItems = this.class.startingItems ?? [];
     startingItems.forEach((itemId: string) => {
-      this.addItem(itemId);
+      if (!this.inventory[itemId]) this.inventory[itemId] = 0;
+      this.inventory[itemId] += 1;
 
       // Auto-equip weapons and armor
       const item = getObject(itemId) as Item | Weapon | Armor | Alchemy | undefined;
@@ -140,42 +135,6 @@ export class Player {
         this.equipItem(item as Item);
       }
     });
-  }
-  addItem(itemId: string, count = 1) {
-    if (!getObject(itemId)) {
-      console.error(chalk.red(`[WARNING] Tried to add invalid item: ${itemId}`));
-      return false;
-    }
-    if (!this.inventory[itemId]) this.inventory[itemId] = 0;
-    this.inventory[itemId] += count;
-
-    return true;
-  }
-
-  removeItem(itemId: string, count = 1) {
-    if (!this.inventory[itemId] || this.inventory[itemId] < count) {
-      return false;
-    }
-    this.inventory[itemId] -= count;
-    if (this.inventory[itemId] <= 0) {
-      delete this.inventory[itemId];
-    }
-    return true;
-  }
-
-  hasItem(itemId: string) {
-    return !!this.inventory[itemId] && this.inventory[itemId] > 0;
-  }
-
-  getInventoryCount(itemId: string) {
-    return this.inventory[itemId] || 0;
-  }
-
-  addExp(amount: number) {
-    this.exp += amount;
-    while (this.level < EXP_LEVELS.length && this.exp >= EXP_LEVELS[this.level]) {
-      this.levelUp();
-    }
   }
 
   levelUp() {

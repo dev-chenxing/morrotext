@@ -33,7 +33,8 @@ export async function useItem(
 
   // Remove alchemy items after use
   if (item.objectType === OBJECT_TYPE.ALCHEMY) {
-    player.removeItem(itemId);
+    player.inventory[itemId] = (player.inventory[itemId] || 0) - 1;
+    if (player.inventory[itemId] <= 0) delete player.inventory[itemId];
   }
 
   return message;

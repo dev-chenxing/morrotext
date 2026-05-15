@@ -40,18 +40,26 @@
   - [x] `ACTIONS` registry with `fireball`, `cure_wounds`, `divine_smite`, etc.
   - [x] refactor: remove `castFireball()` and `divineHeal()` from `Player` class
 
+### "So is a leveled item an 'object'?"
+- Should `getObject()` return **all** game objects, including `LeveledItem`?
+- refactor: rename `loot.ts` to `leveledItems.ts`, rename `generateLoot` to `pickFromLeveledItems`
+- refactor: instead of `useItem`, create a `createItem` factory function that takes an item registry entry and returns a new instance of that item
+- refactor: separate the `LeveledItem` registry from the logic
+- refactor: `leveledItems.ts` should not directly import `items.ts`
+
 ### Slim `Player.ts` & Actor Foundation
 - [x] feat: create `src/actors/Actor.ts` base class with shared state and behavior:
   - [x] state: attributes, level, inventory, equipment
   - [x] methods: inventory add/remove, equipment equip/unequip
 - [ ] feat: create `src/actors/Creature.ts` class that extends `Actor` with creature-specific state/behavior (e.g., name, description)
 - [ ] feat: create `src/actors/NPC.ts` class that extends `Actor` with NPC-specific state/behavior (e.g., name, description, class, barter gold)
+- [ ] refactor: remove `startingItems` and `addStartingItems()` from `Player`
+- [ ] refactor: update `Player.inventory` to `Inventory` type instead of record
 - [ ] refactor: move shared logic from current `Player.ts` into `Actor.ts`
 - [ ] refactor: refactor `src/actors/Player.ts` to extend `Actor` and keep only player-specific concerns:
   - [ ] levelUpProgress
 - [ ] refactor: replace timer-based `updateEffects()` with explicit `onTick()` calls from the game loop
 - [ ] refactor: update all consuming systems (`combat`, `items`, `shop`, `hud`, `ruins`, `dialogue`) to use the new inheritance contract
-
 
 ### Quest Manager
 - [ ] feat: create `src/systems/QuestManager.ts` that owns active/completed quest maps, current stage per quest, and imports quest definitions from `world/quests.ts`.

@@ -52,15 +52,22 @@ function pickFromLeveledItem(
   return null;
 }
 
-function createLeveledItem(id: string, list: LeveledItem["list"]): LeveledItem {
+function createLeveledItem(
+  id: string,
+  list: LeveledItem["list"],
+  chanceForNothing = 0,
+): LeveledItem {
   return {
     id,
     objectType: OBJECT_TYPE.LEVELED_ITEM,
     list,
+    chanceForNothing,
     pickFrom(): Item | null {
       if (!game.player) {
         return null;
       }
+
+      if (chanceForNothing > 0 && Math.random() < chanceForNothing) return null;
 
       return pickFromLeveledItem(this, game.player.level);
     },
@@ -68,20 +75,38 @@ function createLeveledItem(id: string, list: LeveledItem["list"]): LeveledItem {
 }
 
 const LEVELED_ITEMS: Record<string, LeveledItem> = {
-  forest: createLeveledItem("l_forest", [
-    { levelRequired: 1, object: ITEMS.herbs },
-    { levelRequired: 1, object: ITEMS.health_potion },
-    { levelRequired: 4, object: ITEMS.magic_amulet },
-    { levelRequired: 5, object: ITEMS.seraphim_staff },
-  ]),
-  ruins: createLeveledItem("l_ruins", [
-    { levelRequired: 1, object: ITEMS.holy_water },
-    { levelRequired: 2, object: ITEMS.mana_potion },
-    { levelRequired: 4, object: ITEMS.chainmail },
-    { levelRequired: 5, object: ITEMS.steel_armor },
-    { levelRequired: 5, object: ITEMS.dragon_slayer },
-    { levelRequired: 5, object: ITEMS.divine_armor },
-  ]),
+  random_gold: createLeveledItem(
+    "random_gold",
+    [
+      {
+        levelRequired: 1,
+        object: ITEMS.gold,
+      },
+    ],
+    0.4,
+  ),
+  forest: createLeveledItem(
+    "l_forest",
+    [
+      { levelRequired: 1, object: ITEMS.herbs },
+      { levelRequired: 1, object: ITEMS.health_potion },
+      { levelRequired: 4, object: ITEMS.magic_amulet },
+      { levelRequired: 5, object: ITEMS.seraphim_staff },
+    ],
+    0,
+  ),
+  ruins: createLeveledItem(
+    "l_ruins",
+    [
+      { levelRequired: 1, object: ITEMS.holy_water },
+      { levelRequired: 2, object: ITEMS.mana_potion },
+      { levelRequired: 4, object: ITEMS.chainmail },
+      { levelRequired: 5, object: ITEMS.steel_armor },
+      { levelRequired: 5, object: ITEMS.dragon_slayer },
+      { levelRequired: 5, object: ITEMS.divine_armor },
+    ],
+    0,
+  ),
 };
 
 export function generateLoot(leveledItemId: string): string | null {

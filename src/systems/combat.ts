@@ -3,7 +3,7 @@ import inquirer from "inquirer";
 import { getObject } from "../gameState.ts";
 import type { Player } from "../actors/Player.ts";
 import { generateLoot } from "../world/loot.ts";
-import { COMBAT_BALANCE, OBJECT_TYPE } from "../constants.ts";
+import { COMBAT_BALANCE, OBJECT_TYPE, GOLD_ID } from "../constants.ts";
 import { useItem } from "./item.ts";
 import type { Area, Creature, NPC } from "../types.ts";
 
@@ -65,6 +65,29 @@ function applyDamage(target: any, damage: number) {
   const actualDamage = (target.health?.current ?? 0) - newHP;
   if (target.health) target.health.current = newHP;
   return actualDamage;
+}
+
+function transferCreatureLootToPlayer(player: Player, enemy: Creature) {
+  let totalGold = 0;
+
+  enemy.inventory.items.forEach((stack) => {
+    if (stack.count <= 0) return;
+
+    if (stack.object.id === GOLD_ID) {
+      totalGold += stack.count;
+      return;
+    }
+
+    player.inventory[stack.object.id] = (player.inventory[stack.object.id] || 0) + stack.count;
+
+    const quantityLabel = stack.count > 1 ? ` x${stack.count}` : "";
+    console.log(chalk.blue(`Found ${stack.object.name}${quantityLabel}!`));
+  });
+
+  if (totalGold > 0) {
+    player.inventory[GOLD_ID] = (player.inventory[GOLD_ID] || 0) + totalGold;
+    console.log(chalk.green(`Victory! Gained ${totalGold} gold!`));
+  }
 }
 
 export async function startCombat(player: Player, enemy: Creature, area: Area) {
@@ -151,22 +174,8 @@ export async function startCombat(player: Player, enemy: Creature, area: Area) {
   // Victory handling
   if ((player.health?.current ?? 0) > 0) {
     player.recordKill(enemy.type ?? enemy.name);
-
-    const gold = enemy.gold();
-    console.log(chalk.green(`Victory! Gained ${gold} gold!`));
-    player.gold += gold;
-
-    // Enemy-specific loot drops
-    if (enemy.loot) {
-      enemy.loot.forEach((itemId) => {
-        if (Math.random() < COMBAT_BALANCE.ENEMY_LOOT_DROP_CHANCE) {
-          const item = getObject(itemId);
-          if (!item) return;
-          player.addItem(itemId);
-          console.log(chalk.blue(`Found ${item.name}!`));
-        }
-      });
-    }
+    console.log(chalk.green("Victory!"));
+    transferCreatureLootToPlayer(player, enemy);
 
     // Procedural loot generation
     const lootId = area.lootTable ? generateLoot(area.lootTable) : null;
@@ -175,13 +184,9 @@ export async function startCombat(player: Player, enemy: Creature, area: Area) {
       if (!proceduralItem) {
         throw new Error(`Unknown loot item: ${lootId}`);
       }
-      player.addItem(lootId);
+      player.inventory[lootId] = (player.inventory[lootId] || 0) + 1;
       console.log(chalk.blue(`Found ${proceduralItem.name}!`));
     }
-
-    const expGained = enemy.exp;
-    player.addExp(expGained);
-    console.log(chalk.cyan(`Gained ${expGained} experience!`));
   } else {
     console.log(chalk.red("\nGAME OVER"));
     process.exit();

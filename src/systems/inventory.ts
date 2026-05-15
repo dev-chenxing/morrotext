@@ -1,5 +1,6 @@
 import { getObject } from "../gameState.ts";
 import type { Inventory, Item, ItemStack } from "../types.ts";
+import { generateLoot } from "../world/loot.ts";
 
 class DefaultInventory implements Inventory {
   items: ItemStack[] = [];
@@ -62,6 +63,32 @@ class DefaultInventory implements Inventory {
     });
   }
 
+  getItemCount(item: Item | string) {
+    const id = typeof item === "string" ? item : item.id;
+    return this.availableCount(id);
+  }
+
+  resolveLeveledItems(items: Record<string, number>) {
+    Object.entries(items).forEach(([itemId, count]) => {
+      if (count === 0) return;
+      const resolved = getObject(itemId);
+      if (resolved) {
+        // keep negative counts as restockable configuration
+        this.items.push({ object: resolved, count });
+        return;
+      }
+
+      if (count < 0) return;
+
+      for (let i = 0; i < count; i++) {
+        const generatedId = generateLoot(itemId);
+        if (!generatedId) continue;
+        const generated = getObject(generatedId);
+        if (generated) this.addItem(generated);
+      }
+    });
+  }
+
   private availableCount(item: Item | string) {
     const id = typeof item === "string" ? item : item.id;
     const stack = this.items.find((s) => s.object.id === id);
@@ -90,16 +117,31 @@ export function cloneInventory(inventory: Inventory): Inventory {
 }
 
 export function createInventoryFromRecord(items: Record<string, number>): Inventory {
+  // Create an empty runtime inventory object
   const inventory = createInventory();
 
+  // Loop through each entry in the record
   Object.entries(items).forEach(([itemId, count]) => {
+    // Ignore zero counts
     if (count === 0) return;
 
+    // Try to resolve the ID as an object.
+    // If it exists, it gets added directly.
     const resolved = getObject(itemId);
-    if (!resolved) return;
+    if (resolved) {
+      // keep negative counts as a restockable configuration (e.g. -1 means restockable 1)
+      inventory.items.push({ object: resolved, count });
+      return;
+    }
 
-    // keep negative counts as a restockable configuration (e.g. -1 means restockable 1)
-    inventory.items.push({ object: resolved, count });
+    if (count < 0) return;
+
+    for (let index = 0; index < count; index++) {
+      const generatedId = generateLoot(itemId);
+      if (!generatedId) continue;
+
+      inventory.addItem(generatedId);
+    }
   });
 
   return inventory;

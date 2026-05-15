@@ -41,7 +41,7 @@ export const npcDialogues: Record<string, Dialogue> = {
             action: "complete_special_orders",
             condition: (player) =>
               player.activeQuests.some((quest: ActiveQuest) => quest.key === "special_orders") &&
-              player.getInventoryCount("void_essence") >= 5,
+              (player.inventory["void_essence"] || 0) >= 5,
           },
           {
             text: "I'm still gathering materials",
@@ -156,12 +156,12 @@ export const npcDialogues: Record<string, Dialogue> = {
           {
             text: "I've retrieved the ancient artifact",
             action: "return_artifact",
-            condition: (player) => player.getInventoryCount("crown_of_wisdom") > 0,
+            condition: (player) => (player.inventory["crown_of_wisdom"] || 0) > 0,
           },
           {
             text: "I found this ancient tablet",
             action: "show_tablet",
-            condition: (player) => player.hasItem("ancient_tablet"),
+            condition: (player) => !!(player.inventory["ancient_tablet"] || 0),
           },
           {
             text: "Accept quest",
@@ -248,7 +248,7 @@ export const npcDialogues: Record<string, Dialogue> = {
             quest: "slay_goblins",
             condition: (player) => {
               const quest = player.activeQuests.find((q: ActiveQuest) => q.key === "slay_goblins");
-              return Boolean(quest && player.getInventoryCount("goblin_ear") >= 5);
+              return Boolean(quest && (player.inventory["goblin_ear"] || 0) >= 5);
             },
           },
           {

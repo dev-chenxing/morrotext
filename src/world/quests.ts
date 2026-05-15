@@ -1,6 +1,7 @@
 import chalk from "chalk";
 import type { Player, Quest } from "../types.ts";
 import { ITEMS } from "../world/items.ts";
+import { GOLD_ID } from "../constants.ts";
 
 export function isQuestAvailable(player: Player, questKey: string): boolean {
   // Check if already completed
@@ -66,16 +67,15 @@ export function completeQuest(player: Player, questKey: string) {
 
   // Show completion message
   console.log(chalk.green(`\nQuest "${quest.title}" completed!`));
-  console.log(`Rewards: ${questData.reward.gold} gold, ${questData.reward.exp} EXP`);
+  console.log(`Rewards: ${questData.reward.gold} gold`);
   if (questData.reward.items && questData.reward.items.length > 0) {
     console.log(`Items: ${questData.reward.items.map((id) => ITEMS[id].name).join(", ")}`);
   }
 
   // Apply rewards
-  player.gold += questData.reward.gold;
-  player.addExp(questData.reward.exp);
+  player.inventory[GOLD_ID] = (player.inventory[GOLD_ID] || 0) + questData.reward.gold;
   questData.reward.items?.forEach((itemId) => {
-    player.addItem(itemId);
+    player.inventory[itemId] = (player.inventory[itemId] || 0) + 1;
   });
 }
 
@@ -96,7 +96,7 @@ export const QUESTS: Record<string, Quest> = {
         description: "Return to the Hermit with the artifact",
       },
     ],
-    reward: { gold: 500, exp: 500 },
+    reward: { gold: 500 },
   },
   slay_goblins: {
     title: "Goblin Infestation",
@@ -116,7 +116,6 @@ export const QUESTS: Record<string, Quest> = {
     reward: {
       gold: 200,
       items: ["steel_dagger"],
-      exp: 100,
     },
   },
   special_orders: {
@@ -136,7 +135,6 @@ export const QUESTS: Record<string, Quest> = {
     ],
     reward: {
       gold: 500,
-      exp: 100,
       items: ["masterwork_hammer"],
     },
   },

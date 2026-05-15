@@ -1,8 +1,7 @@
 import chalk from "chalk";
-import { PROGRESSION } from "../constants.ts";
 import { getObject } from "../gameState.ts";
+import { GOLD_ID } from "../constants.ts";
 import type { Player } from "../types.ts";
-import { getNextLevelExp } from "../utils/expLevels.ts";
 
 export function showPlayerStats(player: Player) {
   const equippedWeapon = player.equipment.weapon ? getObject(player.equipment.weapon.id) : null;
@@ -29,13 +28,5 @@ export function showPlayerStats(player: Player) {
   console.log(`Weapon: ${equippedWeapon ? equippedWeapon.name : "None"}`);
   console.log(`Armor:  ${equippedArmor ? equippedArmor.name : "None"}`);
 
-  console.log(`\nGold:   ${chalk.yellow(player.gold)}`);
-
-  const nextLevelExp = getNextLevelExp(player.level);
-  const expDisplay =
-    nextLevelExp === PROGRESSION.MAX_LEVEL_LABEL
-      ? `${player.exp} (MAX LEVEL)`
-      : `${player.exp}/${nextLevelExp}`;
-
-  console.log(`EXP:    ${expDisplay}`);
+  console.log(`\nGold:   ${chalk.yellow(player.inventory[GOLD_ID] || 0)}`);
 }

@@ -79,8 +79,9 @@ export namespace CREATURE_TYPE {
 
 export const GAME_SETTINGS = {};
 
+export const GOLD_ID = "gold";
+
 export const PLAYER_DEFAULTS = {
-  EXP: 0,
   LEVEL: 1,
   GOLD: 50,
   LUCK: 5,
@@ -90,10 +91,6 @@ export const PLAYER_DEFAULTS = {
 export const GAME_TIMINGS = {
   EFFECT_TICK_INTERVAL_MS: 100,
   BLESSING_DURATION_SECONDS: 60,
-} as const;
-
-export const PROGRESSION = {
-  MAX_LEVEL_LABEL: "MAX",
 } as const;
 
 export const SHOP_PRICES = {

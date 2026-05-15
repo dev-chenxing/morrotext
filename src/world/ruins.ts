@@ -14,7 +14,7 @@ export async function exploreRuins(player: Player, area: Area) {
   console.log(chalk.yellow(figlet.textSync("ANCIENT RUINS", { font: "Small" })));
   console.log(chalk.gray("You stand before the entrance of a long-forgotten civilization..."));
 
-  const hasDecipheredTablet = player.hasItem("deciphered_tablet");
+  const hasDecipheredTablet = !!(player.inventory["deciphered_tablet"] || 0);
   if (hasDecipheredTablet) {
     console.log(chalk.green("\nYour deciphered tablet glows, revealing a hidden path!"));
   }
@@ -32,7 +32,7 @@ export async function exploreRuins(player: Player, area: Area) {
       await startCombat(player, createCreatureInstance(enemyType), area);
     }
 
-    const hasArtifact = player.hasItem("ancient_artifact");
+    const hasArtifact = !!(player.inventory["ancient_artifact"] || 0);
     const choices = [];
 
     if (!hasArtifact) {
@@ -66,14 +66,14 @@ export async function exploreRuins(player: Player, area: Area) {
         console.log(chalk.yellow("\nYou find ancient murals depicting forgotten battles."));
         if (Math.random() > RUINS_BALANCE.CENTRAL_CHAMBER_POTION_THRESHOLD) {
           console.log(chalk.green("Found a health potion in a broken urn!"));
-          player.addItem("health_potion");
+          player.inventory["health_potion"] = (player.inventory["health_potion"] || 0) + 1;
         }
         break;
 
       case "Search the left passage":
         console.log(chalk.cyan("\nYou discover a library of stone tablets..."));
-        if (!player.hasItem("ancient_tablet")) {
-          player.addItem("ancient_tablet");
+        if (!(player.inventory["ancient_tablet"] || 0)) {
+          player.inventory["ancient_tablet"] = (player.inventory["ancient_tablet"] || 0) + 1;
           console.log(
             chalk.green(
               "You carefully extract an intact Ancient Tablet!\nThe Hermit might decipher it.",
@@ -97,7 +97,7 @@ export async function exploreRuins(player: Player, area: Area) {
         const loot = generateLoot("ruins");
         if (Math.random() > RUINS_BALANCE.HIDDEN_ROOM_LOOT_THRESHOLD && loot) {
           console.log(chalk.green("\nYou discover a hidden alcove!"));
-          player.addItem(loot);
+          player.inventory[loot] = (player.inventory[loot] || 0) + 1;
           console.log(`Found ${ITEMS[loot].name}!`);
         } else {
           console.log(chalk.gray("\nYou find nothing but dust and cobwebs."));
@@ -130,21 +130,19 @@ async function handleArtifactChamber(player: Player) {
 
     switch (action) {
       case "Take the artifact":
-        if (player.addItem("crown_of_wisdom")) {
-          console.log(chalk.yellow("You carefully lift the artifact from its pedestal."));
-          player.storyFlags.hasArtifact = true;
-
-          updateQuestProgress(
-            player,
-            "investigate_ruins",
-            1, // Progress to step 1
-            "Retrieved the Ancient Artifact! Return it to the Hermit in Darkwood Forest.",
-          );
-        }
+        player.inventory["crown_of_wisdom"] = (player.inventory["crown_of_wisdom"] || 0) + 1;
+        console.log(chalk.yellow("You carefully lift the artifact from its pedestal."));
+        player.storyFlags.hasArtifact = true;
+        updateQuestProgress(
+          player,
+          "investigate_ruins",
+          1, // Progress to step 1
+          "Retrieved the Ancient Artifact! Return it to the Hermit in Darkwood Forest.",
+        );
         break;
 
       case "Examine it carefully":
-        if (player.class.id === "cleric" && player.hasItem("holy_symbol")) {
+        if (player.class.id === "cleric" && (player.inventory["holy_symbol"] || 0) > 0) {
           console.log(chalk.cyan("\nYou notice faint inscriptions matching your holy symbol..."));
           console.log(chalk.green("Divine energy flows through you!"));
           player.magicka.base += RUINS_BALANCE.CLERIC_MANA_BONUS;

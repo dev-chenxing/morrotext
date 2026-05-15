@@ -4,6 +4,13 @@ import { OBJECT_TYPE } from "../constants.ts";
 export type AnyItem = Alchemy | Armor | Weapon | Item;
 
 export const ITEMS: Record<string, AnyItem> = {
+  gold: {
+    id: "gold",
+    name: "Gold",
+    objectType: OBJECT_TYPE.MISC,
+    value: 1,
+    description: "A single gold coin.",
+  } as Item,
   herbs: {
     id: "herbs",
     name: "Medicinal Herbs",

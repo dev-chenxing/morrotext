@@ -1,5 +1,4 @@
-import { getCreature } from "../gameState.ts";
-import { cloneInventory, createInventory } from "../systems/inventory.ts";
+import { createInventoryFromRecord } from "../systems/inventory.ts";
 import type { Creature, ValueOf } from "../types.ts";
 import { CREATURE_TYPE, OBJECT_TYPE } from "../constants.ts";
 
@@ -17,9 +16,7 @@ export type CreatureEntry = {
   speed?: number;
   endurance?: number;
   personality?: number;
-  exp: number;
-  loot?: string[];
-  gold: () => number;
+  inventory?: Record<string, number>;
 };
 
 export const CREATURES: CreatureEntry[] = [
@@ -30,9 +27,11 @@ export const CREATURES: CreatureEntry[] = [
     health: 45,
     strength: 12,
     endurance: 6,
-    exp: 35,
-    loot: ["rusty_dagger", "goblin_ear"],
-    gold: () => Math.floor(Math.random() * 16) + 10,
+    inventory: {
+      rusty_dagger: 1,
+      goblin_ear: 1,
+      random_gold: 10,
+    },
   },
   {
     type: CREATURE_TYPE.HUMANOID,
@@ -41,9 +40,12 @@ export const CREATURES: CreatureEntry[] = [
     health: 65,
     strength: 18,
     endurance: 7,
-    exp: 80,
-    loot: ["mana_essence", "bone_charm", "goblin_ear"],
-    gold: () => Math.floor(Math.random() * 21) + 30,
+    inventory: {
+      mana_essence: 1,
+      bone_charm: 1,
+      goblin_ear: 1,
+      random_gold: 20,
+    },
   },
   {
     type: CREATURE_TYPE.UNDEAD,
@@ -52,9 +54,11 @@ export const CREATURES: CreatureEntry[] = [
     health: 60,
     strength: 14,
     endurance: 8,
-    loot: ["bone_fragment", "rusty_sword"],
-    gold: () => Math.floor(Math.random() * 21) + 20,
-    exp: 50,
+    inventory: {
+      bone_fragment: 1,
+      rusty_sword: 1,
+      random_gold: 20,
+    },
   },
   {
     type: CREATURE_TYPE.NORMAL,
@@ -63,9 +67,10 @@ export const CREATURES: CreatureEntry[] = [
     health: 120,
     strength: 18,
     endurance: 15,
-    loot: ["stone_core"],
-    gold: () => Math.floor(Math.random() * 31) + 40,
-    exp: 100,
+    inventory: {
+      stone_core: 1,
+      random_gold: 30,
+    },
   },
   {
     type: CREATURE_TYPE.HUMANOID,
@@ -74,9 +79,11 @@ export const CREATURES: CreatureEntry[] = [
     health: 80,
     strength: 20,
     endurance: 10,
-    loot: ["void_essence", "dark_tome"],
-    gold: () => Math.floor(Math.random() * 26) + 30,
-    exp: 80,
+    inventory: {
+      void_essence: 1,
+      dark_tome: 1,
+      random_gold: 20,
+    },
   },
   {
     type: CREATURE_TYPE.NORMAL,
@@ -85,9 +92,11 @@ export const CREATURES: CreatureEntry[] = [
     health: 40,
     strength: 10,
     endurance: 5,
-    loot: ["wolf_pelt", "fangs"],
-    gold: () => Math.floor(Math.random() * 15) + 10,
-    exp: 30,
+    inventory: {
+      wolf_pelt: 1,
+      fangs: 1,
+      random_gold: 10,
+    },
   },
   {
     type: CREATURE_TYPE.NORMAL,
@@ -96,9 +105,11 @@ export const CREATURES: CreatureEntry[] = [
     health: 25,
     strength: 12,
     endurance: 3,
-    loot: ["spider_silk", "venom_sac"],
-    gold: () => Math.floor(Math.random() * 10) + 5,
-    exp: 25,
+    inventory: {
+      spider_silk: 1,
+      venom_sac: 1,
+      random_gold: 10,
+    },
   },
 ];
 
@@ -107,7 +118,7 @@ export function createCreature(creature: CreatureEntry): Creature {
     id: creature.id,
     objectType: OBJECT_TYPE.ACTOR,
     equipment: { weapon: null, armor: null },
-    inventory: createInventory(),
+    inventory: createInventoryFromRecord(creature.inventory ?? {}),
     hasItemEquipped: (_id: string) => false,
     offersServices: (_service) => false,
     tradesItemType: (_t) => false,
@@ -130,37 +141,10 @@ export function createCreature(creature: CreatureEntry): Creature {
       base: creature.personality ?? 0,
       current: creature.personality ?? 0,
     },
-    exp: creature.exp,
-    loot: creature.loot,
-    gold: creature.gold,
-  };
-}
-
-function cloneCreature(creature: Creature): Creature {
-  return {
-    ...creature,
-    equipment: { ...creature.equipment },
-    inventory: cloneInventory(creature.inventory),
-    health: { ...creature.health },
-    magicka: { ...creature.magicka },
-    luck: { ...creature.luck },
-    strength: { ...creature.strength },
-    willpower: { ...creature.willpower },
-    agility: { ...creature.agility },
-    speed: { ...creature.speed },
-    endurance: { ...creature.endurance },
-    personality: { ...creature.personality },
-    intelligence: { ...creature.intelligence },
-    loot: creature.loot ? [...creature.loot] : undefined,
   };
 }
 
 export function createCreatureInstance(id: string): Creature {
-  const exists = getCreature(id);
-  if (exists) {
-    return cloneCreature(exists);
-  }
-
   const creature = CREATURES.find((entry) => entry.id === id);
 
   if (!creature) {

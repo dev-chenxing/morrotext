@@ -1,6 +1,6 @@
 import inquirer from "inquirer";
 import chalk from "chalk";
-import { SHOP_PRICES } from "../constants.ts";
+import { SHOP_PRICES, GOLD_ID } from "../constants.ts";
 import { getObject } from "../gameState.ts";
 import type { Armor, Item, NPC, Player, Weapon, Alchemy } from "../types.ts";
 
@@ -84,7 +84,7 @@ async function buyItems(player: Player, actor: NPC, availableItems: string[]) {
 
     const price = Math.ceil(item.value * SHOP_PRICES.BUY_MULTIPLIER);
 
-    if (player.gold >= price) {
+    if ((player.inventory[GOLD_ID] || 0) >= price) {
       // attempt to remove from merchant inventory first
       const removed = actor.inventory.removeItem(itemId, 1);
       if (removed <= 0) {
@@ -92,8 +92,9 @@ async function buyItems(player: Player, actor: NPC, availableItems: string[]) {
         return;
       }
 
-      player.gold -= price;
-      player.addItem(itemId);
+      player.inventory[GOLD_ID] = (player.inventory[GOLD_ID] || 0) - price;
+      if (player.inventory[GOLD_ID] <= 0) delete player.inventory[GOLD_ID];
+      player.inventory[itemId] = (player.inventory[itemId] || 0) + 1;
       console.log(chalk.green(`Purchased ${item.name}!`));
     } else {
       console.log(chalk.red("Not enough gold!"));
@@ -161,7 +162,8 @@ async function sellItems(player: Player, actor: NPC) {
     });
 
     const qty = parseInt(quantity);
-    player.removeItem(itemId, qty);
+    player.inventory[itemId] = (player.inventory[itemId] || 0) - qty;
+    if (player.inventory[itemId] <= 0) delete player.inventory[itemId];
     // increase merchant stock appropriately (restockable stacks grow, finite stacks increase)
     const stack = actor.inventory.items.find((s) => s.object.id === itemId);
     if (stack) {
@@ -175,7 +177,7 @@ async function sellItems(player: Player, actor: NPC) {
       const resolved = getObject(itemId);
       if (resolved) actor.inventory.items.push({ object: resolved, count: qty });
     }
-    player.gold += value * qty;
+    player.inventory[GOLD_ID] = (player.inventory[GOLD_ID] || 0) + value * qty;
     console.log(chalk.green(`Sold ${qty}x ${item.name} for ${value * qty} gold!`));
   }
 }
