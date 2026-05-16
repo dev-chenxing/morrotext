@@ -125,6 +125,8 @@ export function createCreature(creature: CreatureEntry): Creature {
 
     type: creature.type,
     name: creature.name ?? creature.id,
+    description: creature.name ?? "",
+    fight: 0,
     health: { base: creature.health, current: creature.health },
     magicka: { base: creature.magicka ?? 0, current: creature.magicka ?? 0 },
     luck: { base: creature.luck ?? 0, current: creature.luck ?? 0 },

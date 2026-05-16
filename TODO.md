@@ -51,7 +51,7 @@
 - [x] feat: create `src/actors/Actor.ts` base class with shared state and behavior:
   - [x] state: attributes, level, inventory, equipment
   - [x] methods: inventory add/remove, equipment equip/unequip
-- [ ] feat: create `src/actors/Creature.ts` class that extends `Actor` with creature-specific state/behavior (e.g., name, description)
+- [x] feat: create `src/actors/Creature.ts` class that extends `Actor` with creature-specific state/behavior (e.g., name, description)
 - [ ] feat: create `src/actors/NPC.ts` class that extends `Actor` with NPC-specific state/behavior (e.g., name, description, class, barter gold)
 - [ ] refactor: remove `startingItems` and `addStartingItems()` from `Player`
 - [ ] refactor: update `Player.inventory` to `Inventory` type instead of record

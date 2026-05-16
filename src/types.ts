@@ -36,6 +36,8 @@ export interface Actor extends GameObject {
   hasItemEquipped: (item: string) => boolean;
   offersServices: (service: ValueOf<typeof MERCHANT_SERVICE>) => boolean;
   tradesItemType: (objectType: ValueOf<typeof OBJECT_TYPE>) => boolean;
+  description?: string;
+  fight: number;
 }
 
 export type AiConfig = {

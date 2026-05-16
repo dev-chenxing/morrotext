@@ -10,6 +10,7 @@ export type NPCRegistryEntry = {
   level?: number;
   classId: string;
   inventory?: Record<string, number>;
+  description?: string;
 };
 
 export const NPC_REGISTRY: NPCRegistryEntry[] = [
@@ -21,6 +22,7 @@ export const NPC_REGISTRY: NPCRegistryEntry[] = [
     inventory: {
       steel_sword: -1,
     },
+    description: "A skilled blacksmith.",
   },
   {
     id: "publican",
@@ -31,6 +33,7 @@ export const NPC_REGISTRY: NPCRegistryEntry[] = [
       health_potion: -5,
       mana_potion: -5,
     },
+    description: "A friendly publican.",
   },
 ];
 
@@ -51,6 +54,8 @@ export function createNPC(entry: NPCRegistryEntry, classes: Class[]): NPC {
     id: entry.id,
     objectType: OBJECT_TYPE.NPC,
     name: entry.name,
+    description: entry.description ?? "",
+    fight: 0,
     level: entry.level ?? 1,
     class: npcClass,
     equipment: {

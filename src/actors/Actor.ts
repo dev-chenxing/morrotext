@@ -7,8 +7,10 @@ import type { Equipment, Item, Inventory, Statistic, Weapon, Armor, Alchemy } fr
 import type { ValueOf } from "../types.ts";
 
 export class Actor {
+  // Common fields
   id: string;
   name: string;
+  description: string;
   level: number;
   inventory: Inventory;
   equipment: Equipment;
@@ -17,6 +19,9 @@ export class Actor {
   health: Statistic;
   magicka: Statistic;
   luck: Statistic;
+
+  // AI behavior fields
+  fight: number;
 
   // Attributes exposed directly on actor
   strength: Statistic;
@@ -27,7 +32,7 @@ export class Actor {
   endurance: Statistic;
   personality: Statistic;
 
-  constructor(id: string, name: string, stats?: Partial<Record<string, any>>, level = 1) {
+  constructor(id: string, name: string, level = 1, description = "", fight = 0) {
     this.id = id;
     this.name = name;
     this.level = level;
@@ -39,16 +44,10 @@ export class Actor {
       [SLOT.ARMOR]: null,
     };
 
-    // Initialize statistics from provided `stats` object if present,
-    // otherwise use sensible defaults.
-    const maxHp = stats?.maxHp ?? 10;
-    const hp = stats?.hp ?? maxHp;
-    this.health = { base: maxHp, current: hp };
-    this.magicka = { base: 0, current: 0 };
+    // Initialize attributes
 
-    // Attributes default to zero unless provided as `{ attribute: { base, current }}`
-    const attr = (key: string, def = 0) =>
-      stats && stats[key] ? (stats[key] as Statistic) : { base: def, current: def };
+    // Attributes default to zero.
+    const attr = (key: string, def = 0) => ({ base: def, current: def }) as Statistic;
 
     this.strength = attr("strength");
     this.intelligence = attr("intelligence");
@@ -58,6 +57,15 @@ export class Actor {
     this.endurance = attr("endurance");
     this.personality = attr("personality");
     this.luck = attr("luck");
+
+    // Determine starting max HP from attributes: (strength + endurance) / 2
+    const maxHp = Math.floor((this.strength.base + this.endurance.base) / 2);
+    this.health = { base: maxHp, current: maxHp };
+    this.magicka = { base: 0, current: 0 };
+
+    // Actor-level runtime fields
+    this.description = description;
+    this.fight = fight;
   }
 
   // Apply item stat modifiers to actor attributes, ignoring deprecated
