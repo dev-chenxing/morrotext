@@ -53,6 +53,7 @@ export function createNPC(entry: NPCRegistryEntry, classes: Class[]): NPC {
   return {
     id: entry.id,
     objectType: OBJECT_TYPE.NPC,
+    barterGold: 0,
     name: entry.name,
     description: entry.description ?? "",
     fight: 0,

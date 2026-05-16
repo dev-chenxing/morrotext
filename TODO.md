@@ -52,10 +52,10 @@
   - [x] state: attributes, level, inventory, equipment
   - [x] methods: inventory add/remove, equipment equip/unequip
 - [x] feat: create `src/actors/Creature.ts` class that extends `Actor` with creature-specific state/behavior (e.g., name, description)
-- [ ] feat: create `src/actors/NPC.ts` class that extends `Actor` with NPC-specific state/behavior (e.g., name, description, class, barter gold)
-- [ ] refactor: remove `startingItems` and `addStartingItems()` from `Player`
-- [ ] refactor: update `Player.inventory` to `Inventory` type instead of record
-- [ ] refactor: move shared logic from current `Player.ts` into `Actor.ts`
+- [x] feat: create `src/actors/NPC.ts` class that extends `Actor` with NPC-specific state/behavior (e.g., class, barterGold)
+- [x] refactor: remove `startingItems` and `addStartingItems()` from `Player`
+- [x] refactor: update `Player.inventory` to `Inventory` type instead of record
+- [x] refactor: move shared logic from current `Player.ts` into `Actor.ts`
 - [ ] refactor: refactor `src/actors/Player.ts` to extend `Actor` and keep only player-specific concerns:
   - [ ] levelUpProgress
 - [ ] refactor: replace timer-based `updateEffects()` with explicit `onTick()` calls from the game loop

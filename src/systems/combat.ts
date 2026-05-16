@@ -78,14 +78,14 @@ function transferCreatureLootToPlayer(player: Player, enemy: Creature) {
       return;
     }
 
-    player.inventory[stack.object.id] = (player.inventory[stack.object.id] || 0) + stack.count;
+    player.inventory.addItem(stack.object.id, stack.count);
 
     const quantityLabel = stack.count > 1 ? ` x${stack.count}` : "";
     console.log(chalk.blue(`Found ${stack.object.name}${quantityLabel}!`));
   });
 
   if (totalGold > 0) {
-    player.inventory[GOLD_ID] = (player.inventory[GOLD_ID] || 0) + totalGold;
+    player.inventory.addItem(GOLD_ID, totalGold);
     console.log(chalk.green(`Victory! Gained ${totalGold} gold!`));
   }
 }
@@ -122,17 +122,18 @@ export async function startCombat(player: Player, enemy: Creature, area: Area) {
         break;
 
       case "Use Item":
-        const inventoryList = Object.entries(player.inventory)
-          .filter(([id]) => getObject(id)?.objectType === OBJECT_TYPE.ALCHEMY)
-          .map(([id, count]) => {
-            const item = getObject(id);
-            if (!item) {
-              return null;
-            }
+        const inventoryList = player.inventory.items
+          .filter(
+            (stack) =>
+              stack.count > 0 && getObject(stack.object.id)?.objectType === OBJECT_TYPE.ALCHEMY,
+          )
+          .map((stack) => {
+            const item = getObject(stack.object.id);
+            if (!item) return null;
             return {
-              name: `${item.name} x${count}`,
-              value: id,
-            };
+              name: `${item.name} x${stack.count}`,
+              value: stack.object.id,
+            } as { name: string; value: string } | null;
           })
           .filter((item): item is { name: string; value: string } => Boolean(item));
         const { itemId } = await inquirer.prompt({
@@ -184,7 +185,7 @@ export async function startCombat(player: Player, enemy: Creature, area: Area) {
       if (!proceduralItem) {
         throw new Error(`Unknown loot item: ${lootId}`);
       }
-      player.inventory[lootId] = (player.inventory[lootId] || 0) + 1;
+      player.inventory.addItem(lootId, 1);
       console.log(chalk.blue(`Found ${proceduralItem.name}!`));
     }
   } else {

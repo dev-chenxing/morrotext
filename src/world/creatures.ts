@@ -117,6 +117,7 @@ export function createCreature(creature: CreatureEntry): Creature {
   return {
     id: creature.id,
     objectType: OBJECT_TYPE.ACTOR,
+    barterGold: 0,
     equipment: { weapon: null, armor: null },
     inventory: createInventoryFromRecord(creature.inventory ?? {}),
     hasItemEquipped: (_id: string) => false,

@@ -36,7 +36,7 @@ describe("barter", () => {
       .mockResolvedValueOnce({ choice: { action: "leave", data: {} } } as any);
 
     const player = new Player("Tester", "warrior");
-    player.inventory["gold"] = 1000;
+    player.inventory.addItem("gold", 1000);
 
     const publican = createNPCInstance("publican");
 
@@ -44,8 +44,8 @@ describe("barter", () => {
 
     const price = Math.ceil((ITEMS.health_potion as Alchemy).value * SHOP_PRICES.BUY_MULTIPLIER);
 
-    expect(player.inventory["health_potion"] || 0).toBeGreaterThanOrEqual(1);
-    expect(player.inventory["gold"] || 0).toBe(1000 - price);
+    expect(player.inventory.getItemCount("health_potion")).toBeGreaterThanOrEqual(1);
+    expect(player.inventory.getItemCount("gold")).toBe(1000 - price);
     expect(promptMock).toHaveBeenCalled();
   });
 

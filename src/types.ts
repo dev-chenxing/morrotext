@@ -12,10 +12,15 @@ export type Player = PlayerType;
 
 export type ValueOf<T> = T[keyof T];
 
-export type GameObject = {
+export abstract class GameObject {
   id: string;
   objectType: ValueOf<typeof OBJECT_TYPE>;
-};
+
+  constructor(id: string, objectType: ValueOf<typeof OBJECT_TYPE>) {
+    this.id = id;
+    this.objectType = objectType;
+  }
+}
 
 export type LeveledListNode = {
   levelRequired: number;
@@ -33,6 +38,7 @@ export interface Actor extends GameObject {
   equipment: Equipment;
   inventory: Inventory;
   objectType: OBJECT_TYPE.ACTOR | OBJECT_TYPE.NPC;
+  barterGold: number;
   hasItemEquipped: (item: string) => boolean;
   offersServices: (service: ValueOf<typeof MERCHANT_SERVICE>) => boolean;
   tradesItemType: (objectType: ValueOf<typeof OBJECT_TYPE>) => boolean;

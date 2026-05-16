@@ -28,5 +28,5 @@ export function showPlayerStats(player: Player) {
   console.log(`Weapon: ${equippedWeapon ? equippedWeapon.name : "None"}`);
   console.log(`Armor:  ${equippedArmor ? equippedArmor.name : "None"}`);
 
-  console.log(`\nGold:   ${chalk.yellow(player.inventory[GOLD_ID] || 0)}`);
+  console.log(`\nGold:   ${chalk.yellow(player.inventory.getItemCount(GOLD_ID) || 0)}`);
 }

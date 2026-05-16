@@ -1,5 +1,5 @@
 import Actor from "./Actor.ts";
-import { CREATURE_TYPE } from "../constants.ts";
+import { CREATURE_TYPE, OBJECT_TYPE } from "../constants.ts";
 import type { ValueOf } from "../types.ts";
 
 export class Creature extends Actor {
@@ -15,10 +15,7 @@ export class Creature extends Actor {
     // Actor constructor handles description/fight defaults
     super(id, name, level);
     this.type = type;
-  }
-
-  describe() {
-    return `${this.name}: ${this.description}`;
+    this.objectType = OBJECT_TYPE.CREATURE;
   }
 }
 

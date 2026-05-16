@@ -84,17 +84,15 @@ async function buyItems(player: Player, actor: NPC, availableItems: string[]) {
 
     const price = Math.ceil(item.value * SHOP_PRICES.BUY_MULTIPLIER);
 
-    if ((player.inventory[GOLD_ID] || 0) >= price) {
+    if (player.inventory.getItemCount(GOLD_ID) >= price) {
       // attempt to remove from merchant inventory first
       const removed = actor.inventory.removeItem(itemId, 1);
       if (removed <= 0) {
         console.log(chalk.red("Item no longer in stock."));
         return;
       }
-
-      player.inventory[GOLD_ID] = (player.inventory[GOLD_ID] || 0) - price;
-      if (player.inventory[GOLD_ID] <= 0) delete player.inventory[GOLD_ID];
-      player.inventory[itemId] = (player.inventory[itemId] || 0) + 1;
+      player.inventory.removeItem(GOLD_ID, price);
+      player.inventory.addItem(itemId, 1);
       console.log(chalk.green(`Purchased ${item.name}!`));
     } else {
       console.log(chalk.red("Not enough gold!"));
@@ -103,15 +101,17 @@ async function buyItems(player: Player, actor: NPC, availableItems: string[]) {
 }
 
 async function sellItems(player: Player, actor: NPC) {
-  const sellableItems = Object.entries(player.inventory).reduce<
+  const sellableItems = player.inventory.items.reduce<
     Array<{ name: string; value: string | null }>
-  >((choices, [id, count]) => {
+  >((choices, stack) => {
+    const id = stack.object.id;
+    const count = stack.count < 0 ? Math.abs(stack.count) : stack.count;
     const item = getObject(id);
     if (
-      count <= 0 ||
       !isValuedItem(item) ||
       item.value <= 0 ||
-      !actor.tradesItemType(item.objectType)
+      !actor.tradesItemType(item.objectType) ||
+      count <= 0
     ) {
       return choices;
     }
@@ -154,16 +154,15 @@ async function sellItems(player: Player, actor: NPC) {
     const { quantity } = await inquirer.prompt({
       type: "input",
       name: "quantity",
-      message: `How many to sell? (Max: ${player.inventory[itemId]})`,
+      message: `How many to sell? (Max: ${player.inventory.getItemCount(itemId)})`,
       validate: (input) => {
         const num = parseInt(input);
-        return (num > 0 && num <= player.inventory[itemId]) || "Invalid quantity";
+        return (num > 0 && num <= player.inventory.getItemCount(itemId)) || "Invalid quantity";
       },
     });
 
     const qty = parseInt(quantity);
-    player.inventory[itemId] = (player.inventory[itemId] || 0) - qty;
-    if (player.inventory[itemId] <= 0) delete player.inventory[itemId];
+    player.inventory.removeItem(itemId, qty);
     // increase merchant stock appropriately (restockable stacks grow, finite stacks increase)
     const stack = actor.inventory.items.find((s) => s.object.id === itemId);
     if (stack) {
@@ -177,7 +176,7 @@ async function sellItems(player: Player, actor: NPC) {
       const resolved = getObject(itemId);
       if (resolved) actor.inventory.items.push({ object: resolved, count: qty });
     }
-    player.inventory[GOLD_ID] = (player.inventory[GOLD_ID] || 0) + value * qty;
+    player.inventory.addItem(GOLD_ID, value * qty);
     console.log(chalk.green(`Sold ${qty}x ${item.name} for ${value * qty} gold!`));
   }
 }

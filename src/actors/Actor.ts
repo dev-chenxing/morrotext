@@ -1,14 +1,22 @@
 import chalk from "chalk";
-import { SLOT } from "../constants.ts";
+import { SLOT, OBJECT_TYPE } from "../constants.ts";
 import { getObject } from "../gameState.ts";
 import { getSlotForItemType } from "../systems/equipment.ts";
 import { createInventory } from "../systems/inventory.ts";
-import type { Equipment, Item, Inventory, Statistic, Weapon, Armor, Alchemy } from "../types.ts";
-import type { ValueOf } from "../types.ts";
+import { GameObject } from "../types.ts";
+import type {
+  Equipment,
+  Item,
+  Inventory,
+  Statistic,
+  Weapon,
+  Armor,
+  Alchemy,
+  ValueOf,
+} from "../types.ts";
 
-export class Actor {
+export class Actor extends GameObject {
   // Common fields
-  id: string;
   name: string;
   description: string;
   level: number;
@@ -23,6 +31,9 @@ export class Actor {
   // AI behavior fields
   fight: number;
 
+  // barter gold available for trading
+  barterGold: number;
+
   // Attributes exposed directly on actor
   strength: Statistic;
   intelligence: Statistic;
@@ -33,16 +44,16 @@ export class Actor {
   personality: Statistic;
 
   constructor(id: string, name: string, level = 1, description = "", fight = 0) {
-    this.id = id;
+    super(id, OBJECT_TYPE.ACTOR);
     this.name = name;
     this.level = level;
 
     this.inventory = createInventory();
-
     this.equipment = {
       [SLOT.WEAPON]: null,
       [SLOT.ARMOR]: null,
     };
+    this.barterGold = 0;
 
     // Initialize attributes
 
@@ -68,39 +79,7 @@ export class Actor {
     this.fight = fight;
   }
 
-  // Apply item stat modifiers to actor attributes, ignoring deprecated
-  // HP/Mana keys. Items should not directly mutate HP/mana via equip/unequip.
-  private applyItemModifiers(delta: Record<string, number> | undefined, multiplier: 1 | -1) {
-    if (!delta) return;
-    for (const [key, value] of Object.entries(delta)) {
-      if (typeof value !== "number") continue;
-      const adj = value * multiplier;
-
-      switch (key) {
-        case "luck":
-          this.luck.base += adj;
-          this.luck.current += adj;
-          break;
-        case "strength":
-        case "intelligence":
-        case "willpower":
-        case "agility":
-        case "speed":
-        case "endurance":
-        case "personality": {
-          const attr = (this as any)[key] as { base: number; current: number } | undefined;
-          if (attr) {
-            attr.base += adj;
-            attr.current = Math.max(0, attr.current + adj);
-          }
-          break;
-        }
-        default:
-          console.log(chalk.yellow(`Unknown stat key on item: ${key}`));
-          break;
-      }
-    }
-  }
+  // Item stat modifier logic removed. Stats are no longer auto-adjusted on equip/unequip.
 
   equip(itemId: string) {
     const item = getObject(itemId) as Item | Weapon | Armor | Alchemy | null;
@@ -122,10 +101,6 @@ export class Actor {
     }
 
     this.equipment[slot] = item as any;
-    // Apply item stat modifiers (attributes/luck). Deprecated HP/Mana keys are ignored.
-    if ("stats" in (item as any) && (item as any).stats) {
-      this.applyItemModifiers((item as any).stats as Record<string, number>, 1);
-    }
     console.log(chalk.green(`Equipped ${item.name}!`));
     return true;
   }
@@ -140,9 +115,6 @@ export class Actor {
     if (typeof slot !== "undefined") {
       const item = this.equipment[slot];
       if (!item) return false;
-      if ("stats" in (item as any) && (item as any).stats) {
-        this.applyItemModifiers((item as any).stats as Record<string, number>, -1);
-      }
       this.equipment[slot] = null;
       console.log(chalk.yellow(`Unequipped ${item.name}`));
       return true;

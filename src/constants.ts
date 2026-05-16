@@ -4,10 +4,12 @@ const OBJECT_TYPES = {
   ALCHEMY: "alchemy",
   ARMOR: "armor",
   BOOK: "book",
+  CREATURE: "creature",
   ITEM: "item",
   LEVELED_ITEM: "leveled_item",
   MISC: "misc",
   NPC: "npc",
+  PLAYER: "player",
   QUEST: "quest",
   WEAPON: "weapon",
 } as const;

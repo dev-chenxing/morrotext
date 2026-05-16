@@ -73,9 +73,9 @@ export function completeQuest(player: Player, questKey: string) {
   }
 
   // Apply rewards
-  player.inventory[GOLD_ID] = (player.inventory[GOLD_ID] || 0) + questData.reward.gold;
+  player.inventory.addItem(GOLD_ID, questData.reward.gold);
   questData.reward.items?.forEach((itemId) => {
-    player.inventory[itemId] = (player.inventory[itemId] || 0) + 1;
+    player.inventory.addItem(itemId, 1);
   });
 }
 

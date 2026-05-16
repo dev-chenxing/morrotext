@@ -21,9 +21,8 @@ async function handleDialogueAction(
       return { exit: false };
 
     case "rest":
-      if (typeof data.cost === "number" && (player.inventory[GOLD_ID] || 0) >= data.cost) {
-        player.inventory[GOLD_ID] = (player.inventory[GOLD_ID] || 0) - data.cost;
-        if (player.inventory[GOLD_ID] <= 0) delete player.inventory[GOLD_ID];
+      if (typeof data.cost === "number" && player.inventory.getItemCount(GOLD_ID) >= data.cost) {
+        player.inventory.removeItem(GOLD_ID, data.cost);
         player.health.current = player.health.base;
         player.magicka.current = player.magicka.base;
         return {
@@ -62,9 +61,8 @@ async function handleDialogueAction(
       };
 
     case "complete_tablet":
-      player.inventory["ancient_tablet"] = (player.inventory["ancient_tablet"] || 0) - 1;
-      if (player.inventory["ancient_tablet"] <= 0) delete player.inventory["ancient_tablet"];
-      player.inventory["deciphered_tablet"] = (player.inventory["deciphered_tablet"] || 0) + 1;
+      player.inventory.removeItem("ancient_tablet", 1);
+      player.inventory.addItem("deciphered_tablet", 1);
       return {
         message: chalk.green(
           "The Hermit deciphered the tablet! He marked a map to the artifact chamber.",
@@ -101,15 +99,14 @@ async function handleDialogueAction(
     case "complete_quest":
       if (data.quest === "investigate_ruins") {
         // Verify requirements
-        if (!(player.inventory["crown_of_wisdom"] || 0)) {
+        if (!player.inventory.getItemCount("crown_of_wisdom")) {
           return {
             message: "You don't have the required item!",
             exit: true,
           };
         }
         // Story progression
-        player.inventory["crown_of_wisdom"] = (player.inventory["crown_of_wisdom"] || 0) - 1;
-        if (player.inventory["crown_of_wisdom"] <= 0) delete player.inventory["crown_of_wisdom"];
+        player.inventory.removeItem("crown_of_wisdom", 1);
         player.storyFlags.artifactSecured = true;
         console.log(chalk.yellow("\nThe Hermit places the artifact in the town vault."));
         completeQuest(player, "investigate_ruins");
@@ -125,8 +122,7 @@ async function handleDialogueAction(
         };
       } else if (data.quest === "special_orders") {
         // Remove quest items
-        player.inventory["void_essence"] = (player.inventory["void_essence"] || 0) - 5;
-        if (player.inventory["void_essence"] <= 0) delete player.inventory["void_essence"];
+        player.inventory.removeItem("void_essence", 5);
 
         // Complete quest
         completeQuest(player, "special_orders");
@@ -136,9 +132,8 @@ async function handleDialogueAction(
       }
 
     case "blessing":
-      if (typeof data.cost === "number" && (player.inventory[GOLD_ID] || 0) >= data.cost) {
-        player.inventory[GOLD_ID] = (player.inventory[GOLD_ID] || 0) - data.cost;
-        if (player.inventory[GOLD_ID] <= 0) delete player.inventory[GOLD_ID];
+      if (typeof data.cost === "number" && player.inventory.getItemCount(GOLD_ID) >= data.cost) {
+        player.inventory.removeItem(GOLD_ID, data.cost);
         // Apply immediate small heal/restore as a replacement for runtime blessing effects
         player.health.current = Math.min(player.health.base, player.health.current + 10);
         player.magicka.current = Math.min(player.magicka.base, player.magicka.current + 10);

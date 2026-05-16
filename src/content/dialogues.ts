@@ -9,26 +9,16 @@ export const npcDialogues: Record<string, Dialogue> = {
       initial: {
         question: "Steel and iron! What can I forge for you today?",
         options: [
-          {
-            text: "Browse weapons and armor",
-            action: "open_shop",
-            shop: "smith",
-          },
-          {
-            text: "Ask about special orders",
-            action: "special_orders",
-          },
+          { text: "Browse weapons and armor", action: "open_shop", shop: "smith" },
+          { text: "Ask about special orders", action: "special_orders" },
           { text: "Leave", action: "leave" },
         ],
       },
       special_orders: {
-        question: (player) => {
-          if (isQuestAvailable(player, "special_orders")) {
-            return "I need rare materials for a special commission. Can you help?";
-          } else {
-            return "Have you brought what I need?";
-          }
-        },
+        question: (player) =>
+          isQuestAvailable(player, "special_orders")
+            ? "I need rare materials for a special commission. Can you help?"
+            : "Have you brought what I need?",
         options: [
           {
             text: "I'll gather the materials",
@@ -41,7 +31,7 @@ export const npcDialogues: Record<string, Dialogue> = {
             action: "complete_special_orders",
             condition: (player) =>
               player.activeQuests.some((quest: ActiveQuest) => quest.key === "special_orders") &&
-              (player.inventory["void_essence"] || 0) >= 5,
+              player.inventory.getItemCount("void_essence") >= 5,
           },
           {
             text: "I'm still gathering materials",
@@ -49,10 +39,7 @@ export const npcDialogues: Record<string, Dialogue> = {
             condition: (player) =>
               player.activeQuests.some((quest: ActiveQuest) => quest.key === "special_orders"),
           },
-          {
-            text: "What do you need exactly?",
-            action: "material_details",
-          },
+          { text: "What do you need exactly?", action: "material_details" },
         ],
       },
       material_details: {
@@ -79,14 +66,8 @@ export const npcDialogues: Record<string, Dialogue> = {
       },
       complete_special_orders: {
         question:
-          "Magnificient! With these materials, I can forge weapons worthy of legends! \\\nTake this masterwork hammer - it should serve you well.",
-        options: [
-          {
-            text: "Thank you",
-            action: "complete_quest",
-            quest: "special_orders",
-          },
-        ],
+          "Magnificient! With these materials, I can forge weapons worthy of legends! \\\n+Take this masterwork hammer - it should serve you well.",
+        options: [{ text: "Thank you", action: "complete_quest", quest: "special_orders" }],
       },
     },
   },
@@ -97,20 +78,9 @@ export const npcDialogues: Record<string, Dialogue> = {
       initial: {
         question: "Welcome to the Rusty Tankard! What'll it be?",
         options: [
-          {
-            text: "Rest for the night (10 gold)",
-            action: "rest",
-            cost: 10,
-          },
-          {
-            text: "Buy supplies",
-            action: "open_shop",
-            shop: "general",
-          },
-          {
-            text: "Hear local rumors",
-            action: "rumor",
-          },
+          { text: "Rest for the night (10 gold)", action: "rest", cost: 10 },
+          { text: "Buy supplies", action: "open_shop", shop: "general" },
+          { text: "Hear local rumors", action: "rumor" },
           { text: "Return to tavern hall", action: "leave" },
         ],
       },
@@ -146,22 +116,20 @@ export const npcDialogues: Record<string, Dialogue> = {
     name: "Old Hermit",
     dialogues: {
       initial: {
-        question: (player) => {
-          if (player.completedQuests.some((q: ActiveQuest) => q.key === "investigate_ruins")) {
-            return "The artifact is safe, thanks to you. The forest is at peace now.";
-          }
-          return "The ancient ruins are dangerous... but the artifact must be recovered!";
-        },
+        question: (player) =>
+          player.completedQuests.some((q: ActiveQuest) => q.key === "investigate_ruins")
+            ? "The artifact is safe, thanks to you. The forest is at peace now."
+            : "The ancient ruins are dangerous... but the artifact must be recovered!",
         options: [
           {
             text: "I've retrieved the ancient artifact",
             action: "return_artifact",
-            condition: (player) => (player.inventory["crown_of_wisdom"] || 0) > 0,
+            condition: (player) => player.inventory.getItemCount("crown_of_wisdom") > 0,
           },
           {
             text: "I found this ancient tablet",
             action: "show_tablet",
-            condition: (player) => !!(player.inventory["ancient_tablet"] || 0),
+            condition: (player) => player.inventory.getItemCount("ancient_tablet") > 0,
           },
           {
             text: "Accept quest",
@@ -175,31 +143,17 @@ export const npcDialogues: Record<string, Dialogue> = {
       show_tablet: {
         question:
           "By the old gods! Where did you find this? This tablet contains the key to the artifact chamber!",
-        options: [
-          {
-            text: "What does it say?",
-            action: "translate_tablet",
-          },
-        ],
+        options: [{ text: "What does it say?", action: "translate_tablet" }],
       },
       translate_tablet: {
         question:
           "It speaks of a hidden passage behind the throne of the ancient king. The artifact lies beyond... but beware the guardians! I've marked your map with the area. The artifact is powerful, but dangerous.",
-        options: [
-          {
-            text: "Thank you, hermit",
-            action: "complete_tablet",
-          },
-        ],
+        options: [{ text: "Thank you, hermit", action: "complete_tablet" }],
       },
       return_artifact: {
         question: "By the gods! You've done it! This will help us protect our town.",
         options: [
-          {
-            text: "[Hand over artifact]",
-            action: "complete_quest",
-            quest: "investigate_ruins",
-          },
+          { text: "[Hand over artifact]", action: "complete_quest", quest: "investigate_ruins" },
         ],
       },
     },
@@ -248,7 +202,7 @@ export const npcDialogues: Record<string, Dialogue> = {
             quest: "slay_goblins",
             condition: (player) => {
               const quest = player.activeQuests.find((q: ActiveQuest) => q.key === "slay_goblins");
-              return Boolean(quest && (player.inventory["goblin_ear"] || 0) >= 5);
+              return Boolean(quest && player.inventory.getItemCount("goblin_ear") >= 5);
             },
           },
           {
