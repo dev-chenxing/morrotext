@@ -79,8 +79,6 @@ export class Actor extends GameObject {
     this.fight = fight;
   }
 
-  // Item stat modifier logic removed. Stats are no longer auto-adjusted on equip/unequip.
-
   equip(itemId: string) {
     const item = getObject(itemId) as Item | Weapon | Armor | Alchemy | null;
     if (!item) {

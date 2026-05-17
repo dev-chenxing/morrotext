@@ -1,11 +1,9 @@
 import chalk from "chalk";
-import { ATTRIBUTES, PLAYER_DEFAULTS, SLOT, OBJECT_TYPE } from "../constants.ts";
+import { ATTRIBUTES, PLAYER_DEFAULTS, OBJECT_TYPE } from "../constants.ts";
 import { getClass } from "../gameState.ts";
 import { createClassActorProfile } from "../systems/class.ts";
-import { getSlotForItemType } from "../systems/equipment.ts";
 import Actor from "./Actor.ts";
-import { createInventory } from "../systems/inventory.ts";
-import type { ActiveQuest, Class, Item, StoryFlags, ValueOf, Weapon, Armor } from "../types.ts";
+import type { ActiveQuest, Class, StoryFlags } from "../types.ts";
 
 export class Player extends Actor {
   class: Class;
@@ -15,12 +13,13 @@ export class Player extends Actor {
   storyFlags: StoryFlags;
   killCount: Record<string, number>;
 
+  // Player-specific progression state
+  levelUpProgress: number;
+
   constructor(name: string, classId: string) {
     // use a stable id for player
     super("player", name, PLAYER_DEFAULTS.LEVEL);
     this.objectType = OBJECT_TYPE.PLAYER;
-
-    this.level = PLAYER_DEFAULTS.LEVEL;
 
     const selectedClass = getClass(classId);
     if (!selectedClass) {
@@ -35,6 +34,8 @@ export class Player extends Actor {
 
     const classProfile = createClassActorProfile(this.class);
     this.skills = [...classProfile.skills];
+
+    // Apply class-derived stats onto the Actor defaults
     this.health = { ...classProfile.health };
     this.magicka = { ...classProfile.magicka };
     this.strength = { ...classProfile.attributes[ATTRIBUTES.STRENGTH] };
@@ -46,17 +47,13 @@ export class Player extends Actor {
     this.personality = { ...classProfile.attributes[ATTRIBUTES.PERSONALITY] };
     this.luck = { ...classProfile.attributes[ATTRIBUTES.LUCK] };
 
-    this.equipment = {
-      weapon: null,
-      armor: null,
-    };
-    this.inventory = createInventory();
-
     this.activeQuests = [];
     this.completedQuests = [];
     this.storyFlags = {};
 
     this.killCount = {};
+
+    this.levelUpProgress = 0;
   }
 
   recordKill(enemyType: string) {
@@ -65,7 +62,7 @@ export class Player extends Actor {
   }
 
   levelUp() {
-    this.level++;
+    super.levelUp();
     this.health.base += PLAYER_DEFAULTS.LEVEL_UP_HP_GAIN;
     this.health.current = this.health.base;
     console.log(chalk.yellow(`\n=== LEVEL UP! (${this.level}) ===`));
@@ -73,56 +70,16 @@ export class Player extends Actor {
   }
 
   isItemEquipped(itemId: string) {
-    return this.equipment.weapon?.id === itemId || this.equipment.armor?.id === itemId;
+    return this.hasItemEquipped(itemId);
   }
 
-  unequip(itemId?: string, slot?: ValueOf<typeof SLOT>) {
-    if (this.equipment.weapon?.id === itemId) {
-      this.unequip(undefined, SLOT.WEAPON);
-    } else if (this.equipment.armor?.id === itemId) {
-      this.unequip(undefined, SLOT.ARMOR);
-      return;
-    }
-
-    if (typeof slot !== "undefined") {
-      const item = this.equipment[slot];
-      if (!item) return false;
-
-      this.equipment[slot] = null;
-      console.log(chalk.yellow(`Unequipped ${item.name}`));
-      return true;
-    }
-
-    return false;
-  }
-
-  equipItem(item: Item) {
-    try {
-      const slot = getSlotForItemType(item.objectType);
-      if (!slot) {
-        throw new Error("Item cannot be equipped");
-      }
-
-      switch (slot) {
-        case SLOT.WEAPON:
-          if (this.equipment.weapon) this.unequip(undefined, SLOT.WEAPON);
-          this.equipment.weapon = item as Weapon;
-
-          console.log(chalk.green(`Equipped ${item.name}!`));
-          break;
-        case SLOT.ARMOR:
-          if (this.equipment.armor) this.unequip(undefined, SLOT.ARMOR);
-          this.equipment.armor = item as Armor;
-
-          console.log(chalk.green(`Equipped ${item.name}!`));
-          break;
-        default:
-          // No other slots supported
-          break;
-      }
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      console.log(chalk.red(`Cannot equip ${item.name}: ${message}`));
+  addExperience(xp: number) {
+    this.levelUpProgress += xp;
+    // Simple fixed threshold for level up; tweak later if desired
+    const THRESHOLD = 10;
+    while (this.levelUpProgress >= THRESHOLD) {
+      this.levelUpProgress -= THRESHOLD;
+      this.levelUp();
     }
   }
 }
