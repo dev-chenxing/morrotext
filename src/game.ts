@@ -8,10 +8,10 @@ import { useItem } from "./systems/item.ts";
 import { game, getDialogue, getNonDynamicData, getObject } from "./gameState.ts";
 import { initializeGameData } from "./initialize.ts";
 import { createCreatureInstance } from "./world/creatures.ts";
-import { exploreRuins } from "./world/ruins.ts";
+import { exploreRuins } from "./world/areas/ruins.ts";
 import { createNPCInstance } from "./world/npcs.ts";
 import { resolveDynamic } from "./utils/dynamicUtils.ts";
-import { showPlayerStats } from "./ui/hud.ts";
+import { MenuStat } from "./ui/menus.ts";
 import type { ActiveQuest, Area } from "./types.ts";
 
 process.on("uncaughtException", (error: unknown) => {
@@ -41,7 +41,7 @@ export async function showMainMenu(player: Player) {
       await showTravelMenu(player);
       break;
     case "Check Stats":
-      showPlayerStats(player);
+      MenuStat(player);
       await showMainMenu(player);
       break;
     case "View Inventory":

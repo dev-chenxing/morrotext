@@ -3,7 +3,7 @@ import { getObject } from "../gameState.ts";
 import { GOLD_ID } from "../constants.ts";
 import type { Player } from "../types.ts";
 
-export function showPlayerStats(player: Player) {
+export function MenuStat(player: Player) {
   const equippedWeapon = player.equipment.weapon ? getObject(player.equipment.weapon.id) : null;
   const equippedArmor = player.equipment.armor ? getObject(player.equipment.armor.id) : null;
   console.log(chalk.blue("\n=== Character Stats ==="));

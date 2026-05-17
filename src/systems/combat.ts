@@ -1,7 +1,7 @@
 import chalk from "chalk";
 import inquirer from "inquirer";
 import { getObject } from "../gameState.ts";
-import type { Player } from "../actors/Player.ts";
+import type { Player } from "../types.ts";
 import { generateLoot } from "../world/loot.ts";
 import { COMBAT_BALANCE, OBJECT_TYPE, GOLD_ID } from "../constants.ts";
 import { useItem } from "./item.ts";

@@ -1,14 +1,14 @@
 import inquirer from "inquirer";
 import chalk from "chalk";
 import figlet from "figlet";
-import { RUINS_BALANCE } from "../constants.ts";
-import type { Player } from "../actors/Player.ts";
-import { startCombat } from "../systems/combat.ts";
-import { createCreatureInstance } from "../world/creatures.ts";
-import { ITEMS } from "../world/items.ts";
-import { generateLoot } from "./loot.ts";
-import { updateQuestProgress } from "./quests.ts";
-import type { Area } from "../types.ts";
+import { RUINS_BALANCE } from "../../constants.ts";
+import type { Player } from "../../types.ts";
+import { startCombat } from "../../systems/combat.ts";
+import { createCreatureInstance } from "../creatures.ts";
+import { ITEMS } from "../items.ts";
+import { generateLoot } from "../loot.ts";
+import { updateQuestProgress } from "../quests.ts";
+import type { Area } from "../../types.ts";
 
 export async function exploreRuins(player: Player, area: Area) {
   console.log(chalk.yellow(figlet.textSync("ANCIENT RUINS", { font: "Small" })));

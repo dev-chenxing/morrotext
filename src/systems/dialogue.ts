@@ -1,6 +1,6 @@
 import inquirer from "inquirer";
 import chalk from "chalk";
-import type { Player } from "../actors/Player.ts";
+import type { Player } from "../types.ts";
 import { GOLD_ID } from "../constants.ts";
 import { getDialogue } from "../gameState.ts";
 import { completeQuest, QUESTS } from "../world/quests.ts";

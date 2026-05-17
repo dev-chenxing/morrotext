@@ -57,8 +57,6 @@
 - [x] refactor: update `Player.inventory` to `Inventory` type instead of record
 - [x] refactor: move shared logic from current `Player.ts` into `Actor.ts`
 - [x] refactor: refactor `src/actors/Player.ts` to extend `Actor` and keep only player-specific concerns
-- [ ] refactor: replace timer-based `updateEffects()` with explicit `onTick()` calls from the game loop
-- [ ] refactor: update all consuming systems (`combat`, `items`, `shop`, `hud`, `ruins`, `dialogue`) to use the new inheritance contract
 
 ### Quest Manager
 - [ ] feat: create `src/systems/QuestManager.ts` that owns active/completed quest maps, current stage per quest, and imports quest definitions from `world/quests.ts`.

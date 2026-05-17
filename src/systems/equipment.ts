@@ -44,7 +44,7 @@ export async function handleEquipment(player: Player, item: Item) {
   });
 
   if (action === "equip") {
-    player.equipItem(item);
+    player.equip(item.id);
   } else if (action === "unequip") {
     player.unequip(item.id);
   } else if (action === "inspect") {
