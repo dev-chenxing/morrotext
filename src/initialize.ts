@@ -1,71 +1,125 @@
 import npcDialogues from "./content/dialogues.ts";
+import { OBJECT_TYPE } from "./constants.ts";
 import { game } from "./gameState.ts";
 import { createClass } from "./systems/class.ts";
-import type { Action, Area, Class, Dialogue, Item, NPC } from "./types.ts";
+import type {
+  Action,
+  Cell,
+  Class,
+  Creature,
+  Dialogue,
+  DialogueInfo,
+  Item,
+  NPC,
+  Quest,
+  ReferenceList,
+} from "./types.ts";
 import { ACTIONS } from "./world/actions.ts";
-import { areas } from "./world/areas.ts";
+import { cells } from "./world/cells.ts";
 import { CLASSES } from "./world/classes.ts";
 import { createCreature, CREATURES } from "./world/creatures.ts";
 import { ITEMS } from "./world/items.ts";
 import { createNPC, NPC_REGISTRY } from "./world/npcs.ts";
+import { QUESTS } from "./world/quests.ts";
 
-function cloneAreas(source: Record<string, Area>): Area[] {
-  return Object.values(source).map((area) => ({
-    ...area,
-    npcs: [...area.npcs],
-    quests: area.quests ? [...area.quests] : undefined,
+function createEmptyReferenceList(cell: Cell): ReferenceList {
+  return {
+    cell,
+    head: null,
+    tail: null,
+    size: 0,
+  };
+}
+
+function cloneCells(source: Record<string, Cell>): Cell[] {
+  return Object.values(source).map((cell) => ({
+    ...cell,
+    activators: createEmptyReferenceList(cell),
+    actors: createEmptyReferenceList(cell),
+    statics: createEmptyReferenceList(cell),
   }));
 }
 
-function cloneDialogues(source: Record<string, Dialogue>): Dialogue[] {
-  return Object.values(source).map((dialogue) => ({
-    ...dialogue,
-    dialogues: Object.fromEntries(
-      Object.entries(dialogue.dialogues).map(([stateKey, state]) => [
-        stateKey,
-        {
-          ...state,
-          options: state.options.map((option) => ({ ...option })),
-        },
-      ]),
-    ),
-  }));
+function cloneDialogues(source: Record<string, any>): Dialogue[] {
+  return Object.values(source).map((dialogue: any) => {
+    const cloned: Dialogue = {
+      id: dialogue.id,
+      info: [],
+      journalIndex: dialogue.journalIndex ?? null,
+      objectType: dialogue.objectType,
+    } as Dialogue;
+
+    // If the source already provides `info` (new format), clone it first.
+    if (dialogue.info) {
+      cloned.info = dialogue.info.map((entry: any) => ({ ...entry }));
+    }
+
+    // If the source uses the legacy `dialogues` state map, flatten states
+    // into `info` entries while preserving the state's question and key.
+    if (dialogue.dialogues) {
+      for (const [stateKey, state] of Object.entries(dialogue.dialogues)) {
+        const question = (state as any).question;
+        const options = (state as any).options ?? [];
+        for (const opt of options) {
+          const infoEntry: any = { ...(opt as any) };
+          if (question !== undefined) infoEntry.prompt = question;
+          infoEntry._state = stateKey;
+          cloned.info.push(infoEntry as DialogueInfo);
+        }
+      }
+    }
+
+    return cloned;
+  });
 }
 
-function createActionRegistry(): Action[] {
+function createActions(): Action[] {
   return ACTIONS.map((action) => ({ ...action }));
 }
 
-function createObjectRegistry(): Item[] {
+function createObjects(): Item[] {
   return Object.values(ITEMS).map((item) => ({ ...item }));
 }
 
-function createCreatureRegistry() {
+function createCreatures(): Creature[] {
   return CREATURES.map((entry) => createCreature(entry));
 }
 
-function createClassRegistry(actions: Action[]): Class[] {
+function createClasses(actions: Action[]): Class[] {
   return CLASSES.map((entry) => createClass(entry, actions));
 }
 
-function createNPCRegistry(classes: Class[]): NPC[] {
+function createNPCs(classes: Class[]): NPC[] {
   return NPC_REGISTRY.map((entry) => createNPC(entry, classes));
+}
+
+function createQuests(): Quest[] {
+  return Object.keys(QUESTS).map((questId) => ({
+    id: questId,
+    objectType: OBJECT_TYPE.QUEST,
+    dialogue: [],
+    isActive: false,
+    isStarted: false,
+    isFinished: false,
+  }));
 }
 
 export function initializeGameData() {
   if (game.dataHandler.nonDynamicData.actions.length > 0) {
+    if (game.worldController.quests.length === 0) {
+      game.worldController.quests = createQuests();
+    }
     return game.dataHandler.nonDynamicData;
   }
 
-  game.dataHandler.nonDynamicData.actions = createActionRegistry();
-  game.dataHandler.nonDynamicData.objects = createObjectRegistry();
-  game.dataHandler.nonDynamicData.creatures = createCreatureRegistry();
-  game.dataHandler.nonDynamicData.classes = createClassRegistry(
-    game.dataHandler.nonDynamicData.actions,
-  );
-  game.dataHandler.nonDynamicData.npcs = createNPCRegistry(game.dataHandler.nonDynamicData.classes);
+  game.dataHandler.nonDynamicData.actions = createActions();
+  game.dataHandler.nonDynamicData.objects = createObjects();
+  game.dataHandler.nonDynamicData.creatures = createCreatures();
+  game.dataHandler.nonDynamicData.classes = createClasses(game.dataHandler.nonDynamicData.actions);
+  game.dataHandler.nonDynamicData.npcs = createNPCs(game.dataHandler.nonDynamicData.classes);
   game.dataHandler.nonDynamicData.dialogues = cloneDialogues(npcDialogues);
-  game.dataHandler.nonDynamicData.areas = cloneAreas(areas);
+  game.dataHandler.nonDynamicData.cells = cloneCells(cells);
+  game.worldController.quests = createQuests();
 
   return game.dataHandler.nonDynamicData;
 }

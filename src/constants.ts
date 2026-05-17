@@ -5,6 +5,7 @@ const OBJECT_TYPES = {
   ARMOR: "armor",
   BOOK: "book",
   CREATURE: "creature",
+  DIALOGUE: "dialogue",
   ITEM: "item",
   LEVELED_ITEM: "leveled_item",
   MISC: "misc",
@@ -29,6 +30,7 @@ export namespace OBJECT_TYPE {
   export type MISC = typeof OBJECT_TYPES.MISC;
   export type NPC = typeof OBJECT_TYPES.NPC;
   export type QUEST = typeof OBJECT_TYPES.QUEST;
+  export type DIALOGUE = typeof OBJECT_TYPES.DIALOGUE;
   export type WEAPON = typeof OBJECT_TYPES.WEAPON;
 }
 
@@ -77,6 +79,22 @@ export namespace CREATURE_TYPE {
   export type DAEDRA = typeof CREATURE_TYPE_VALUES.DAEDRA;
   export type UNDEAD = typeof CREATURE_TYPE_VALUES.UNDEAD;
   export type HUMANOID = typeof CREATURE_TYPE_VALUES.HUMANOID;
+}
+
+const ACTOR_TYPE_VALUES = {
+  PLAYER: "player",
+  NPC: "npc",
+  CREATURE: "creature",
+} as const;
+
+export const ACTOR_TYPE = ACTOR_TYPE_VALUES;
+
+export type ACTOR_TYPE = (typeof ACTOR_TYPE_VALUES)[keyof typeof ACTOR_TYPE_VALUES];
+
+export namespace ACTOR_TYPE {
+  export type PLAYER = typeof ACTOR_TYPE_VALUES.PLAYER;
+  export type NPC = typeof ACTOR_TYPE_VALUES.NPC;
+  export type CREATURE = typeof ACTOR_TYPE_VALUES.CREATURE;
 }
 
 export const GAME_SETTINGS = {};

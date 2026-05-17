@@ -1,220 +1,282 @@
-import type { ActiveQuest, Dialogue } from "../types.ts";
-import { isQuestAvailable } from "../world/quests.ts";
+import type { Dialogue } from "../types.ts";
+import { GOLD_ID, OBJECT_TYPE } from "../constants.ts";
+import { barter } from "../systems/barter.ts";
+import { startQuest, completeQuest, hasStartedQuest } from "../world/quests.ts";
+import { game } from "../gameState.ts";
 
-export const npcDialogues: Record<string, Dialogue> = {
+const npcDialogues: Record<string, Dialogue> = {
   smith: {
     id: "smith",
-    name: "Smith",
-    dialogues: {
-      initial: {
-        question: "Steel and iron! What can I forge for you today?",
-        options: [
-          { text: "Browse weapons and armor", action: "open_shop", shop: "smith" },
-          { text: "Ask about special orders", action: "special_orders" },
-          { text: "Leave", action: "leave" },
-        ],
+    objectType: OBJECT_TYPE.DIALOGUE,
+    info: [
+      {
+        text: "Browse weapons and armor",
+        runScript: async (ref) => {
+          const actor = ref.object as any;
+          const player = game.player;
+          if (!player) {
+            (ref.tempData as any).__dialogue_exit = true;
+            return;
+          }
+          await barter(player, actor);
+        },
       },
-      special_orders: {
-        question: (player) =>
-          isQuestAvailable(player, "special_orders")
-            ? "I need rare materials for a special commission. Can you help?"
-            : "Have you brought what I need?",
-        options: [
-          {
-            text: "I'll gather the materials",
-            action: "start_quest",
-            quest: "special_orders",
-            condition: (player) => isQuestAvailable(player, "special_orders"),
-          },
-          {
-            text: "[Hand over materials] I have everything",
-            action: "complete_special_orders",
-            condition: (player) =>
-              player.activeQuests.some((quest: ActiveQuest) => quest.key === "special_orders") &&
-              player.inventory.getItemCount("void_essence") >= 5,
-          },
-          {
-            text: "I'm still gathering materials",
-            action: "leave",
-            condition: (player) =>
-              player.activeQuests.some((quest: ActiveQuest) => quest.key === "special_orders"),
-          },
-          { text: "What do you need exactly?", action: "material_details" },
-        ],
+      {
+        text: "Ask about special orders",
+        runScript: () => {
+          console.log("The smith asks for rare Void Essence to craft special weapons.");
+        },
       },
-      material_details: {
-        question: "I need 5 Void Essence. You can find them in the ruins.",
-        options: [
-          {
-            text: "I accept the task.",
-            action: "start_quest",
-            quest: "special_orders",
-            condition: (player) => isQuestAvailable(player, "special_orders"),
-          },
-          {
-            text: "That sounds difficult.",
-            action: "leave",
-            condition: (player) => isQuestAvailable(player, "special_orders"),
-          },
-          {
-            text: "I'm still gathering materials",
-            action: "leave",
-            condition: (player) =>
-              player.activeQuests.some((quest: ActiveQuest) => quest.key === "special_orders"),
-          },
-        ],
+      {
+        text: "I'll gather the materials",
+        runScript: (ref) => {
+          const player = game.player;
+          if (!player) {
+            (ref.tempData as any).__dialogue_exit = true;
+            return;
+          }
+          const quest = startQuest("special_orders");
+          if (quest) {
+            console.log(`Quest started: "special_orders"`);
+            (ref.tempData as any).__dialogue_exit = true;
+            return;
+          }
+          console.log("That quest is unavailable right now.");
+        },
       },
-      complete_special_orders: {
-        question:
-          "Magnificient! With these materials, I can forge weapons worthy of legends! \\\n+Take this masterwork hammer - it should serve you well.",
-        options: [{ text: "Thank you", action: "complete_quest", quest: "special_orders" }],
+      {
+        text: "[Hand over materials] I have everything",
+        runScript: (ref) => {
+          const player = game.player;
+          if (!player) {
+            (ref.tempData as any).__dialogue_exit = true;
+            return;
+          }
+          if (player.inventory.getItemCount("void_essence") < 5) {
+            console.log("You don't have enough Void Essence.");
+            return;
+          }
+          player.inventory.removeItem("void_essence", 5);
+          completeQuest("special_orders");
+          console.log("The smith forges a masterwork hammer for you.");
+          (ref.tempData as any).__dialogue_exit = true;
+        },
       },
-    },
+      {
+        text: "Leave",
+        runScript: (ref) => {
+          (ref.tempData as any).__dialogue_exit = true;
+        },
+      },
+    ],
   },
+
   publican: {
     id: "publican",
-    name: "Publican",
-    dialogues: {
-      initial: {
-        question: "Welcome to the Rusty Tankard! What'll it be?",
-        options: [
-          { text: "Rest for the night (10 gold)", action: "rest", cost: 10 },
-          { text: "Buy supplies", action: "open_shop", shop: "general" },
-          { text: "Hear local rumors", action: "rumor" },
-          { text: "Return to tavern hall", action: "leave" },
-        ],
+    objectType: OBJECT_TYPE.DIALOGUE,
+    info: [
+      {
+        text: "Rest for the night (10 gold)",
+        runScript: (ref) => {
+          const player = game.player;
+          if (!player) {
+            (ref.tempData as any).__dialogue_exit = true;
+            return;
+          }
+          const cost = 10;
+          if (player.inventory.getItemCount(GOLD_ID) >= cost) {
+            player.inventory.removeItem(GOLD_ID, cost);
+            player.health.current = player.health.base;
+            player.magicka.current = player.magicka.base;
+            console.log("You rest and recover fully.");
+            (ref.tempData as any).__dialogue_exit = true;
+            return;
+          }
+          console.log("Not enough gold for a room!");
+        },
       },
-      rumor: {
-        question:
-          "They say the ancient ruins north of town hold powerful artifacts... but also terrible dangers.",
-        options: [
-          { text: "Tell me more about the artifact", action: "artifact_info" },
-          { text: "That's enough", action: "leave" },
-        ],
+      {
+        text: "Buy supplies",
+        runScript: async (ref) => {
+          const actor = ref.object as any;
+          const player = game.player;
+          if (!player) {
+            (ref.tempData as any).__dialogue_exit = true;
+            return;
+          }
+          await barter(player, actor);
+        },
       },
-      artifact_info: {
-        question:
-          "Word is the Hermit knows about such things. Strange lights come from the ruins at night...",
-        options: [
-          { text: "Where can I find this Hermit?", action: "hermit_area" },
-          { text: "What kind of relic is it?", action: "relic_details" },
-        ],
+      {
+        text: "Hear local rumors",
+        runScript: () => {
+          console.log("They say the ancient ruins north of town hold powerful artifacts.");
+        },
       },
-      hermit_area: {
-        question: "He lives in a shack deep in Darkwood Forest. But beware - the way is dangerous!",
-        options: [{ text: "I'll take my chances", action: "leave" }],
+      {
+        text: "Return to tavern hall",
+        runScript: (ref) => {
+          (ref.tempData as any).__dialogue_exit = true;
+        },
       },
-      relic_details: {
-        question:
-          "Some say it's a crown that grants wisdom, others a sword that slays dragons. Who knows?",
-        options: [{ text: "Fascinating...", action: "leave" }],
-      },
-    },
+    ],
   },
+
   hermit: {
     id: "hermit",
-    name: "Old Hermit",
-    dialogues: {
-      initial: {
-        question: (player) =>
-          player.completedQuests.some((q: ActiveQuest) => q.key === "investigate_ruins")
-            ? "The artifact is safe, thanks to you. The forest is at peace now."
-            : "The ancient ruins are dangerous... but the artifact must be recovered!",
-        options: [
-          {
-            text: "I've retrieved the ancient artifact",
-            action: "return_artifact",
-            condition: (player) => player.inventory.getItemCount("crown_of_wisdom") > 0,
-          },
-          {
-            text: "I found this ancient tablet",
-            action: "show_tablet",
-            condition: (player) => player.inventory.getItemCount("ancient_tablet") > 0,
-          },
-          {
-            text: "Accept quest",
-            action: "start_quest",
-            quest: "investigate_ruins",
-            condition: (player) => isQuestAvailable(player, "investigate_ruins"),
-          },
-          { text: "Maybe later", action: "leave" },
-        ],
+    objectType: OBJECT_TYPE.DIALOGUE,
+    info: [
+      {
+        text: "I've retrieved the ancient artifact",
+        runScript: (ref) => {
+          const player = game.player;
+          if (!player) {
+            (ref.tempData as any).__dialogue_exit = true;
+            return;
+          }
+          if (!player.inventory.getItemCount("crown_of_wisdom")) {
+            console.log("You don't have the required item!");
+            (ref.tempData as any).__dialogue_exit = true;
+            return;
+          }
+          player.inventory.removeItem("crown_of_wisdom", 1);
+          console.log("The Hermit places the artifact in the town vault.");
+          completeQuest("investigate_ruins");
+          (ref.tempData as any).__dialogue_exit = true;
+        },
       },
-      show_tablet: {
-        question:
-          "By the old gods! Where did you find this? This tablet contains the key to the artifact chamber!",
-        options: [{ text: "What does it say?", action: "translate_tablet" }],
+      {
+        text: "I found this ancient tablet",
+        runScript: (ref) => {
+          const player = game.player;
+          if (!player) {
+            (ref.tempData as any).__dialogue_exit = true;
+            return;
+          }
+          if (player.inventory.getItemCount("ancient_tablet") === 0) {
+            console.log("You don't have a tablet.");
+            return;
+          }
+          console.log("The tablet speaks of a hidden passage behind the throne.");
+        },
       },
-      translate_tablet: {
-        question:
-          "It speaks of a hidden passage behind the throne of the ancient king. The artifact lies beyond... but beware the guardians! I've marked your map with the area. The artifact is powerful, but dangerous.",
-        options: [{ text: "Thank you, hermit", action: "complete_tablet" }],
+      {
+        text: "Accept quest",
+        runScript: (ref) => {
+          const player = game.player;
+          if (!player) {
+            (ref.tempData as any).__dialogue_exit = true;
+            return;
+          }
+          const quest = startQuest("investigate_ruins");
+          if (quest) {
+            console.log(`Quest started: "investigate_ruins"`);
+            (ref.tempData as any).__dialogue_exit = true;
+            return;
+          }
+          console.log("That quest is unavailable right now.");
+        },
       },
-      return_artifact: {
-        question: "By the gods! You've done it! This will help us protect our town.",
-        options: [
-          { text: "[Hand over artifact]", action: "complete_quest", quest: "investigate_ruins" },
-        ],
+      {
+        text: "Maybe later",
+        runScript: (ref) => {
+          (ref.tempData as any).__dialogue_exit = true;
+        },
       },
-    },
+    ],
   },
+
   priestess: {
     id: "priestess",
-    name: "High Prietess Elara",
-    dialogues: {
-      initial: {
-        question: "The light guides you, child. How may the church assist?",
-        options: [
-          { text: "Receive blessing (50 gold)", action: "blessing", cost: 50 },
-          { text: "Learn holy prayer", action: "prayer" },
-          { text: "Seek guidance", action: "guidance" },
-          { text: "Leave", action: "leave" },
-        ],
+    objectType: OBJECT_TYPE.DIALOGUE,
+    info: [
+      {
+        text: "Receive blessing (50 gold)",
+        runScript: (ref) => {
+          const player = game.player;
+          if (!player) {
+            (ref.tempData as any).__dialogue_exit = true;
+            return;
+          }
+          const cost = 50;
+          if (player.inventory.getItemCount(GOLD_ID) >= cost) {
+            player.inventory.removeItem(GOLD_ID, cost);
+            player.health.current = Math.min(player.health.base, player.health.current + 10);
+            player.magicka.current = Math.min(player.magicka.base, player.magicka.current + 10);
+            (ref.tempData as any).__dialogue_exit = true;
+            return;
+          }
+          console.log("Not enough gold for blessing!");
+        },
       },
-      guidance: {
-        question:
-          "Darkness gathers in the ancient ruins. The artifact must be secured before the cultists find it.",
-        options: [
-          { text: "What artifact?", action: "artifact_info" },
-          { text: "Who are the cultists?", action: "cultists_info" },
-        ],
+      {
+        text: "Learn holy prayer",
+        runScript: (ref) => {
+          console.log("You learn a simple prayer.");
+          (ref.tempData as any).__dialogue_exit = true;
+        },
       },
-      artifact_info: {
-        question: "A relic of immense power from the First Age. It could save or doom us all.",
-        options: [{ text: "I understand", action: "return" }],
+      {
+        text: "Seek guidance",
+        runScript: () => {
+          console.log("Darkness gathers in the ancient ruins.");
+        },
       },
-      cultists_info: {
-        question: "Followers of the Void God. They seek to unleash ancient evils upon the world.",
-        options: [{ text: "I'll stop them", action: "return" }],
+      {
+        text: "Leave",
+        runScript: (ref) => {
+          (ref.tempData as any).__dialogue_exit = true;
+        },
       },
-    },
+    ],
   },
+
   forest_warden: {
     id: "forest_warden",
-    name: "Ranger Alden",
-    dialogues: {
-      initial: {
-        question: "The forest reeks of goblin filth. You here to help?",
-        options: [
-          {
-            text: "I've cleared the goblins",
-            action: "complete_quest",
-            quest: "slay_goblins",
-            condition: (player) => {
-              const quest = player.activeQuests.find((q: ActiveQuest) => q.key === "slay_goblins");
-              return Boolean(quest && player.inventory.getItemCount("goblin_ear") >= 5);
-            },
-          },
-          {
-            text: "I'll clear the infestation",
-            action: "start_quest",
-            quest: "slay_goblins",
-            condition: (player) => isQuestAvailable(player, "slay_goblins"),
-          },
-          { text: "Leave", action: "leave" },
-        ],
+    objectType: OBJECT_TYPE.DIALOGUE,
+    info: [
+      {
+        text: "I've cleared the goblins",
+        runScript: (ref) => {
+          const player = game.player;
+          if (!player) {
+            (ref.tempData as any).__dialogue_exit = true;
+            return;
+          }
+          if (!hasStartedQuest("slay_goblins") || player.inventory.getItemCount("goblin_ear") < 5) {
+            console.log("You haven't completed the requirements.");
+            return;
+          }
+          player.inventory.removeItem("goblin_ear", 5);
+          completeQuest("slay_goblins");
+          console.log("You've done us a great service!");
+          (ref.tempData as any).__dialogue_exit = true;
+        },
       },
-    },
+      {
+        text: "I'll clear the infestation",
+        runScript: (ref) => {
+          const player = game.player;
+          if (!player) {
+            (ref.tempData as any).__dialogue_exit = true;
+            return;
+          }
+          const quest = startQuest("slay_goblins");
+          if (quest) {
+            console.log(`Quest started: "slay_goblins"`);
+            (ref.tempData as any).__dialogue_exit = true;
+            return;
+          }
+          console.log("That quest is unavailable right now.");
+        },
+      },
+      {
+        text: "Leave",
+        runScript: (ref) => {
+          (ref.tempData as any).__dialogue_exit = true;
+        },
+      },
+    ],
   },
 };
 

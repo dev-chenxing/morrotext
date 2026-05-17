@@ -5,14 +5,22 @@ import { Player } from "./actors/Player.ts";
 import { startCombat } from "./systems/combat.ts";
 import { talkToNPC } from "./systems/dialogue.ts";
 import { useItem } from "./systems/item.ts";
-import { game, getDialogue, getNonDynamicData, getObject } from "./gameState.ts";
+import {
+  game,
+  getDialogue,
+  getNPC,
+  getNonDynamicData,
+  getObject,
+  getCreature,
+} from "./gameState.ts";
 import { initializeGameData } from "./initialize.ts";
 import { createCreatureInstance } from "./world/creatures.ts";
-import { exploreRuins } from "./world/areas/ruins.ts";
+import { exploreRuins } from "./world/cells/ruins.ts";
 import { createNPCInstance } from "./world/npcs.ts";
+import { findQuest, getActiveQuests } from "./world/quests.ts";
 import { resolveDynamic } from "./utils/dynamicUtils.ts";
 import { MenuStat } from "./ui/menus.ts";
-import type { ActiveQuest, Area } from "./types.ts";
+import type { Cell, Reference } from "./types.ts";
 
 process.on("uncaughtException", (error: unknown) => {
   if (error instanceof Error && error.name === "ExitPromptError") {
@@ -94,64 +102,95 @@ export async function showInventory(player: Player) {
 }
 
 export async function showQuests(player: Player) {
-  if (player.activeQuests.length === 0) {
+  const activeQuests = getActiveQuests();
+
+  if (activeQuests.length === 0) {
     console.log(chalk.yellow("\nNo active quests!"));
     return showMainMenu(player);
   }
 
-  const { quest } = await inquirer.prompt<{ quest: ActiveQuest | null }>({
+  const { questId } = await inquirer.prompt<{ questId: string | null }>({
     type: "list",
-    name: "quest",
+    name: "questId",
     message: "Active Quests:",
     choices: [
-      ...player.activeQuests.map((q: ActiveQuest) => ({
-        name: `${q.title} [${q.progress}/${q.objectives.length}]`,
-        value: q,
+      ...activeQuests.map((quest) => ({
+        name: `${quest.id} [Started]`,
+        value: quest.id,
       })),
       { name: "Return", value: null },
     ],
   });
 
-  if (!quest) return showMainMenu(player);
+  if (!questId) return showMainMenu(player);
 
-  console.log(chalk.cyan(`\n=== ${quest.title} ===`));
-  quest.objectives.forEach((obj, i) => {
-    const status = i < quest.progress ? chalk.green("✓") : chalk.gray("◻");
-    console.log(`${i + 1}. ${status} ${obj.description}`);
-  });
+  const quest = findQuest(undefined, questId);
+  if (!quest) {
+    return showMainMenu(player);
+  }
+
+  console.log(chalk.cyan(`\n=== ${quest.id} ===`));
+  console.log(`Status: ${quest.isFinished ? "Completed" : "Started"}`);
+
+  const journalEntries =
+    quest.dialogue.length > 0
+      ? quest.dialogue.map((d) => {
+          if (d.info && d.info.length > 0) return d.info[d.journalIndex ?? 0]?.text ?? d.id;
+          return d.id;
+        })
+      : ["No journal entries yet."];
+
+  journalEntries.forEach((entry, index) => console.log(`${index + 1}. ${entry}`));
 
   await showQuests(player);
 }
 
-function getRandomCreature(areaEnemies: string[]) {
-  const creatureTypes = areaEnemies;
-  const totalWeight = creatureTypes.length;
-  const selected = creatureTypes[Math.floor(Math.random() * totalWeight)];
+function collectActorIdsFromCell(cell: Cell): string[] {
+  const ids: string[] = [];
+  const list = cell.actors;
+  if (!list || !list.head) return ids;
+  let node: Reference | null | undefined = list.head;
+  while (node) {
+    const obj: any = (node.object as any) ?? null;
+    if (obj && typeof obj.id === "string") ids.push(obj.id);
+    node = node.nextNode ?? null;
+  }
+  return ids;
+}
+
+function getRandomCreatureFromCell(cell: Cell) {
+  const actorIds = collectActorIdsFromCell(cell);
+  const creatureIds = actorIds.filter((id) => Boolean(getCreature(id)));
+  if (creatureIds.length === 0) return null;
+  const selected = creatureIds[Math.floor(Math.random() * creatureIds.length)];
   return createCreatureInstance(selected);
 }
 
-export async function enterArea(player: Player, area: Area) {
-  const description = resolveDynamic(area.description, player) ?? "";
-  const enemies = resolveDynamic(area.enemies, player) ?? [];
-  if (area.name === "Ancient Ruins") {
-    const creature = getRandomCreature(enemies);
-    await startCombat(player, creature, area);
-    await exploreRuins(player, area);
+export async function enterCell(player: Player, cell: Cell) {
+  const description = resolveDynamic(cell.description, player) ?? "";
+  const displayName = resolveDynamic(cell.displayName, player) ?? cell.editorName;
+  if (displayName === "Ancient Ruins") {
+    const creature = getRandomCreatureFromCell(cell);
+    if (creature) await startCombat(player, creature);
+    await exploreRuins(player);
   } else {
-    let inArea = true;
-    while (inArea && player.health.current > 0) {
-      console.log(chalk.cyan(`\n=== ${area.name} ===`));
+    let inCell = true;
+    while (inCell && player.health.current > 0) {
+      console.log(chalk.cyan(`\n=== ${displayName} ===`));
       console.log(chalk.hex("#8B4513")(description));
+      const actorIds = collectActorIdsFromCell(cell);
+      const npcIds = actorIds.filter((id) => Boolean(getDialogue(id)));
+      const creatureIds = actorIds.filter((id) => Boolean(getCreature(id)));
 
       const choices = [
-        ...area.npcs.map((npcKey: string) => ({
-          name: `Talk to ${getDialogue(npcKey)?.name || npcKey}`,
+        ...npcIds.map((npcKey: string) => ({
+          name: `Talk to ${getNPC(npcKey)?.name || npcKey}`,
           value: `npc:${npcKey}`,
         })),
         { name: "Return to Main Menu", value: "return" },
       ];
 
-      if (enemies && enemies.length > 0) {
+      if (creatureIds.length > 0) {
         choices.unshift({ name: "Explore area", value: "explore" });
       }
 
@@ -164,16 +203,32 @@ export async function enterArea(player: Player, area: Area) {
 
       if (action.startsWith("npc:")) {
         const npcKey = action.split(":")[1];
-        await talkToNPC(createNPCInstance(npcKey), player);
 
-        return enterArea(player, area);
-      } else if (action === "explore") {
-        if (enemies && enemies.length > 0) {
-          const creature = getRandomCreature(enemies);
-          await startCombat(player, creature, area);
+        // Try to find the runtime Reference for this NPC in the current cell.
+        let node = cell.actors?.head ?? null;
+        let foundRef: Reference | undefined;
+        while (node) {
+          const obj: any = node.object as any;
+          if (obj && typeof obj.id === "string" && obj.id === npcKey) {
+            foundRef = node;
+            break;
+          }
+          node = node.nextNode ?? null;
         }
+
+        if (foundRef) {
+          await talkToNPC(foundRef, player);
+        } else {
+          // Fallback when cell references aren't populated (unit tests / legacy callers)
+          await talkToNPC(createNPCInstance(npcKey), player);
+        }
+
+        return enterCell(player, cell);
+      } else if (action === "explore") {
+        const creature = getRandomCreatureFromCell(cell);
+        if (creature) await startCombat(player, creature);
       } else {
-        inArea = false;
+        inCell = false;
       }
     }
   }
@@ -181,31 +236,35 @@ export async function enterArea(player: Player, area: Area) {
 }
 
 async function showTravelMenu(player: Player) {
-  const availableAreas = getNonDynamicData().areas.filter((loc) => {
-    // Check travel conditions
-    if (loc.travelCondition && !loc.travelCondition(player)) {
-      return false;
-    }
-    return true;
-  });
+  const availableCells = getNonDynamicData().cells;
+
+  const choices = availableCells.map((loc) => ({
+    name: resolveDynamic(loc.displayName, player) ?? loc.editorName,
+    value: loc.id,
+  }));
+  choices.push({ name: "Cancel", value: "__cancel" });
 
   const { destination } = await inquirer.prompt<{ destination: string }>({
     type: "list",
     name: "destination",
     message: "Where would you like to travel?",
-    choices: [...availableAreas.map((loc) => loc.name), "Cancel"],
+    choices,
   });
 
-  if (destination === "Cancel") return showMainMenu(player);
+  if (destination === "__cancel") return showMainMenu(player);
 
-  const selectedArea = getNonDynamicData().areas.find((loc) => loc.name === destination);
-  if (!selectedArea) {
+  const selectedCell = getNonDynamicData().cells.find((loc) => loc.id === destination);
+  if (!selectedCell) {
     console.log(chalk.red("Unknown destination selected."));
     return showMainMenu(player);
   }
 
-  console.log(chalk.yellow(`\nTraveling to ${destination}...`));
-  await enterArea(player, selectedArea);
+  console.log(
+    chalk.yellow(
+      `\nTraveling to ${resolveDynamic(selectedCell.displayName, player) ?? selectedCell.editorName}...`,
+    ),
+  );
+  await enterCell(player, selectedCell);
 }
 
 // Initialize game

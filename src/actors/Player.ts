@@ -3,15 +3,11 @@ import { ATTRIBUTES, PLAYER_DEFAULTS, OBJECT_TYPE } from "../constants.ts";
 import { getClass } from "../gameState.ts";
 import { createClassActorProfile } from "../systems/class.ts";
 import Actor from "./Actor.ts";
-import type { ActiveQuest, Class, StoryFlags } from "../types.ts";
+import type { Class } from "../types.ts";
 
 export class Player extends Actor {
   class: Class;
   skills: number[];
-  activeQuests: ActiveQuest[];
-  completedQuests: ActiveQuest[];
-  storyFlags: StoryFlags;
-  killCount: Record<string, number>;
 
   // Player-specific progression state
   levelUpProgress: number;
@@ -47,18 +43,7 @@ export class Player extends Actor {
     this.personality = { ...classProfile.attributes[ATTRIBUTES.PERSONALITY] };
     this.luck = { ...classProfile.attributes[ATTRIBUTES.LUCK] };
 
-    this.activeQuests = [];
-    this.completedQuests = [];
-    this.storyFlags = {};
-
-    this.killCount = {};
-
     this.levelUpProgress = 0;
-  }
-
-  recordKill(enemyType: string) {
-    if (!this.killCount[enemyType]) this.killCount[enemyType] = 0;
-    this.killCount[enemyType]++;
   }
 
   levelUp() {

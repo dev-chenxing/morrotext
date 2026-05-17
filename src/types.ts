@@ -1,5 +1,6 @@
 import type { Player as PlayerType } from "./actors/Player.ts";
 import {
+  ACTOR_TYPE,
   CREATURE_TYPE,
   MERCHANT_SERVICE,
   OBJECT_TYPE,
@@ -60,6 +61,12 @@ export interface Statistic {
   base: number;
   current: number;
 }
+
+export type JsonPrimitive = boolean | number | string | null;
+
+export type JsonValue = JsonPrimitive | JsonValue[] | { [key: string]: JsonValue };
+
+export type JsonRecord = Record<string, JsonValue>;
 
 export interface NPC extends Actor {
   aiConfig: AiConfig;
@@ -138,33 +145,47 @@ export interface Creature extends Actor {
   personality: Statistic;
 }
 
-export interface QuestObjective {
-  type: QuestObjectiveType;
-  description: string;
-  item?: string;
-  count?: number;
-  target?: string;
-  npc?: string;
+export interface Quest extends GameObject {
+  id: string;
+  objectType: OBJECT_TYPE.QUEST;
+  dialogue: Dialogue[];
+  isActive?: boolean;
+  isStarted?: boolean;
+  isFinished?: boolean;
 }
 
-export interface QuestReward {
-  gold: number;
-  items?: string[];
+export interface Reference extends GameObject {
+  data: JsonRecord;
+  tempData: Record<string, unknown>;
+  object: GameObject;
+  cell: Cell | null;
+  previousNode?: Reference | null;
+  nextNode?: Reference | null;
+  isDead?: boolean;
 }
 
-export interface Quest {
-  title: string;
-  objectives: QuestObjective[];
-  reward: QuestReward;
+export interface ReferenceList {
+  cell: Cell;
+  head?: Reference | null;
+  tail?: Reference | null;
+  size: number;
 }
 
-export interface ActiveQuest extends Quest {
-  key: string;
-  progress: number;
-  completed?: boolean;
+export interface MobileActor {
+  activeMagicEffectList: unknown[];
+  actorType: ValueOf<typeof ACTOR_TYPE>;
+  health: Statistic;
+  magicka: Statistic;
+  luck: Statistic;
+  strength: Statistic;
+  intelligence: Statistic;
+  willpower: Statistic;
+  agility: Statistic;
+  speed: Statistic;
+  endurance: Statistic;
+  personality: Statistic;
+  inventory: Inventory;
 }
-
-export type StoryFlags = Record<string, boolean>;
 
 export interface Action {
   id: string;
@@ -199,42 +220,47 @@ export interface Class extends GameObject {
 
 export type DynamicValue<T> = T | ((player: Player) => T);
 
-export interface Area {
+export interface Cell {
+  activators?: ReferenceList;
+  actors?: ReferenceList;
+  // In-game display name. For unnamed exterior cells this should be the region name.
+  displayName: DynamicValue<string>;
+  // Editor-facing name. For exterior cells include coordinates.
+  editorName: string;
   id: string;
-  name: string;
+  // If true, this is an interior cell (no world coordinates).
+  isInterior?: boolean;
+  // Interior cell name. Only present for interior cells.
+  name?: string;
   description: DynamicValue<string>;
-  npcs: string[];
-  quests?: string[];
-  lootTable?: string;
-  enemies?: DynamicValue<string[]>;
-  travelCondition?: (player: Player) => boolean;
+  statics?: ReferenceList;
 }
 
-export interface DialogueOption {
+export interface DialogueInfo {
+  // The actor (speaker) this info is filtered for.
+  actor?: Actor;
+  // The cell (speaker's current cell) this info is filtered for.
+  cell?: Cell;
+  // Quick access to whether the related quest is finished. Null for non-journal dialogues.
+  isQuestFinished?: boolean | null;
+  // Current journal index for quests; null for non-journal dialogues.
+  journalIndex?: number | null;
+  // The NPC's class this info is filtered for.
+  npcClass?: Class;
+  // Optional object type filter (if applicable).
+  objectType?: ValueOf<typeof OBJECT_TYPE>;
+  // Display text for this dialogue choice / info.
   text: string;
-  action: string;
-  shop?: string;
-  quest?: string;
-  cost?: number;
-  condition?: (player: Player) => boolean;
-}
-
-export interface DialogueState {
-  question: DynamicValue<string>;
-  options: DialogueOption[];
+  // Optional runner executed when this dialogue info is chosen. Receives the
+  // `Reference` the script should operate on.
+  runScript?: (reference: Reference) => Promise<void> | void;
 }
 
 export interface Dialogue {
   id: string;
-  name: string;
-  dialogues: Record<string, DialogueState>;
+  // Collection of individual dialogue entries.
+  info: DialogueInfo[];
+  // For journal-style dialogues, the currently active entry index.
+  journalIndex?: number | null;
+  objectType: ValueOf<typeof OBJECT_TYPE>;
 }
-
-export interface DialogueActionResult {
-  message?: string;
-  exit?: boolean;
-  nextState?: string;
-  effect?: () => void;
-}
-
-export type QuestObjectiveType = "collect" | "return" | "loot" | "report";

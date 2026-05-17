@@ -12,7 +12,7 @@
 - [x] fix: resolve all TypeScript errors and warnings
 
 ### Types & Constants
-- [x] feat: create `src/types/index.ts` -- interfaces for `Item`, `Quest`, `Dialogue`, `Area`, `Action`, `Effect`, `Player`, `Class` etc.
+- [x] feat: create `src/types/index.ts` -- interfaces for `Item`, `Quest`, `Dialogue`, `Cell`, `Action`, `Effect`, `Player`, `Class` etc.
 - [x] refactor: apply types to existing codebase (e.g., `classes.ts`, `items.ts`, `effects.ts`)
 - [x] fix: fix the `crown_of_widsom` typo
 - [x] feat: create `src/constants.ts` -- for all hardcoded strings/numbers (e.g., ObjectType)
@@ -40,12 +40,11 @@
   - [x] `ACTIONS` registry with `fireball`, `cure_wounds`, `divine_smite`, etc.
   - [x] refactor: remove `castFireball()` and `divineHeal()` from `Player` class
 
-### "So is a leveled item an 'object'?"
-- Should `getObject()` return **all** game objects, including `LeveledItem`?
-- refactor: rename `loot.ts` to `leveledItems.ts`, rename `generateLoot` to `pickFromLeveledItems`
-- refactor: instead of `useItem`, create a `createItem` factory function that takes an item registry entry and returns a new instance of that item
-- refactor: separate the `LeveledItem` registry from the logic
-- refactor: `leveledItems.ts` should not directly import `items.ts`
+### "So a leveled item is an 'object'"
+- [ ] refactor: rename `loot.ts` to `leveledItems.ts`, rename `generateLoot` to `pickFromLeveledItems`
+- [ ] refactor: instead of `useItem`, create a `createItem` factory function that takes an item registry entry and returns a new instance of that item
+- [ ] refactor: separate the `LeveledItem` registry from the logic
+- [ ] refactor: `leveledItems.ts` should not directly import `items.ts`
 
 ### Slim `Player.ts` & Actor Foundation
 - [x] feat: create `src/actors/Actor.ts` base class with shared state and behavior:
@@ -58,16 +57,16 @@
 - [x] refactor: move shared logic from current `Player.ts` into `Actor.ts`
 - [x] refactor: refactor `src/actors/Player.ts` to extend `Actor` and keep only player-specific concerns
 
-### Quest Manager
-- [ ] feat: create `src/systems/QuestManager.ts` that owns active/completed quest maps, current stage per quest, and imports quest definitions from `world/quests.ts`.
-  - [ ] feat: expose centralized quest API (e.g., `setQuestStage`, `getQuestStage`)
+### Quest & Dialogue Overhaul
+- [ ] feat: create `src/systems/quest.ts`.
+  - [x] feat: implement `Quest` extend `GameObject` and add `isActive`, `isFinished`, `isStarted`, and `objectType` fields.
+  - [ ] refactor: migrate story flag writes into actual `Reference.data`/`tempData` helpers
+  - [ ] refactor: remove `activeQuests`, `completedQuests`, `storyFlags`, and `killCount` from `Player`
   - [ ] feat: enforce stage monotonicity (can skip stages but can't go backwards)
+- [ ] feat: add `worldController` to `gameState`
 - [ ] refactor: refactor dialogue to prioritized dialogue entries that each have a condition and result
-- [ ] refactor: update quest menu rendering to read from journal entries and current stage metadata rather than raw objective indexes
-- [ ] refactor: replace old save/state quest shape with the new QuestManager snapshot format
 - [ ] refactor: remove deprecated helper functions `startQuest()` from `world/quests.ts`
-- [ ] refactor: delete obsolete player quest fields and replace all `player.quests` manipulations with `QuestManager` API calls
-- [ ] refactor: update `game.ts` to construct and pass `QuestManager` instance
+- [ ] refactor: migrate dialogue content entries to include `script` fields where they should grant rewards or update journals
 
 ### Dialogue Engine Refactor
 - [ ] refactor: no NPC-specific code in dialogue engine
@@ -76,13 +75,12 @@
 - [ ] refactor: rename menu wording from “Shop” semantics to “Barter” where appropriate
 
 ### Data Handler
-- [ ] feat: create `src/dataHandler/index.ts` as a data handler for data like current area, state, etc. that needs to be globally accessible but isn't player-specific
-- [ ] feat: create `src/dataHandler/nonDynamicData.ts` as a non-dynamic data store:
-  - [ ] `classes.ts`
-  - [ ] `state.ts`: story flags
-  - [ ] methods: `setFlag`, `hasFlag`
-- [ ] refactor: move all story flags from `Player.ts` into `state.ts`
-- [ ] refactor: keep save/serialization shape deterministic (plain object output from state)
+- [x] refactor: rename `areas.ts` to `cells.ts`
+- [ ] feat: use `game.dataHandler.nonDynamicData` for all base content (cells, classes, etc.). be globally accessible but isn't player-specific
+- [ ] feat: each `Cell` contains `activators`, `actors`, and `statics` — each a `ReferenceList` of `Reference` objects holding runtime `data`.
+- [ ] feat: populate cell reference lists from content so NPCs/statics/activators become real `Reference` instances
+- [ ] feat: Add `Mobile` types to represent ephemeral runtime actors (combat/spawns) and track them in `game.worldController.allMobileActors`.
+- [ ] feat: finish the `MobileActor` split so runtime combat actors stop depending on the old actor-stat layout
 
 ### Game State & Entry Point
 - [ ] feat: create `src/GameState.ts` to hold `player`, `questManager`, `dataHandler` and pass it to all systems instead of singletons or direct imports

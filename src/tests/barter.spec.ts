@@ -4,7 +4,7 @@ import { initializeGameData } from "../initialize.ts";
 import { barter } from "../systems/barter.ts";
 import { talkToNPC } from "../systems/dialogue.ts";
 import { createNPCInstance } from "../world/npcs.ts";
-import { areas } from "../world/areas.ts";
+import { cells } from "../world/cells.ts";
 import { Player } from "../actors/Player.ts";
 import type { Alchemy } from "../types.ts";
 import { ITEMS } from "../world/items.ts";
@@ -19,7 +19,7 @@ describe("barter", () => {
     initializeGameData();
 
     // Verify Havenwood exists (travel target)
-    expect(areas.town.name).toBe("Havenwood");
+    expect(cells.town.displayName).toBe("Havenwood");
 
     // Mock the prompt sequence for: talkToNPC -> open_shop -> buyItems -> exit shop -> leave
     // 1) talkToNPC initial choice -> open_shop

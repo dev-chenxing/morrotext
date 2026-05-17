@@ -2,10 +2,9 @@ import chalk from "chalk";
 import inquirer from "inquirer";
 import { getObject } from "../gameState.ts";
 import type { Player } from "../types.ts";
-import { generateLoot } from "../world/loot.ts";
 import { COMBAT_BALANCE, OBJECT_TYPE, GOLD_ID } from "../constants.ts";
 import { useItem } from "./item.ts";
-import type { Area, Creature, NPC } from "../types.ts";
+import type { Creature } from "../types.ts";
 
 function getActionChoices(player: Player): Array<{ name: string; value: string }> {
   const choices = [
@@ -90,7 +89,7 @@ function transferCreatureLootToPlayer(player: Player, enemy: Creature) {
   }
 }
 
-export async function startCombat(player: Player, enemy: Creature, area: Area) {
+export async function startCombat(player: Player, enemy: Creature) {
   console.log(chalk.red(`\nA wild ${enemy.name} appears!`));
 
   updateBattleDisplay(player, enemy);
@@ -144,7 +143,7 @@ export async function startCombat(player: Player, enemy: Creature, area: Area) {
         });
 
         if (itemId) {
-          const result = await useItem(player, itemId, enemy);
+          const result = await useItem(player, itemId);
           if (result) console.log(chalk.yellow(result));
         }
         break;
@@ -174,20 +173,10 @@ export async function startCombat(player: Player, enemy: Creature, area: Area) {
 
   // Victory handling
   if ((player.health?.current ?? 0) > 0) {
-    player.recordKill(enemy.type ?? enemy.name);
     console.log(chalk.green("Victory!"));
     transferCreatureLootToPlayer(player, enemy);
 
-    // Procedural loot generation
-    const lootId = area.lootTable ? generateLoot(area.lootTable) : null;
-    if (lootId) {
-      const proceduralItem = getObject(lootId);
-      if (!proceduralItem) {
-        throw new Error(`Unknown loot item: ${lootId}`);
-      }
-      player.inventory.addItem(lootId, 1);
-      console.log(chalk.blue(`Found ${proceduralItem.name}!`));
-    }
+    // Cell-based procedural loot is deprecated: creatures now carry leveled items
   } else {
     console.log(chalk.red("\nGAME OVER"));
     process.exit();

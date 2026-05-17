@@ -2,27 +2,28 @@ import inquirer from "inquirer";
 import chalk from "chalk";
 import type { Player } from "../types.ts";
 import { GOLD_ID } from "../constants.ts";
-import { getDialogue } from "../gameState.ts";
-import { completeQuest, QUESTS } from "../world/quests.ts";
+import { getDialogue, getNPC } from "../gameState.ts";
+import { completeQuest, startQuest } from "../world/quests.ts";
 import { resolveDynamic } from "../utils/dynamicUtils.ts";
 import { barter } from "./barter.ts";
-import type { DialogueActionResult, DialogueOption, NPC } from "../types.ts";
+import type { DialogueInfo, NPC, Reference } from "../types.ts";
 
 async function handleDialogueAction(
   player: Player,
   actor: NPC,
   action: string,
-  data: DialogueOption,
-): Promise<DialogueActionResult> {
+  data: DialogueInfo,
+): Promise<any> {
   const entry = getDialogue(actor.id);
   switch (action) {
     case "open_shop":
       await barter(player, actor);
       return { exit: false };
 
-    case "rest":
-      if (typeof data.cost === "number" && player.inventory.getItemCount(GOLD_ID) >= data.cost) {
-        player.inventory.removeItem(GOLD_ID, data.cost);
+    case "rest": {
+      const cost = (data as any).cost;
+      if (typeof cost === "number" && player.inventory.getItemCount(GOLD_ID) >= cost) {
+        player.inventory.removeItem(GOLD_ID, cost);
         player.health.current = player.health.base;
         player.magicka.current = player.magicka.base;
         return {
@@ -34,6 +35,7 @@ async function handleDialogueAction(
         message: chalk.red("Not enough gold for a room!"),
         exit: false,
       };
+    }
 
     case "rumor":
     case "artifact_info":
@@ -51,13 +53,15 @@ async function handleDialogueAction(
       // These are handled through dialogue state transitions
 
       let message = "I've nothing more to say.";
-      if (entry?.dialogues?.[action]) {
-        message = resolveDynamic(entry.dialogues[action].question, player) ?? message;
+      // Try to find a flattened info entry that represents the target state
+      const target = entry?.info?.find((i: any) => i._state === action);
+      if (target) {
+        message = resolveDynamic((target as any).prompt, player) ?? message;
       }
 
       return {
         nextState: action,
-        message: message,
+        message,
       };
 
     case "complete_tablet":
@@ -70,34 +74,31 @@ async function handleDialogueAction(
         exit: true,
       };
 
-    case "start_quest":
-      if (data.quest && !player.activeQuests.some((q) => q.key === data.quest)) {
-        const quest = QUESTS[data.quest];
-
-        if (!quest) {
+    case "start_quest": {
+      const questId = (data as any).quest;
+      if (questId) {
+        const quest = startQuest(questId);
+        if (quest) {
           return {
-            message: "That quest is unavailable right now.",
-            exit: false,
+            message: `Quest started: "${questId}"`,
+            exit: true,
           };
         }
 
-        player.activeQuests.push({
-          key: data.quest,
-          ...quest,
-          progress: 0,
-        });
         return {
-          message: `Quest started: "${quest.title}"`,
-          exit: true,
+          message: "That quest is unavailable right now.",
+          exit: false,
         };
       }
       return {
-        message: "Quest already active!",
+        message: "That quest is unavailable right now.",
         exit: false,
       };
+    }
 
-    case "complete_quest":
-      if (data.quest === "investigate_ruins") {
+    case "complete_quest": {
+      const questId = (data as any).quest;
+      if (questId === "investigate_ruins") {
         // Verify requirements
         if (!player.inventory.getItemCount("crown_of_wisdom")) {
           return {
@@ -107,39 +108,41 @@ async function handleDialogueAction(
         }
         // Story progression
         player.inventory.removeItem("crown_of_wisdom", 1);
-        player.storyFlags.artifactSecured = true;
         console.log(chalk.yellow("\nThe Hermit places the artifact in the town vault."));
-        completeQuest(player, "investigate_ruins");
+        completeQuest("investigate_ruins");
         return {
           exit: true,
         };
-      } else if (data.quest === "slay_goblins") {
+      } else if (questId === "slay_goblins") {
         console.log("You've done us a great service! Here's your reward.");
         console.log(chalk.green("\nThe forest is now safe from goblin raids!"));
-        completeQuest(player, data.quest);
+        completeQuest(questId);
         return {
           exit: true,
         };
-      } else if (data.quest === "special_orders") {
+      } else if (questId === "special_orders") {
         // Remove quest items
         player.inventory.removeItem("void_essence", 5);
 
         // Complete quest
-        completeQuest(player, "special_orders");
+        completeQuest("special_orders");
         return {
           exit: true,
         };
       }
+    }
 
-    case "blessing":
-      if (typeof data.cost === "number" && player.inventory.getItemCount(GOLD_ID) >= data.cost) {
-        player.inventory.removeItem(GOLD_ID, data.cost);
+    case "blessing": {
+      const cost = (data as any).cost;
+      if (typeof cost === "number" && player.inventory.getItemCount(GOLD_ID) >= cost) {
+        player.inventory.removeItem(GOLD_ID, cost);
         // Apply immediate small heal/restore as a replacement for runtime blessing effects
         player.health.current = Math.min(player.health.base, player.health.current + 10);
         player.magicka.current = Math.min(player.magicka.base, player.magicka.current + 10);
         return { exit: true };
       }
       return { message: chalk.red("Not enough gold for blessing!"), exit: false };
+    }
 
     case "prayer":
       player.magicka.current = player.magicka.base;
@@ -156,61 +159,91 @@ async function handleDialogueAction(
   }
 }
 
-export async function talkToNPC(actor: NPC, player: Player) {
+export async function talkToNPC(actorOrRef: NPC | Reference, player: Player) {
+  let reference: Reference;
+  let actor: NPC;
+
+  if ((actorOrRef as Reference).object !== undefined) {
+    reference = actorOrRef as Reference;
+    actor = reference.object as NPC;
+  } else {
+    actor = actorOrRef as NPC;
+    reference = {
+      id: `${actor.id}-temp-ref`,
+      objectType: actor.objectType as any,
+      data: {},
+      tempData: {},
+      object: actor,
+      cell: null,
+    } as Reference;
+  }
+
   const entry = getDialogue(actor.id);
 
   if (!entry) {
     console.log(chalk.red(`NPC ${actor.id} not found!`));
     return;
   }
-  let currentState = "initial";
 
-  console.log(chalk.cyan(`\n=== ${entry.name} ===`));
+  console.log(chalk.cyan(`\n=== ${actor.name} ===`));
+
+  // Flattened `info` entries: present a single menu composed of all options.
+  if (!entry.info || entry.info.length === 0) {
+    console.log(chalk.yellow("This NPC has nothing to say."));
+    return;
+  }
 
   while (true) {
-    const state = entry.dialogues[currentState];
-    if (!state) break;
-    const choices = state.options
-      .filter((option) => {
-        return !option.condition || option.condition(player);
+    const question = `${actor.name} says:`;
+
+    const choices = entry.info
+      .filter((option: any) => {
+        const cond = (option as any).condition;
+        return !cond || cond(player);
       })
-      .map((opt) => ({
-        name: opt.text,
-        value: { action: opt.action, data: opt },
-      }));
+      .map((opt: DialogueInfo) => ({ name: opt.text, value: opt }));
 
-    // Resolve dynamic question
-    const question = resolveDynamic(state.question, player) ?? "";
-
-    const { choice } = await inquirer.prompt({
+    const { choice } = await inquirer.prompt<{ choice: DialogueInfo }>({
       type: "list",
       name: "choice",
       message: question,
       choices,
     });
 
-    const result = await handleDialogueAction(player, actor, choice.action, choice.data);
-
-    if (result.nextState) {
-      currentState = result.nextState;
-    } else if (result.message) {
-      console.log(chalk.yellow(`\n${result.message}`));
+    // Execute script or legacy action. Scripts perform side-effects internally
+    // and may optionally return a legacy-style result object which we will
+    // inspect for compatibility.
+    let result: any;
+    if (choice.runScript) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const maybe = await Promise.resolve(choice.runScript(reference) as any);
+      result = maybe as any;
+    } else if ((choice as any).action) {
+      // legacy fallback
+      result = await handleDialogueAction(player, actor, (choice as any).action, choice);
+    } else {
+      result = { exit: true };
     }
 
-    if (result.effect) {
-      result.effect(); // Execute the effect callback
+    if (result) {
+      if (result.message) console.log(chalk.yellow(`\n${result.message}`));
+      if (result.effect) result.effect();
     }
 
-    if (result.exit) {
+    // Honor scripts that signal exit via the reference's tempData.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if ((reference.tempData as any)?.__dialogue_exit) {
+      // Clear the flag and exit the dialogue loop
+      delete (reference.tempData as any).__dialogue_exit;
       break;
     }
+
+    if (result && result.exit) break;
   }
 }
 
 export function getNPCName(npcKey: string) {
-  const dialogue = getDialogue(npcKey);
-  if (!dialogue) {
-    throw new Error(`Missing NPC data for: ${npcKey}`);
-  }
-  return dialogue.name;
+  const npc = getNPC(npcKey);
+  if (npc && npc.name) return npc.name;
+  return npcKey;
 }

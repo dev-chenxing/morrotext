@@ -5,12 +5,9 @@ import { RUINS_BALANCE } from "../../constants.ts";
 import type { Player } from "../../types.ts";
 import { startCombat } from "../../systems/combat.ts";
 import { createCreatureInstance } from "../creatures.ts";
-import { ITEMS } from "../items.ts";
-import { generateLoot } from "../loot.ts";
-import { updateQuestProgress } from "../quests.ts";
-import type { Area } from "../../types.ts";
+import { hasStartedQuest, updateJournal } from "../quests.ts";
 
-export async function exploreRuins(player: Player, area: Area) {
+export async function exploreRuins(player: Player) {
   console.log(chalk.yellow(figlet.textSync("ANCIENT RUINS", { font: "Small" })));
   console.log(chalk.gray("You stand before the entrance of a long-forgotten civilization..."));
 
@@ -29,7 +26,7 @@ export async function exploreRuins(player: Player, area: Area) {
     ) {
       const enemies = ["skeleton", "skeleton", "stone_golem", "void_cultist"];
       const enemyType = enemies[Math.floor(Math.random() * enemies.length)];
-      await startCombat(player, createCreatureInstance(enemyType), area);
+      await startCombat(player, createCreatureInstance(enemyType));
     }
 
     const hasArtifact = player.inventory.getItemCount("ancient_artifact") > 0;
@@ -94,11 +91,8 @@ export async function exploreRuins(player: Player, area: Area) {
         break;
 
       case "Check for hidden rooms":
-        const loot = generateLoot("ruins");
-        if (Math.random() > RUINS_BALANCE.HIDDEN_ROOM_LOOT_THRESHOLD && loot) {
-          console.log(chalk.green("\nYou discover a hidden alcove!"));
-          player.inventory.addItem(loot, 1);
-          console.log(`Found ${ITEMS[loot].name}!`);
+        if (Math.random() > RUINS_BALANCE.HIDDEN_ROOM_LOOT_THRESHOLD) {
+          console.log(chalk.green("\nYou discover a hidden alcove! But find only rubble."));
         } else {
           console.log(chalk.gray("\nYou find nothing but dust and cobwebs."));
         }
@@ -118,7 +112,7 @@ async function handleArtifactChamber(player: Player) {
     chalk.yellow("\nYou enter a massive chamber with a glowing artifact on a pedestal..."),
   );
 
-  if (player.activeQuests.some((q) => q.key === "investigate_ruins")) {
+  if (hasStartedQuest("investigate_ruins")) {
     console.log(chalk.green("This must be the artifact the Hermit mentioned!"));
 
     const { action } = await inquirer.prompt({
@@ -132,13 +126,7 @@ async function handleArtifactChamber(player: Player) {
       case "Take the artifact":
         player.inventory.addItem("crown_of_wisdom", 1);
         console.log(chalk.yellow("You carefully lift the artifact from its pedestal."));
-        player.storyFlags.hasArtifact = true;
-        updateQuestProgress(
-          player,
-          "investigate_ruins",
-          1, // Progress to step 1
-          "Retrieved the Ancient Artifact! Return it to the Hermit in Darkwood Forest.",
-        );
+        updateJournal("investigate_ruins", 1);
         break;
 
       case "Examine it carefully":
@@ -161,7 +149,6 @@ async function handleArtifactChamber(player: Player) {
           1,
           player.health.current - RUINS_BALANCE.ARTIFACT_DESTRUCTION_DAMAGE,
         );
-        player.storyFlags.artifactDestroyed = true;
         return true;
 
       default:

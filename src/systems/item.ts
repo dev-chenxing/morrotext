@@ -1,17 +1,9 @@
-import { CREATURE_TYPE, OBJECT_TYPE } from "../constants.ts";
+import { OBJECT_TYPE } from "../constants.ts";
 import { getObject } from "../gameState.ts";
 import { handleEquipment } from "./equipment.ts";
-import type { Player, ValueOf } from "../types.ts";
+import type { Player } from "../types.ts";
 
-export async function useItem(
-  player: Player,
-  itemId: string,
-  enemy: {
-    type?: ValueOf<typeof CREATURE_TYPE>;
-    hp?: number;
-    name?: string;
-  } | null = null,
-): Promise<string | null> {
+export async function useItem(player: Player, itemId: string): Promise<string | null> {
   const item = getObject(itemId);
   if (!item) return "Item not found.";
 

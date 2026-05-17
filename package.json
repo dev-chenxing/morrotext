@@ -4,7 +4,7 @@
   "main": "src/game.ts",
   "scripts": {
     "start": "node src/game.ts",
-    "lint": "oxlint src/**/*.ts",
+    "lint": "oxlint src",
     "typecheck": "tsc --noEmit",
     "format": "oxfmt src/**/*.ts --write",
     "test": "vitest --run",
@@ -23,6 +23,7 @@
     "@types/node": "^25.6.2",
     "oxfmt": "^0.49.0",
     "oxlint": "^1.64.0",
+    "oxlint-tsgolint": "^0.22.1",
     "typescript": "^6.0.3",
     "vitest": "^4.1.6"
   }

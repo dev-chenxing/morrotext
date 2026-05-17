@@ -52,7 +52,7 @@ This project uses modern JavaScript with ES Modules and features:
   ```
   /src
   ├── actors       # Player class
-  ├── world        # Areas, quests, loot tables
+  ├── world        # Cells, quests, loot tables
   ├── items        # Weapons, armor, alchemy
   ├── systems      # Combat, dialogue, shop
   ├── ui           # Menu systems and HUD

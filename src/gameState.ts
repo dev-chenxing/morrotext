@@ -1,9 +1,19 @@
 import type { Player } from "./actors/Player.ts";
-import type { Action, Area, Class, Creature, Dialogue, Item, NPC } from "./types.ts";
+import type {
+  Action,
+  Cell,
+  Class,
+  Creature,
+  Dialogue,
+  Item,
+  MobileActor,
+  NPC,
+  Quest,
+} from "./types.ts";
 
 export type NonDynamicData = {
   actions: Action[];
-  areas: Area[];
+  cells: Cell[];
   classes: Class[];
   creatures: Creature[];
   dialogues: Dialogue[];
@@ -11,23 +21,33 @@ export type NonDynamicData = {
   objects: Item[];
 };
 
+export type WorldController = {
+  allMobileActors: MobileActor[];
+  quests: Quest[];
+};
+
 export const game: {
   player: Player | null;
   dataHandler: {
     nonDynamicData: NonDynamicData;
   };
+  worldController: WorldController;
 } = {
   player: null,
   dataHandler: {
     nonDynamicData: {
       actions: [],
-      areas: [],
+      cells: [],
       classes: [],
       creatures: [],
       dialogues: [],
       npcs: [],
       objects: [],
     },
+  },
+  worldController: {
+    allMobileActors: [],
+    quests: [],
   },
 };
 
@@ -39,8 +59,8 @@ export function getAction(actionId: string): Action | undefined {
   return getNonDynamicData().actions.find((action) => action.id === actionId);
 }
 
-export function getArea(areaId: string): Area | undefined {
-  return getNonDynamicData().areas.find((area) => area.id === areaId);
+export function getCell(cellId: string): Cell | undefined {
+  return getNonDynamicData().cells.find((cell) => cell.id === cellId);
 }
 
 export function getClass(classId: string): Class | undefined {
