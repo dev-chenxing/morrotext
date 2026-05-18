@@ -5,20 +5,21 @@ import type {
   Class,
   Creature,
   Dialogue,
+  GameObject,
   Item,
+  LeveledItem,
   MobileActor,
   NPC,
   Quest,
 } from "./types.ts";
+import { OBJECT_TYPE } from "./constants.ts";
 
 export type NonDynamicData = {
   actions: Action[];
   cells: Cell[];
   classes: Class[];
-  creatures: Creature[];
   dialogues: Dialogue[];
-  npcs: NPC[];
-  objects: Item[];
+  objects: GameObject[];
 };
 
 export type WorldController = {
@@ -39,9 +40,7 @@ export const game: {
       actions: [],
       cells: [],
       classes: [],
-      creatures: [],
       dialogues: [],
-      npcs: [],
       objects: [],
     },
   },
@@ -67,8 +66,41 @@ export function getClass(classId: string): Class | undefined {
   return getNonDynamicData().classes.find((gameClass) => gameClass.id === classId);
 }
 
+export function getGameObject(objectId: string): GameObject | undefined {
+  return getNonDynamicData().objects.find((object) => object.id === objectId);
+}
+
+function isItemObject(object: GameObject): object is Item {
+  switch (object.objectType) {
+    case OBJECT_TYPE.ACCESSORY:
+    case OBJECT_TYPE.ALCHEMY:
+    case OBJECT_TYPE.ARMOR:
+    case OBJECT_TYPE.BOOK:
+    case OBJECT_TYPE.ITEM:
+    case OBJECT_TYPE.MISC:
+    case OBJECT_TYPE.WEAPON:
+      return true;
+    default:
+      return false;
+  }
+}
+
+function isCreatureObject(object: GameObject): object is Creature {
+  return object.objectType === OBJECT_TYPE.ACTOR;
+}
+
+function isNPCObject(object: GameObject): object is NPC {
+  return object.objectType === OBJECT_TYPE.NPC;
+}
+
+export function getLeveledItem(leveledItemId: string): LeveledItem | undefined {
+  const object = getGameObject(leveledItemId);
+  return object?.objectType === OBJECT_TYPE.LEVELED_ITEM ? (object as LeveledItem) : undefined;
+}
+
 export function getCreature(creatureId: string): Creature | undefined {
-  return getNonDynamicData().creatures.find((creature) => creature.id === creatureId);
+  const object = getGameObject(creatureId);
+  return object && isCreatureObject(object) ? object : undefined;
 }
 
 export function getDialogue(dialogueId: string): Dialogue | undefined {
@@ -76,9 +108,11 @@ export function getDialogue(dialogueId: string): Dialogue | undefined {
 }
 
 export function getNPC(npcId: string): NPC | undefined {
-  return getNonDynamicData().npcs.find((npc) => npc.id === npcId);
+  const object = getGameObject(npcId);
+  return object && isNPCObject(object) ? object : undefined;
 }
 
 export function getObject(objectId: string): Item | undefined {
-  return getNonDynamicData().objects.find((item) => item.id === objectId);
+  const object = getGameObject(objectId);
+  return object && isItemObject(object) ? object : undefined;
 }

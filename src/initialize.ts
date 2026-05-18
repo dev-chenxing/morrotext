@@ -9,7 +9,8 @@ import type {
   Creature,
   Dialogue,
   DialogueInfo,
-  Item,
+  GameObject,
+  LeveledItem,
   NPC,
   Quest,
   ReferenceList,
@@ -19,6 +20,7 @@ import { cells } from "./world/cells.ts";
 import { CLASSES } from "./world/classes.ts";
 import { createCreature, CREATURES } from "./world/creatures.ts";
 import { ITEMS } from "./world/items.ts";
+import { createLeveledItem, LEVELED_ITEMS } from "./world/leveledItems.ts";
 import { createNPC, NPC_REGISTRY } from "./world/npcs.ts";
 import { QUESTS } from "./world/quests.ts";
 
@@ -77,8 +79,14 @@ function createActions(): Action[] {
   return ACTIONS.map((action) => ({ ...action }));
 }
 
-function createObjects(): Item[] {
+function createObjects(): GameObject[] {
   return Object.values(ITEMS).map((item) => ({ ...item }));
+}
+
+function createLeveledItems(): LeveledItem[] {
+  return LEVELED_ITEMS
+    .map((entry) => createLeveledItem(entry.id))
+    .filter((leveledItem): leveledItem is LeveledItem => Boolean(leveledItem));
 }
 
 function createCreatures(): Creature[] {
@@ -113,10 +121,13 @@ export function initializeGameData() {
   }
 
   game.dataHandler.nonDynamicData.actions = createActions();
-  game.dataHandler.nonDynamicData.objects = createObjects();
-  game.dataHandler.nonDynamicData.creatures = createCreatures();
   game.dataHandler.nonDynamicData.classes = createClasses(game.dataHandler.nonDynamicData.actions);
-  game.dataHandler.nonDynamicData.npcs = createNPCs(game.dataHandler.nonDynamicData.classes);
+  game.dataHandler.nonDynamicData.objects = createObjects();
+  game.dataHandler.nonDynamicData.objects.push(...createLeveledItems());
+  game.dataHandler.nonDynamicData.objects.push(...createCreatures());
+  game.dataHandler.nonDynamicData.objects.push(
+    ...createNPCs(game.dataHandler.nonDynamicData.classes),
+  );
   game.dataHandler.nonDynamicData.dialogues = cloneDialogues(npcDialogues);
   game.dataHandler.nonDynamicData.cells = cloneCells(cells);
   game.worldController.quests = createQuests();

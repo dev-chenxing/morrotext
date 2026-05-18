@@ -1,6 +1,6 @@
 import { getObject } from "../gameState.ts";
 import type { Inventory, Item, ItemStack } from "../types.ts";
-import { generateLoot } from "../world/loot.ts";
+import { createLeveledItem } from "../world/leveledItems.ts";
 
 class DefaultInventory implements Inventory {
   items: ItemStack[] = [];
@@ -81,10 +81,11 @@ class DefaultInventory implements Inventory {
       if (count < 0) return;
 
       for (let i = 0; i < count; i++) {
-        const generatedId = generateLoot(itemId);
-        if (!generatedId) continue;
-        const generated = getObject(generatedId);
-        if (generated) this.addItem(generated);
+        const leveled = createLeveledItem(itemId);
+        if (!leveled) continue;
+        const picked = leveled.pickFrom();
+        if (!picked) continue;
+        this.addItem(picked);
       }
     });
   }
@@ -137,10 +138,13 @@ export function createInventoryFromRecord(items: Record<string, number>): Invent
     if (count < 0) return;
 
     for (let index = 0; index < count; index++) {
-      const generatedId = generateLoot(itemId);
-      if (!generatedId) continue;
+      const leveled = createLeveledItem(itemId);
+      if (!leveled) continue;
 
-      inventory.addItem(generatedId);
+      const picked = leveled.pickFrom();
+      if (!picked) continue;
+
+      inventory.addItem(picked);
     }
   });
 
