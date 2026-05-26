@@ -1,7 +1,12 @@
 import { OBJECT_TYPE } from "../constants.ts";
 import { game } from "../core/gameState.ts";
 import type { Item, LeveledItem } from "../types.ts";
-import { ITEMS } from "../data/items.ts";
+import { ALCHEMY } from "./alchemy.ts";
+import { WEAPONS } from "./weapons.ts";
+import { ARMORS } from "./armors.ts";
+import { MISC_ITEMS } from "./misc.ts";
+
+const ITEMS = { ...ALCHEMY, ...WEAPONS, ...ARMORS, ...MISC_ITEMS };
 
 const MAX_LEVELED_ITEM_DEPTH = 10;
 

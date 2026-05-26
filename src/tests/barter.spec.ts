@@ -5,7 +5,7 @@ import { barter } from "../core/systems/barter.ts";
 import { talkToNPC } from "../core/systems/dialogue.ts";
 import { initializeGameData } from "../core/initialize.ts";
 import { cells } from "../data/cells.ts";
-import { ITEMS } from "../data/items.ts";
+import { ALCHEMY } from "../data/alchemy.ts";
 import { createNPCInstance } from "../data/npcs.ts";
 import { SHOP_PRICES } from "../constants.ts";
 import type { Alchemy } from "../types.ts";
@@ -45,7 +45,7 @@ describe("barter", () => {
     await talkToNPC(publican, player);
 
     const price = Math.ceil(
-      (ITEMS.health_potion as Alchemy).value * SHOP_PRICES.BUY_MULTIPLIER,
+      (ALCHEMY.health_potion as Alchemy).value * SHOP_PRICES.BUY_MULTIPLIER,
     );
 
     expect(

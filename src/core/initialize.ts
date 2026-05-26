@@ -19,7 +19,10 @@ import { ACTIONS } from "../data/actions.ts";
 import { cells } from "../data/cells.ts";
 import { CLASSES } from "../data/classes.ts";
 import { createCreature, CREATURES } from "../data/creatures.ts";
-import { ITEMS } from "../data/items.ts";
+import { ALCHEMY } from "../data/alchemy.ts";
+import { WEAPONS } from "../data/weapons.ts";
+import { ARMORS } from "../data/armors.ts";
+import { MISC_ITEMS } from "../data/misc.ts";
 import { createLeveledItem, LEVELED_ITEMS } from "../data/leveledItems.ts";
 import { createNPC, NPC_REGISTRY } from "../data/npcs.ts";
 import { QUESTS } from "../data/quests.ts";
@@ -80,7 +83,7 @@ function createActions(): Action[] {
 }
 
 function createObjects(): GameObject[] {
-  return Object.values(ITEMS).map((item) => ({ ...item }));
+  return Object.values({ ...ALCHEMY, ...WEAPONS, ...ARMORS, ...MISC_ITEMS }).map((item) => ({ ...item }));
 }
 
 function createLeveledItems(): LeveledItem[] {
