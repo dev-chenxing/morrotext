@@ -1,7 +1,4 @@
-import npcDialogues from "../data/dialogues.ts";
 import { OBJECT_TYPE } from "../constants.ts";
-import { game } from "./gameState.ts";
-import { createClass } from "./systems/class.ts";
 import type {
   Action,
   Cell,
@@ -16,17 +13,21 @@ import type {
   ReferenceList,
 } from "../types.ts";
 import { ACTIONS } from "../data/actions.ts";
+import { ALCHEMY } from "../data/alchemy.ts";
+import { ARMORS } from "../data/armors.ts";
 import { cells } from "../data/cells.ts";
 import { CLASSES } from "../data/classes.ts";
 import { CREATURES } from "../data/creatures.ts";
-import { ALCHEMY } from "../data/alchemy.ts";
-import { WEAPONS } from "../data/weapons.ts";
-import { ARMORS } from "../data/armors.ts";
-import { MISC_ITEMS } from "../data/misc.ts";
+import npcDialogues from "../data/dialogues.ts";
 import { createLeveledItem, LEVELED_ITEMS } from "../data/leveledItems.ts";
-import { createNPC, NPC_REGISTRY } from "../data/npcs.ts";
+import { MISC_ITEMS } from "../data/misc.ts";
+import { NPC_REGISTRY } from "../data/npcs.ts";
 import { QUESTS } from "../data/quests.ts";
+import { WEAPONS } from "../data/weapons.ts";
+import { createClass } from "./systems/class.ts";
 import { createCreature } from "./systems/creature.ts";
+import { createNPC } from "./systems/npc.ts";
+import { game } from "./gameState.ts";
 
 function createEmptyReferenceList(cell: Cell): ReferenceList {
   return {
@@ -84,7 +85,12 @@ function createActions(): Action[] {
 }
 
 function createObjects(): GameObject[] {
-  return Object.values({ ...ALCHEMY, ...WEAPONS, ...ARMORS, ...MISC_ITEMS }).map((item) => ({ ...item }));
+  return Object.values({
+    ...ALCHEMY,
+    ...WEAPONS,
+    ...ARMORS,
+    ...MISC_ITEMS,
+  }).map((item) => ({ ...item }));
 }
 
 function createLeveledItems(): LeveledItem[] {
@@ -125,9 +131,7 @@ export function initializeGameData() {
   }
 
   game.dataHandler.nonDynamicData.actions = createActions();
-  game.dataHandler.nonDynamicData.classes = createClasses(
-    game.dataHandler.nonDynamicData.actions,
-  );
+  game.dataHandler.nonDynamicData.classes = createClasses(game.dataHandler.nonDynamicData.actions);
   game.dataHandler.nonDynamicData.objects = createObjects();
   game.dataHandler.nonDynamicData.objects.push(...createLeveledItems());
   game.dataHandler.nonDynamicData.objects.push(...createCreatures());

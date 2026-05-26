@@ -1,10 +1,17 @@
 import inquirer from "inquirer";
 import chalk from "chalk";
 import figlet from "figlet";
+import { exploreRuins } from "../data/cells/ruins.ts";
+import { findQuest, getActiveQuests } from "../data/quests.ts";
+import type { Cell, Reference } from "../types.ts";
 import { Player } from "./actors/Player.ts";
 import { startCombat } from "./systems/combat.ts";
+import { createCreatureInstance } from "./systems/creature.ts";
 import { talkToNPC } from "./systems/dialogue.ts";
 import { useItem } from "./systems/item.ts";
+import { createNPCInstance } from "./systems/npc.ts";
+import { resolveDynamic } from "./utils/dynamicUtils.ts";
+import { MenuStat } from "./ui/menus/MenuStat.ts";
 import {
   game,
   getDialogue,
@@ -14,13 +21,6 @@ import {
   getCreature,
 } from "./gameState.ts";
 import { initializeGameData } from "./initialize.ts";
-import { exploreRuins } from "../data/cells/ruins.ts";
-import { createNPCInstance } from "../data/npcs.ts";
-import { findQuest, getActiveQuests } from "../data/quests.ts";
-import { createCreatureInstance } from "./systems/creature.ts";
-import { resolveDynamic } from "./utils/dynamicUtils.ts";
-import { MenuStat } from "./ui/menus/MenuStat.ts";
-import type { Cell, Reference } from "../types.ts";
 
 process.on("uncaughtException", (error: unknown) => {
   if (error instanceof Error && error.name === "ExitPromptError") {
@@ -43,13 +43,7 @@ export async function showMainMenu(player: Player) {
     type: "list",
     name: "action",
     message: "What would you like to do?",
-    choices: [
-      "Travel",
-      "Check Stats",
-      "View Inventory",
-      "View Quests",
-      "Exit Game",
-    ],
+    choices: ["Travel", "Check Stats", "View Inventory", "View Quests", "Exit Game"],
   });
 
   switch (action) {
@@ -143,15 +137,12 @@ export async function showQuests(player: Player) {
   const journalEntries =
     quest.dialogue.length > 0
       ? quest.dialogue.map((d) => {
-          if (d.info && d.info.length > 0)
-            return d.info[d.journalIndex ?? 0]?.text ?? d.id;
+          if (d.info && d.info.length > 0) return d.info[d.journalIndex ?? 0]?.text ?? d.id;
           return d.id;
         })
       : ["No journal entries yet."];
 
-  journalEntries.forEach((entry, index) =>
-    console.log(`${index + 1}. ${entry}`),
-  );
+  journalEntries.forEach((entry, index) => console.log(`${index + 1}. ${entry}`));
 
   await showQuests(player);
 }
@@ -179,8 +170,7 @@ function getRandomCreatureFromCell(cell: Cell) {
 
 export async function enterCell(player: Player, cell: Cell) {
   const description = resolveDynamic(cell.description, player) ?? "";
-  const displayName =
-    resolveDynamic(cell.displayName, player) ?? cell.editorName;
+  const displayName = resolveDynamic(cell.displayName, player) ?? cell.editorName;
   if (displayName === "Ancient Ruins") {
     const creature = getRandomCreatureFromCell(cell);
     if (creature) await startCombat(player, creature);
@@ -265,9 +255,7 @@ async function showTravelMenu(player: Player) {
 
   if (destination === "__cancel") return showMainMenu(player);
 
-  const selectedCell = getNonDynamicData().cells.find(
-    (loc) => loc.id === destination,
-  );
+  const selectedCell = getNonDynamicData().cells.find((loc) => loc.id === destination);
   if (!selectedCell) {
     console.log(chalk.red("Unknown destination selected."));
     return showMainMenu(player);
@@ -291,8 +279,7 @@ async function startGame() {
       type: "input",
       name: "name",
       message: "Enter your name:",
-      validate: (input: string) =>
-        input.trim() !== "" || "Name cannot be empty!",
+      validate: (input: string) => input.trim() !== "" || "Name cannot be empty!",
     });
     name = response.name.trim();
   }

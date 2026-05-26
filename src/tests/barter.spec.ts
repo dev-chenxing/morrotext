@@ -6,7 +6,7 @@ import { talkToNPC } from "../core/systems/dialogue.ts";
 import { initializeGameData } from "../core/initialize.ts";
 import { cells } from "../data/cells.ts";
 import { ALCHEMY } from "../data/alchemy.ts";
-import { createNPCInstance } from "../data/npcs.ts";
+import { createNPCInstance } from "../core/systems/npc.ts";
 import { SHOP_PRICES } from "../constants.ts";
 import type { Alchemy } from "../types.ts";
 
@@ -44,13 +44,9 @@ describe("barter", () => {
 
     await talkToNPC(publican, player);
 
-    const price = Math.ceil(
-      (ALCHEMY.health_potion as Alchemy).value * SHOP_PRICES.BUY_MULTIPLIER,
-    );
+    const price = Math.ceil((ALCHEMY.health_potion as Alchemy).value * SHOP_PRICES.BUY_MULTIPLIER);
 
-    expect(
-      player.inventory.getItemCount("health_potion"),
-    ).toBeGreaterThanOrEqual(1);
+    expect(player.inventory.getItemCount("health_potion")).toBeGreaterThanOrEqual(1);
     expect(player.inventory.getItemCount("gold")).toBe(1000 - price);
     expect(promptMock).toHaveBeenCalled();
   });
@@ -73,14 +69,8 @@ describe("barter", () => {
       | { choices?: Array<{ name: string; value: string | null }> }
       | undefined;
 
-    expect(
-      buyPrompt?.choices?.some((choice) => choice.value === "steel_sword"),
-    ).toBe(true);
-    expect(
-      buyPrompt?.choices?.some((choice) => choice.value === "iron_sword"),
-    ).toBe(false);
-    expect(
-      buyPrompt?.choices?.some((choice) => choice.value === "health_potion"),
-    ).toBe(false);
+    expect(buyPrompt?.choices?.some((choice) => choice.value === "steel_sword")).toBe(true);
+    expect(buyPrompt?.choices?.some((choice) => choice.value === "iron_sword")).toBe(false);
+    expect(buyPrompt?.choices?.some((choice) => choice.value === "health_potion")).toBe(false);
   });
 });

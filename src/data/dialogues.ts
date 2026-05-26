@@ -24,9 +24,7 @@ const npcDialogues: Record<string, Dialogue> = {
       {
         text: "Ask about special orders",
         runScript: () => {
-          console.log(
-            "The smith asks for rare Void Essence to craft special weapons.",
-          );
+          console.log("The smith asks for rare Void Essence to craft special weapons.");
         },
       },
       {
@@ -112,9 +110,7 @@ const npcDialogues: Record<string, Dialogue> = {
       {
         text: "Hear local rumors",
         runScript: () => {
-          console.log(
-            "They say the ancient ruins north of town hold powerful artifacts.",
-          );
+          console.log("They say the ancient ruins north of town hold powerful artifacts.");
         },
       },
       {
@@ -161,9 +157,7 @@ const npcDialogues: Record<string, Dialogue> = {
             console.log("You don't have a tablet.");
             return;
           }
-          console.log(
-            "The tablet speaks of a hidden passage behind the throne.",
-          );
+          console.log("The tablet speaks of a hidden passage behind the throne.");
         },
       },
       {
@@ -207,14 +201,8 @@ const npcDialogues: Record<string, Dialogue> = {
           const cost = 50;
           if (player.inventory.getItemCount(GOLD_ID) >= cost) {
             player.inventory.removeItem(GOLD_ID, cost);
-            player.health.current = Math.min(
-              player.health.base,
-              player.health.current + 10,
-            );
-            player.magicka.current = Math.min(
-              player.magicka.base,
-              player.magicka.current + 10,
-            );
+            player.health.current = Math.min(player.health.base, player.health.current + 10);
+            player.magicka.current = Math.min(player.magicka.base, player.magicka.current + 10);
             (ref.tempData as any).__dialogue_exit = true;
             return;
           }
@@ -255,10 +243,7 @@ const npcDialogues: Record<string, Dialogue> = {
             (ref.tempData as any).__dialogue_exit = true;
             return;
           }
-          if (
-            !hasStartedQuest("slay_goblins") ||
-            player.inventory.getItemCount("goblin_ear") < 5
-          ) {
+          if (!hasStartedQuest("slay_goblins") || player.inventory.getItemCount("goblin_ear") < 5) {
             console.log("You haven't completed the requirements.");
             return;
           }
