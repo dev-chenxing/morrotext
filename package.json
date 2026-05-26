@@ -1,9 +1,9 @@
 {
   "name": "morrotext",
   "version": "1.0.0",
-  "main": "src/game.ts",
+  "main": "src/core/engine.ts",
   "scripts": {
-    "start": "node src/game.ts",
+    "start": "node src/core/engine.ts",
     "lint": "oxlint src",
     "typecheck": "tsc --noEmit",
     "format": "oxfmt src/**/*.ts --write",

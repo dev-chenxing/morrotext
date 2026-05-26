@@ -11,7 +11,7 @@ import { useItem } from "./systems/item.ts";
 import { createNPCInstance } from "./systems/npc.ts";
 import { findQuest, getActiveQuests } from "./systems/quest.ts";
 import { resolveDynamic } from "./utils/dynamicUtils.ts";
-import { MenuStat } from "./ui/menus/MenuStat.ts";
+import { showStatsMenu } from "./ui/menus/MenuStat.ts";
 import {
   game,
   getDialogue,
@@ -51,7 +51,7 @@ export async function showMainMenu(player: Player) {
       await showTravelMenu(player);
       break;
     case "Check Stats":
-      MenuStat(player);
+      showStatsMenu(player);
       await showMainMenu(player);
       break;
     case "View Inventory":

@@ -3,7 +3,7 @@ import { getObject } from "../../gameState.ts";
 import { GOLD_ID } from "../../../constants.ts";
 import type { Player } from "../../../types.ts";
 
-export function MenuStat(player: Player) {
+export function showStatsMenu(player: Player) {
   const equippedWeapon = player.equipment.weapon
     ? getObject(player.equipment.weapon.id)
     : null;
