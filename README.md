@@ -2,18 +2,18 @@
 
 ![Terminal RPG Demo](preview.png)
 
-Text-RPG is a command-line role-playing game built with Node.js that brings classic RPG adventures to your terminal. Featuring quests, turn-based combat, and a small world to explore.
+Text-RPG is a command-line role-playing game built with Node.js and TypeScript that brings classic RPG adventures to your terminal. Featuring quests, turn-based combat, and a handcrafted world to explore.
 
 ## Features
 
 - 🧙 **Three Playable Classes**: Warrior, Mage, and Cleric with unique abilities
-- 🗺️ **Procedural World**: Explore forests, towns, and ruins
+- 🗺️ **Handcrafted World**: Explore four locations — a town, temple, forest, and ruins
 - ⚔️ **Turn-Based Combat**: Battle goblins, skeletons, and void cultists
-- 📜 **Quest System**: Complete multi-stage quests with rewards
-- 🛠️ **Economy**: Gather resources and trade with NPCs
+- 📜 **Quest System**: Accept and complete quests with objectives and rewards
+- 🛠️ **Economy**: Buy and sell items with NPCs via a barter system
 - 🎒 **Inventory System**: Equip weapons, armor, and accessories
-- 🌟 **Character Progression**: Level up and enhance your stats
-- 🤝 **NPC Interactions**: Dynamic dialogues that change based on your progress
+- 🌟 **Character Progression**: Gain experience, level up, and increase your max HP
+- 🤝 **NPC Interactions**: Scripted dialogue with quest- and inventory-aware options
 
 ## Installation
 
@@ -46,16 +46,16 @@ npm start
 
 ## Development
 
-This project uses modern JavaScript with ES Modules and features:
+This project uses TypeScript and features:
 
 - **Modular Architecture**:
   ```
   /src
-  ├── actors       # Player class
-  ├── world        # Cells, quests, loot tables
-  ├── items        # Weapons, armor, alchemy
-  ├── systems      # Combat, dialogue, shop
-  ├── ui           # Menu systems and HUD
+  ├── actors       # Player, NPC, and Creature classes
+  ├── content      # Dialogue scripts
+  ├── world        # Cells, classes, quests, creatures, leveled items
+  ├── systems      # Combat, dialogue, barter, inventory, equipment
+  ├── ui           # Menu systems
   └── utils        # Helper functions
   ```
 
