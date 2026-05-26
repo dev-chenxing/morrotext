@@ -1,7 +1,7 @@
 import type { Dialogue } from "../types.ts";
 import { GOLD_ID, OBJECT_TYPE } from "../constants.ts";
 import { barter } from "../core/systems/barter.ts";
-import { startQuest, completeQuest, hasStartedQuest } from "../data/quests.ts";
+import { startQuest, completeQuest, hasStartedQuest } from "../core/systems/quest.ts";
 import { game } from "../core/gameState.ts";
 
 const npcDialogues: Record<string, Dialogue> = {

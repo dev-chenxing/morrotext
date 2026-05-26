@@ -1,11 +1,11 @@
 import inquirer from "inquirer";
 import chalk from "chalk";
-import { completeQuest, startQuest } from "../../data/quests.ts";
-import type { DialogueInfo, NPC, Player, Reference } from "../../types.ts";
 import { GOLD_ID } from "../../constants.ts";
+import type { DialogueInfo, NPC, Player, Reference } from "../../types.ts";
 import { resolveDynamic } from "../utils/dynamicUtils.ts";
 import { getDialogue, getNPC } from "../gameState.ts";
 import { barter } from "./barter.ts";
+import { completeQuest, startQuest } from "./quest.ts";
 
 async function handleDialogueAction(
   player: Player,

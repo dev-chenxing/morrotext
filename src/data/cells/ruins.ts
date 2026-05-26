@@ -5,7 +5,7 @@ import { RUINS_BALANCE } from "../../constants.ts";
 import type { Player } from "../../types.ts";
 import { startCombat } from "../../core/systems/combat.ts";
 import { createCreatureInstance } from "../../core/systems/creature.ts";
-import { hasStartedQuest, updateJournal } from "../quests.ts";
+import { hasStartedQuest, updateJournal } from "../../core/systems/quest.ts";
 
 export async function exploreRuins(player: Player) {
   console.log(

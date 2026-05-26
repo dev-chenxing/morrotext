@@ -1,5 +1,5 @@
 import type { Cell } from "../types.ts";
-import { hasCompletedQuest } from "./quests.ts";
+import { hasCompletedQuest } from "../core/systems/quest.ts";
 export const cells: Record<string, Cell> = {
   town: {
     id: "town",

@@ -2,7 +2,6 @@ import inquirer from "inquirer";
 import chalk from "chalk";
 import figlet from "figlet";
 import { exploreRuins } from "../data/cells/ruins.ts";
-import { findQuest, getActiveQuests } from "../data/quests.ts";
 import type { Cell, Reference } from "../types.ts";
 import { Player } from "./actors/Player.ts";
 import { startCombat } from "./systems/combat.ts";
@@ -10,6 +9,7 @@ import { createCreatureInstance } from "./systems/creature.ts";
 import { talkToNPC } from "./systems/dialogue.ts";
 import { useItem } from "./systems/item.ts";
 import { createNPCInstance } from "./systems/npc.ts";
+import { findQuest, getActiveQuests } from "./systems/quest.ts";
 import { MenuStat } from "./ui/menus/MenuStat.ts";
 import { resolveDynamic } from "./utils/dynamicUtils.ts";
 import {
