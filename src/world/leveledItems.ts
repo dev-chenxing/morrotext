@@ -47,7 +47,6 @@ export const LEVELED_ITEMS: LeveledItemRegistryEntry[] = [
     list: [
       { levelRequired: 1, object: ITEMS.herbs.id },
       { levelRequired: 1, object: ITEMS.health_potion.id },
-      { levelRequired: 4, object: ITEMS.magic_amulet.id },
       { levelRequired: 5, object: ITEMS.seraphim_staff.id },
     ],
   },
