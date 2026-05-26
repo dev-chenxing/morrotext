@@ -14,10 +14,10 @@ import {
   getCreature,
 } from "./gameState.ts";
 import { initializeGameData } from "./initialize.ts";
-import { createCreatureInstance } from "../data/creatures.ts";
 import { exploreRuins } from "../data/cells/ruins.ts";
 import { createNPCInstance } from "../data/npcs.ts";
 import { findQuest, getActiveQuests } from "../data/quests.ts";
+import { createCreatureInstance } from "./systems/creature.ts";
 import { resolveDynamic } from "./utils/dynamicUtils.ts";
 import { MenuStat } from "./ui/menus/MenuStat.ts";
 import type { Cell, Reference } from "../types.ts";
