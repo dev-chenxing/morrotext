@@ -40,6 +40,11 @@
   - [x] `ACTIONS` registry with `fireball`, `cure_wounds`, `divine_smite`, etc.
   - [x] refactor: remove `castFireball()` and `divineHeal()` from `Player` class
 
+### Rename and Rebrand
+- [ ] docs: audit outdated claims in README against current code
+  - [ ] docs: fix overstated or mistated features (e.g., "procedural world", "dynamic dialogues", "multi-stage quests")
+- [ ] chore: decide whether to keep the `text-rpg` name or rebrand to something more unique and fitting
+
 ### "So a leveled item is an 'object'"
 - [ ] refactor: rename `loot.ts` to `leveledItems.ts`, rename `generateLoot` to `pickFromLeveledItems`
 - [ ] refactor: instead of `useItem`, create a `createItem` factory function that takes an item registry entry and returns a new instance of that item

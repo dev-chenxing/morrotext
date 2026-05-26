@@ -59,23 +59,6 @@ This project uses modern JavaScript with ES Modules and features:
   └── utils        # Helper functions
   ```
 
-To contribute:
-1. Fork the repository
-2. Create a new branch (`git checkout -b feature/your-feature`)
-3. Commit your changes (`git commit -am 'Add some feature'`)
-4. Push to the branch (`git push origin feature/your-feature`)
-5. Create a new Pull Request
-
-## Dependencies
-
-- [Inquirer.js](https://github.com/SBoudrias/Inquirer.js) - Interactive command-line prompts
-- [Chalk](https://github.com/chalk/chalk) - Terminal string styling
-- [Figlet](https://github.com/patorjk/figlet.js) - ASCII art text generation
-
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-**Embark on your text-based adventure today!** ✨
