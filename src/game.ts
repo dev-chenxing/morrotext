@@ -33,7 +33,9 @@ process.on("uncaughtException", (error: unknown) => {
 });
 
 // Display ASCII title
-console.log(chalk.yellow(figlet.textSync("Terminal RPG")));
+console.log(chalk.gray("The Text-Based RPG"));
+console.log(chalk.gray("─".repeat(20)));
+console.log(chalk.yellow(figlet.textSync("MORROTEXT")));
 
 // Main menu system
 export async function showMainMenu(player: Player) {

@@ -1,8 +1,8 @@
-# Terminal RPG - Text-Based Adventure Game
+# Morrotext - A Text-Based RPG
 
-![Terminal RPG Demo](preview.png)
+<!-- ![Morrotext Demo](preview.png) -->
 
-Text-RPG is a command-line role-playing game built with Node.js and TypeScript that brings classic RPG adventures to your terminal. Featuring quests, turn-based combat, and a handcrafted world to explore.
+Morrotext is a command-line role-playing game built with Node.js and TypeScript that brings the Morrowind experience to your terminal. Featuring quests, turn-based combat, and a handcrafted world to explore.
 
 ## Features
 
@@ -17,11 +17,11 @@ Text-RPG is a command-line role-playing game built with Node.js and TypeScript t
 
 ## Installation
 
-1. Ensure you have [Node.js](https://nodejs.org/) (v18+) installed
+1. Ensure you have [Node.js](https://nodejs.org/) (v24+) installed
 2. Clone this repository:
    ```bash
-   git clone https://github.com/your-username/text-rpg.git
-   cd text-rpg
+   git clone https://github.com/dev-chenxing/morrotext.git
+   cd morrotext
    ```
 3. Install dependencies:
    ```bash
@@ -40,9 +40,9 @@ npm start
 - Select options with Enter
 - Exit the game anytime with Ctrl+C
 
-## Gameplay Preview
+<!-- ## Gameplay Preview
 
-![demo.gif](demo.gif)
+![demo.gif](demo.gif) -->
 
 ## Development
 

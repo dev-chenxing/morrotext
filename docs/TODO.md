@@ -43,7 +43,8 @@
 ### Rename and Rebrand
 - [x] docs: audit outdated claims in README against current code
   - [x] docs: fix overstated or mistated features (e.g., "procedural world", "dynamic dialogues", "multi-stage quests")
-- [ ] chore: decide whether to keep the `text-rpg` name or rebrand to something more unique and fitting
+- [x] chore: rename `text-rpg` to `morrotext` across the codebase and documentation
+- [ ] feat: add a demo PNG and GIF to the README showcasing gameplay
 
 ### "So a leveled item is an 'object'"
 - [ ] refactor: rename `loot.ts` to `leveledItems.ts`, rename `generateLoot` to `pickFromLeveledItems`
