@@ -1,4 +1,4 @@
-import type { Player as PlayerType } from "./actors/Player.ts";
+import type { Player as PlayerType } from "./core/actors/Player.ts";
 import {
   ACTOR_TYPE,
   CREATURE_TYPE,

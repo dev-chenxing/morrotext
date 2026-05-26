@@ -11,8 +11,8 @@ import type {
   MobileActor,
   NPC,
   Quest,
-} from "./types.ts";
-import { OBJECT_TYPE } from "./constants.ts";
+} from "../types.ts";
+import { OBJECT_TYPE } from "../constants.ts";
 
 export type NonDynamicData = {
   actions: Action[];

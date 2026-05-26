@@ -1,7 +1,7 @@
 import { OBJECT_TYPE } from "../constants.ts";
-import { game } from "../gameState.ts";
+import { game } from "../core/gameState.ts";
 import type { Item, LeveledItem } from "../types.ts";
-import { ITEMS } from "../world/items.ts";
+import { ITEMS } from "../data/items.ts";
 
 const MAX_LEVELED_ITEM_DEPTH = 10;
 
@@ -16,13 +16,15 @@ type LeveledItemRegistryEntry = {
 function isLeveledItem(object: unknown): object is LeveledItem {
   return Boolean(
     object &&
-      typeof object === "object" &&
-      "objectType" in object &&
-      (object as LeveledItem).objectType === OBJECT_TYPE.LEVELED_ITEM,
+    typeof object === "object" &&
+    "objectType" in object &&
+    (object as LeveledItem).objectType === OBJECT_TYPE.LEVELED_ITEM,
   );
 }
 
-function getLeveledItemRegistryEntry(leveledItemId: string): LeveledItemRegistryEntry | undefined {
+function getLeveledItemRegistryEntry(
+  leveledItemId: string,
+): LeveledItemRegistryEntry | undefined {
   return LEVELED_ITEMS.find((entry) => entry.id === leveledItemId);
 }
 
@@ -30,7 +32,10 @@ function shuffle<T>(items: T[]): T[] {
   const shuffled = [...items];
   for (let index = shuffled.length - 1; index > 0; index--) {
     const swapIndex = Math.floor(Math.random() * (index + 1));
-    [shuffled[index], shuffled[swapIndex]] = [shuffled[swapIndex], shuffled[index]];
+    [shuffled[index], shuffled[swapIndex]] = [
+      shuffled[swapIndex],
+      shuffled[index],
+    ];
   }
   return shuffled;
 }
@@ -70,12 +75,15 @@ function pickFromLeveledItemRecursive(
   visited: Set<string>,
   depth: number,
 ): Item | null {
-  if (depth >= MAX_LEVELED_ITEM_DEPTH || visited.has(leveledItem.id)) return null;
+  if (depth >= MAX_LEVELED_ITEM_DEPTH || visited.has(leveledItem.id))
+    return null;
 
   const nextVisited = new Set(visited);
   nextVisited.add(leveledItem.id);
 
-  const eligible = leveledItem.list.filter((node) => node.levelRequired <= level);
+  const eligible = leveledItem.list.filter(
+    (node) => node.levelRequired <= level,
+  );
   if (eligible.length === 0) return null;
 
   for (const entry of shuffle(eligible)) {
@@ -97,7 +105,10 @@ function pickFromLeveledItemRecursive(
   return null;
 }
 
-function pickFromLeveledItem(leveledItem: LeveledItem, level: number): Item | null {
+function pickFromLeveledItem(
+  leveledItem: LeveledItem,
+  level: number,
+): Item | null {
   return pickFromLeveledItemRecursive(leveledItem, level, new Set<string>(), 0);
 }
 
@@ -119,7 +130,10 @@ export function createLeveledItem(
     list: [],
     pickFrom(): Item | null {
       if (!game.player) return null;
-      if ((def.chanceForNothing ?? 0) > 0 && Math.random() < (def.chanceForNothing ?? 0))
+      if (
+        (def.chanceForNothing ?? 0) > 0 &&
+        Math.random() < (def.chanceForNothing ?? 0)
+      )
         return null;
       return pickFromLeveledItem(runtime, game.player.level);
     },
@@ -130,7 +144,10 @@ export function createLeveledItem(
   runtime.list = def.list.reduce<LeveledItem["list"]>((list, entry) => {
     const nestedLeveledItem = createLeveledItem(entry.object);
     if (nestedLeveledItem) {
-      list.push({ levelRequired: entry.levelRequired, object: nestedLeveledItem });
+      list.push({
+        levelRequired: entry.levelRequired,
+        object: nestedLeveledItem,
+      });
       return list;
     }
 

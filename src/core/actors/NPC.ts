@@ -1,8 +1,8 @@
 import Actor from "./Actor.ts";
-import { OBJECT_TYPE, ATTRIBUTES, MERCHANT_SERVICE } from "../constants.ts";
-import { getClass } from "../gameState.ts";
+import { OBJECT_TYPE, ATTRIBUTES, MERCHANT_SERVICE } from "../../constants.ts";
+import type { AiConfig, Class, Action, ValueOf } from "../../types.ts";
 import { createClassActorProfile } from "../systems/class.ts";
-import type { AiConfig, Class, Action, ValueOf } from "../types.ts";
+import { getClass } from "../gameState.ts";
 
 export class NPC extends Actor {
   class: Class;
@@ -56,7 +56,9 @@ export class NPC extends Actor {
   }
 
   offersServices(service: ValueOf<typeof MERCHANT_SERVICE>) {
-    return !!this.aiConfig.offers?.[service as ValueOf<typeof MERCHANT_SERVICE>];
+    return !!this.aiConfig.offers?.[
+      service as ValueOf<typeof MERCHANT_SERVICE>
+    ];
   }
 
   tradesItemType(objectType: ValueOf<typeof OBJECT_TYPE>) {

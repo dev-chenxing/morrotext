@@ -1,6 +1,6 @@
 import chalk from "chalk";
 import type { Dialogue, Quest } from "../types.ts";
-import { game } from "../gameState.ts";
+import { game } from "../core/gameState.ts";
 
 export function findQuest(journal?: Dialogue | string, name?: string): Quest | undefined {
   const quests = game.worldController.quests;

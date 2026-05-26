@@ -1,17 +1,25 @@
 import chalk from "chalk";
-import { getObject } from "../gameState.ts";
-import { GOLD_ID } from "../constants.ts";
-import type { Player } from "../types.ts";
+import { getObject } from "../../gameState.ts";
+import { GOLD_ID } from "../../../constants.ts";
+import type { Player } from "../../../types.ts";
 
 export function MenuStat(player: Player) {
-  const equippedWeapon = player.equipment.weapon ? getObject(player.equipment.weapon.id) : null;
-  const equippedArmor = player.equipment.armor ? getObject(player.equipment.armor.id) : null;
+  const equippedWeapon = player.equipment.weapon
+    ? getObject(player.equipment.weapon.id)
+    : null;
+  const equippedArmor = player.equipment.armor
+    ? getObject(player.equipment.armor.id)
+    : null;
   console.log(chalk.blue("\n=== Character Stats ==="));
   console.log(chalk.blue(`\n=== ${player.name} (Level ${player.level}) ===`));
   console.log(`Class: ${chalk.yellow(player.class.name.toUpperCase())}`);
-  console.log(`HP:    ${chalk.green(player.health.current)}/${chalk.green(player.health.base)}`);
+  console.log(
+    `HP:    ${chalk.green(player.health.current)}/${chalk.green(player.health.base)}`,
+  );
   if (player.magicka.base > 0) {
-    console.log(`Mana:  ${chalk.blue(player.magicka.current)}/${chalk.blue(player.magicka.base)}`);
+    console.log(
+      `Mana:  ${chalk.blue(player.magicka.current)}/${chalk.blue(player.magicka.base)}`,
+    );
   }
 
   console.log(`\n${chalk.underline("Attributes")}`);
@@ -28,5 +36,7 @@ export function MenuStat(player: Player) {
   console.log(`Weapon: ${equippedWeapon ? equippedWeapon.name : "None"}`);
   console.log(`Armor:  ${equippedArmor ? equippedArmor.name : "None"}`);
 
-  console.log(`\nGold:   ${chalk.yellow(player.inventory.getItemCount(GOLD_ID) || 0)}`);
+  console.log(
+    `\nGold:   ${chalk.yellow(player.inventory.getItemCount(GOLD_ID) || 0)}`,
+  );
 }

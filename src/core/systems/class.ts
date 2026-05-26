@@ -1,6 +1,11 @@
-import { ATTRIBUTES, OBJECT_TYPE, MERCHANT_SERVICE, SKILL } from "../constants.ts";
-import type { Action, Class, Statistic, ValueOf } from "../types.ts";
-import type { ClassEntry } from "../world/classes.ts";
+import {
+  ATTRIBUTES,
+  OBJECT_TYPE,
+  MERCHANT_SERVICE,
+  SKILL,
+} from "../../constants.ts";
+import type { Action, Class, Statistic, ValueOf } from "../../types.ts";
+import type { ClassEntry } from "../../data/classes.ts";
 
 const DEFAULT_ATTRIBUTE_VALUE = 5;
 const FAVORED_ATTRIBUTE_BONUS = 10;
@@ -56,7 +61,9 @@ export function createClassActorProfile(
 ): ClassActorProfile {
   const attributes = createAttributeStatistics(gameClass.attributes);
   const healthBase =
-    (attributes[ATTRIBUTES.STRENGTH].base + attributes[ATTRIBUTES.ENDURANCE].base) / 2;
+    (attributes[ATTRIBUTES.STRENGTH].base +
+      attributes[ATTRIBUTES.ENDURANCE].base) /
+    2;
   const magickaBase = attributes[ATTRIBUTES.INTELLIGENCE].base;
 
   return {
@@ -73,8 +80,13 @@ export function createClassActorProfile(
   };
 }
 
-export function createClass(entry: ClassEntry, actionRegistry: Action[] = []): Class {
-  const Barters: Record<ValueOf<typeof OBJECT_TYPE>, boolean> = Object.values(OBJECT_TYPE).reduce(
+export function createClass(
+  entry: ClassEntry,
+  actionRegistry: Action[] = [],
+): Class {
+  const Barters: Record<ValueOf<typeof OBJECT_TYPE>, boolean> = Object.values(
+    OBJECT_TYPE,
+  ).reduce(
     (acc, key) => {
       acc[key as ValueOf<typeof OBJECT_TYPE>] =
         entry.barters?.[key as ValueOf<typeof OBJECT_TYPE>] ?? false;
@@ -83,9 +95,10 @@ export function createClass(entry: ClassEntry, actionRegistry: Action[] = []): C
     {} as Record<ValueOf<typeof OBJECT_TYPE>, boolean>,
   );
 
-  const Offers: Record<ValueOf<typeof MERCHANT_SERVICE>, boolean> = Object.values(
-    MERCHANT_SERVICE,
-  ).reduce(
+  const Offers: Record<
+    ValueOf<typeof MERCHANT_SERVICE>,
+    boolean
+  > = Object.values(MERCHANT_SERVICE).reduce(
     (acc, key) => {
       acc[key as ValueOf<typeof MERCHANT_SERVICE>] =
         entry.offers?.[key as ValueOf<typeof MERCHANT_SERVICE>] ?? false;
@@ -103,7 +116,9 @@ export function createClass(entry: ClassEntry, actionRegistry: Action[] = []): C
     minorSkills: [...(entry.minorSkills ?? [])],
     startingItems: entry.startingItems ?? [],
     actions: (entry.actions ?? [])
-      .map((actionId) => actionRegistry.find((action) => action.id === actionId))
+      .map((actionId) =>
+        actionRegistry.find((action) => action.id === actionId),
+      )
       .filter((action): action is Action => Boolean(action)),
     barters: Barters,
     offers: Offers,

@@ -1,6 +1,6 @@
 import Actor from "./Actor.ts";
-import { CREATURE_TYPE, OBJECT_TYPE } from "../constants.ts";
-import type { ValueOf } from "../types.ts";
+import { CREATURE_TYPE, OBJECT_TYPE } from "../../constants.ts";
+import type { ValueOf } from "../../types.ts";
 
 export class Creature extends Actor {
   // Creature-specific field

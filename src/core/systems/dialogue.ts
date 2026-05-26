@@ -1,12 +1,11 @@
 import inquirer from "inquirer";
 import chalk from "chalk";
-import type { Player } from "../types.ts";
-import { GOLD_ID } from "../constants.ts";
-import { getDialogue, getNPC } from "../gameState.ts";
-import { completeQuest, startQuest } from "../world/quests.ts";
+import { completeQuest, startQuest } from "../../data/quests.ts";
+import type { DialogueInfo, NPC, Player, Reference } from "../../types.ts";
+import { GOLD_ID } from "../../constants.ts";
 import { resolveDynamic } from "../utils/dynamicUtils.ts";
+import { getDialogue, getNPC } from "../gameState.ts";
 import { barter } from "./barter.ts";
-import type { DialogueInfo, NPC, Reference } from "../types.ts";
 
 async function handleDialogueAction(
   player: Player,
@@ -22,7 +21,10 @@ async function handleDialogueAction(
 
     case "rest": {
       const cost = (data as any).cost;
-      if (typeof cost === "number" && player.inventory.getItemCount(GOLD_ID) >= cost) {
+      if (
+        typeof cost === "number" &&
+        player.inventory.getItemCount(GOLD_ID) >= cost
+      ) {
         player.inventory.removeItem(GOLD_ID, cost);
         player.health.current = player.health.base;
         player.magicka.current = player.magicka.base;
@@ -108,7 +110,9 @@ async function handleDialogueAction(
         }
         // Story progression
         player.inventory.removeItem("crown_of_wisdom", 1);
-        console.log(chalk.yellow("\nThe Hermit places the artifact in the town vault."));
+        console.log(
+          chalk.yellow("\nThe Hermit places the artifact in the town vault."),
+        );
         completeQuest("investigate_ruins");
         return {
           exit: true,
@@ -134,19 +138,34 @@ async function handleDialogueAction(
 
     case "blessing": {
       const cost = (data as any).cost;
-      if (typeof cost === "number" && player.inventory.getItemCount(GOLD_ID) >= cost) {
+      if (
+        typeof cost === "number" &&
+        player.inventory.getItemCount(GOLD_ID) >= cost
+      ) {
         player.inventory.removeItem(GOLD_ID, cost);
         // Apply immediate small heal/restore as a replacement for runtime blessing effects
-        player.health.current = Math.min(player.health.base, player.health.current + 10);
-        player.magicka.current = Math.min(player.magicka.base, player.magicka.current + 10);
+        player.health.current = Math.min(
+          player.health.base,
+          player.health.current + 10,
+        );
+        player.magicka.current = Math.min(
+          player.magicka.base,
+          player.magicka.current + 10,
+        );
         return { exit: true };
       }
-      return { message: chalk.red("Not enough gold for blessing!"), exit: false };
+      return {
+        message: chalk.red("Not enough gold for blessing!"),
+        exit: false,
+      };
     }
 
     case "prayer":
       player.magicka.current = player.magicka.base;
-      return { message: chalk.blue("Divine energy renews your spirit!"), exit: true };
+      return {
+        message: chalk.blue("Divine energy renews your spirit!"),
+        exit: true,
+      };
 
     case "leave":
       return { message: "Come back anytime!", exit: true };
@@ -220,7 +239,12 @@ export async function talkToNPC(actorOrRef: NPC | Reference, player: Player) {
       result = maybe as any;
     } else if ((choice as any).action) {
       // legacy fallback
-      result = await handleDialogueAction(player, actor, (choice as any).action, choice);
+      result = await handleDialogueAction(
+        player,
+        actor,
+        (choice as any).action,
+        choice,
+      );
     } else {
       result = { exit: true };
     }

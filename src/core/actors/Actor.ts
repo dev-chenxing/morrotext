@@ -1,9 +1,6 @@
 import chalk from "chalk";
-import { SLOT, OBJECT_TYPE } from "../constants.ts";
-import { getObject } from "../gameState.ts";
-import { getSlotForItemType } from "../systems/equipment.ts";
-import { createInventory } from "../systems/inventory.ts";
-import { GameObject } from "../types.ts";
+import { SLOT, OBJECT_TYPE } from "../../constants.ts";
+import { GameObject } from "../../types.ts";
 import type {
   Equipment,
   Item,
@@ -13,7 +10,10 @@ import type {
   Armor,
   Alchemy,
   ValueOf,
-} from "../types.ts";
+} from "../../types.ts";
+import { getSlotForItemType } from "../systems/equipment.ts";
+import { createInventory } from "../systems/inventory.ts";
+import { getObject } from "../gameState.ts";
 
 export class Actor extends GameObject {
   // Common fields
@@ -43,7 +43,13 @@ export class Actor extends GameObject {
   endurance: Statistic;
   personality: Statistic;
 
-  constructor(id: string, name: string, level = 1, description = "", fight = 0) {
+  constructor(
+    id: string,
+    name: string,
+    level = 1,
+    description = "",
+    fight = 0,
+  ) {
     super(id, OBJECT_TYPE.ACTOR);
     this.name = name;
     this.level = level;
@@ -58,7 +64,8 @@ export class Actor extends GameObject {
     // Initialize attributes
 
     // Attributes default to zero.
-    const attr = (key: string, def = 0) => ({ base: def, current: def }) as Statistic;
+    const attr = (key: string, def = 0) =>
+      ({ base: def, current: def }) as Statistic;
 
     this.strength = attr("strength");
     this.intelligence = attr("intelligence");
@@ -105,8 +112,10 @@ export class Actor extends GameObject {
 
   unequip(itemId?: string, slot?: ValueOf<typeof SLOT>) {
     if (itemId) {
-      if (this.equipment.weapon?.id === itemId) this.unequip(undefined, SLOT.WEAPON);
-      if (this.equipment.armor?.id === itemId) this.unequip(undefined, SLOT.ARMOR);
+      if (this.equipment.weapon?.id === itemId)
+        this.unequip(undefined, SLOT.WEAPON);
+      if (this.equipment.armor?.id === itemId)
+        this.unequip(undefined, SLOT.ARMOR);
       return;
     }
 
@@ -122,7 +131,10 @@ export class Actor extends GameObject {
   }
 
   hasItemEquipped(itemId: string) {
-    return this.equipment.weapon?.id === itemId || this.equipment.armor?.id === itemId;
+    return (
+      this.equipment.weapon?.id === itemId ||
+      this.equipment.armor?.id === itemId
+    );
   }
 
   levelUp() {

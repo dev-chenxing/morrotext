@@ -1,6 +1,5 @@
 import chalk from "chalk";
-import type { Player } from "../actors/Player.ts";
-import type { Action } from "../types.ts";
+import type { Action, Player } from "../types.ts";
 
 export const ACTIONS: Action[] = [
   {

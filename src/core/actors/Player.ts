@@ -1,9 +1,9 @@
 import chalk from "chalk";
-import { ATTRIBUTES, PLAYER_DEFAULTS, OBJECT_TYPE } from "../constants.ts";
-import { getClass } from "../gameState.ts";
+import { ATTRIBUTES, PLAYER_DEFAULTS, OBJECT_TYPE } from "../../constants.ts";
+import type { Class } from "../../types.ts";
 import { createClassActorProfile } from "../systems/class.ts";
+import { getClass } from "../gameState.ts";
 import Actor from "./Actor.ts";
-import type { Class } from "../types.ts";
 
 export class Player extends Actor {
   class: Class;

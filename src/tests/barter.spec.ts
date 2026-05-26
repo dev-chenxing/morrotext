@@ -1,14 +1,14 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
 import inquirer from "inquirer";
-import { initializeGameData } from "../initialize.ts";
-import { barter } from "../systems/barter.ts";
-import { talkToNPC } from "../systems/dialogue.ts";
-import { createNPCInstance } from "../world/npcs.ts";
-import { cells } from "../world/cells.ts";
-import { Player } from "../actors/Player.ts";
-import type { Alchemy } from "../types.ts";
-import { ITEMS } from "../world/items.ts";
+import { Player } from "../core/actors/Player.ts";
+import { barter } from "../core/systems/barter.ts";
+import { talkToNPC } from "../core/systems/dialogue.ts";
+import { initializeGameData } from "../core/initialize.ts";
+import { cells } from "../data/cells.ts";
+import { ITEMS } from "../data/items.ts";
+import { createNPCInstance } from "../data/npcs.ts";
 import { SHOP_PRICES } from "../constants.ts";
+import type { Alchemy } from "../types.ts";
 
 describe("barter", () => {
   afterEach(() => {
@@ -29,7 +29,9 @@ describe("barter", () => {
     // 5) talkToNPC prompt -> choose "leave"
     const promptMock = vi
       .spyOn(inquirer, "prompt")
-      .mockResolvedValueOnce({ choice: { action: "open_shop", data: {} } } as any)
+      .mockResolvedValueOnce({
+        choice: { action: "open_shop", data: {} },
+      } as any)
       .mockResolvedValueOnce({ action: "Buy Items" } as any)
       .mockResolvedValueOnce({ itemId: "health_potion" } as any)
       .mockResolvedValueOnce({ action: "Exit" } as any)
@@ -42,9 +44,13 @@ describe("barter", () => {
 
     await talkToNPC(publican, player);
 
-    const price = Math.ceil((ITEMS.health_potion as Alchemy).value * SHOP_PRICES.BUY_MULTIPLIER);
+    const price = Math.ceil(
+      (ITEMS.health_potion as Alchemy).value * SHOP_PRICES.BUY_MULTIPLIER,
+    );
 
-    expect(player.inventory.getItemCount("health_potion")).toBeGreaterThanOrEqual(1);
+    expect(
+      player.inventory.getItemCount("health_potion"),
+    ).toBeGreaterThanOrEqual(1);
     expect(player.inventory.getItemCount("gold")).toBe(1000 - price);
     expect(promptMock).toHaveBeenCalled();
   });
@@ -67,8 +73,14 @@ describe("barter", () => {
       | { choices?: Array<{ name: string; value: string | null }> }
       | undefined;
 
-    expect(buyPrompt?.choices?.some((choice) => choice.value === "steel_sword")).toBe(true);
-    expect(buyPrompt?.choices?.some((choice) => choice.value === "iron_sword")).toBe(false);
-    expect(buyPrompt?.choices?.some((choice) => choice.value === "health_potion")).toBe(false);
+    expect(
+      buyPrompt?.choices?.some((choice) => choice.value === "steel_sword"),
+    ).toBe(true);
+    expect(
+      buyPrompt?.choices?.some((choice) => choice.value === "iron_sword"),
+    ).toBe(false);
+    expect(
+      buyPrompt?.choices?.some((choice) => choice.value === "health_potion"),
+    ).toBe(false);
   });
 });

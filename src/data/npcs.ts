@@ -1,7 +1,10 @@
 import { ATTRIBUTES, OBJECT_TYPE, SLOT } from "../constants.ts";
-import { getNPC } from "../gameState.ts";
-import { createClassActorProfile } from "../systems/class.ts";
-import { cloneInventory, createInventoryFromRecord } from "../systems/inventory.ts";
+import { getNPC } from "../core/gameState.ts";
+import { createClassActorProfile } from "../core/systems/class.ts";
+import {
+  cloneInventory,
+  createInventoryFromRecord,
+} from "../core/systems/inventory.ts";
 import type { NPC, Class } from "../types.ts";
 
 export type NPCRegistryEntry = {
