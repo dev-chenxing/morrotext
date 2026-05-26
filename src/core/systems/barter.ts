@@ -1,8 +1,8 @@
 import inquirer from "inquirer";
 import chalk from "chalk";
-import { SHOP_PRICES, GOLD_ID } from "../constants.ts";
+import { SHOP_PRICES, GOLD_ID } from "../../constants.ts";
+import type { Armor, Item, NPC, Player, Weapon, Alchemy } from "../../types.ts";
 import { getObject } from "../gameState.ts";
-import type { Armor, Item, NPC, Player, Weapon, Alchemy } from "../types.ts";
 
 type ValuedItem = Alchemy | Armor | Weapon;
 
@@ -19,7 +19,9 @@ export async function barter(player: Player, actor: NPC) {
     if (!item) return false;
 
     // only include items the NPC trades and that have >0 available currently
-    return actor.tradesItemType(item.objectType) && actor.inventory.contains(id);
+    return (
+      actor.tradesItemType(item.objectType) && actor.inventory.contains(id)
+    );
   });
 
   let shopping = true;
@@ -50,21 +52,22 @@ async function buyItems(player: Player, actor: NPC, availableItems: string[]) {
     return;
   }
 
-  const choices: Array<{ name: string; value: string | null }> = availableItems.map((itemId) => {
-    const item = getObject(itemId);
-    if (!isValuedItem(item)) {
-      return {
-        name: `${itemId} - unavailable`,
-        value: null,
-      };
-    }
+  const choices: Array<{ name: string; value: string | null }> =
+    availableItems.map((itemId) => {
+      const item = getObject(itemId);
+      if (!isValuedItem(item)) {
+        return {
+          name: `${itemId} - unavailable`,
+          value: null,
+        };
+      }
 
-    const price = Math.ceil(item.value * SHOP_PRICES.BUY_MULTIPLIER);
-    return {
-      name: `${item.name} - ${price} gold`,
-      value: itemId,
-    };
-  });
+      const price = Math.ceil(item.value * SHOP_PRICES.BUY_MULTIPLIER);
+      return {
+        name: `${item.name} - ${price} gold`,
+        value: itemId,
+      };
+    });
 
   choices.push({ name: "Cancel", value: null });
 
@@ -157,7 +160,10 @@ async function sellItems(player: Player, actor: NPC) {
       message: `How many to sell? (Max: ${player.inventory.getItemCount(itemId)})`,
       validate: (input) => {
         const num = parseInt(input);
-        return (num > 0 && num <= player.inventory.getItemCount(itemId)) || "Invalid quantity";
+        return (
+          (num > 0 && num <= player.inventory.getItemCount(itemId)) ||
+          "Invalid quantity"
+        );
       },
     });
 
@@ -174,9 +180,12 @@ async function sellItems(player: Player, actor: NPC) {
       }
     } else {
       const resolved = getObject(itemId);
-      if (resolved) actor.inventory.items.push({ object: resolved, count: qty });
+      if (resolved)
+        actor.inventory.items.push({ object: resolved, count: qty });
     }
     player.inventory.addItem(GOLD_ID, value * qty);
-    console.log(chalk.green(`Sold ${qty}x ${item.name} for ${value * qty} gold!`));
+    console.log(
+      chalk.green(`Sold ${qty}x ${item.name} for ${value * qty} gold!`),
+    );
   }
 }
