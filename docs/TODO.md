@@ -51,7 +51,7 @@
 - [x] refactor: split static item registry entries from runtime item objects
   - [x] feat: add `createAlchemy`/`createArmor`/`createMisc`/`createWeapon` factories
 - [x] refactor: separate the `LeveledItem` registry from the logic
-- [ ] refactor: `leveledItems.ts` should not directly import `items.ts`
+- [x] refactor: `leveledItems.ts` should not directly import `items.ts`
 
 ### Slim `Player.ts` & Actor Foundation
 - [x] feat: create `src/actors/Actor.ts` base class with shared state and behavior:

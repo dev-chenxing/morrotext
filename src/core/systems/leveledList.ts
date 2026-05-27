@@ -1,5 +1,5 @@
 import { OBJECT_TYPE } from "../../constants.ts";
-import { LEVELED_ITEMS, getLeveledItemRegistryEntry } from "../../data/leveledItems.ts";
+import { LEVELED_ITEMS, type LeveledItemRegistryEntry } from "../../data/leveledItems.ts";
 import type { Item, LeveledItem } from "../../types.ts";
 import { game, getLeveledItem, getObject } from "../gameState.ts";
 
@@ -14,11 +14,14 @@ function shuffle<T>(items: T[]): T[] {
   return shuffled;
 }
 
-function resolveLeveledListObject(objectId: string): Item | LeveledItem | undefined {
-  const nestedLeveledItem = createLeveledItem(objectId);
-  if (nestedLeveledItem) return nestedLeveledItem;
+// Resolve a leveled-list object id into the runtime object it refers to.
+// Nested leveled-list ids become LeveledItem instances; regular ids resolve to items.
+function resolveLeveledListObject(id: string): Item | LeveledItem | undefined {
+  const anotherLeveledItem = LEVELED_ITEMS.find((entry) => entry.id === id);
+  const leveledItem = anotherLeveledItem ? createLeveledItem(anotherLeveledItem) : undefined;
+  if (leveledItem) return leveledItem;
 
-  return getObject(objectId);
+  return getObject(id) as Item | undefined;
 }
 
 function pickFromLeveledItemRecursive(
@@ -57,12 +60,9 @@ function pickFromLeveledItem(leveledItem: LeveledItem, level: number): Item | nu
   return pickFromLeveledItemRecursive(leveledItem, level, new Set<string>(), 0);
 }
 
-export function createLeveledItem(leveledItemId: string): LeveledItem | undefined {
-  const existing = getLeveledItem(leveledItemId);
+export function createLeveledItem(definition: LeveledItemRegistryEntry): LeveledItem | undefined {
+  const existing = getLeveledItem(definition.id);
   if (existing) return existing;
-
-  const definition = getLeveledItemRegistryEntry(leveledItemId);
-  if (!definition) return undefined;
 
   const runtime: LeveledItem = {
     id: definition.id,
@@ -81,10 +81,10 @@ export function createLeveledItem(leveledItemId: string): LeveledItem | undefine
   game.dataHandler.nonDynamicData.objects.push(runtime);
 
   runtime.list = definition.list.reduce<LeveledItem["list"]>((list, entry) => {
-    const object = resolveLeveledListObject(entry.object);
-    if (!object) return list;
+    const resolved = resolveLeveledListObject(entry.object);
+    if (!resolved) return list;
 
-    list.push({ levelRequired: entry.levelRequired, object });
+    list.push({ levelRequired: entry.levelRequired, object: resolved });
     return list;
   }, []);
 
@@ -93,6 +93,6 @@ export function createLeveledItem(leveledItemId: string): LeveledItem | undefine
 
 export function createLeveledItems(): void {
   LEVELED_ITEMS.forEach((entry) => {
-    createLeveledItem(entry.id);
+    createLeveledItem(entry);
   });
 }

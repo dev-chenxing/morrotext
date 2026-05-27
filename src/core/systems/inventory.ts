@@ -1,3 +1,4 @@
+import { LEVELED_ITEMS } from "../../data/leveledItems.ts";
 import { getObject } from "../gameState.ts";
 import type { Inventory, Item, ItemStack } from "../../types.ts";
 import { createLeveledItem } from "./leveledList.ts";
@@ -81,7 +82,8 @@ class DefaultInventory implements Inventory {
       if (count < 0) return;
 
       for (let i = 0; i < count; i++) {
-        const leveled = createLeveledItem(itemId);
+        const definition = LEVELED_ITEMS.find((entry) => entry.id === itemId);
+        const leveled = definition ? createLeveledItem(definition) : undefined;
         if (!leveled) continue;
         const picked = leveled.pickFrom();
         if (!picked) continue;
@@ -138,7 +140,8 @@ export function createInventoryFromRecord(items: Record<string, number>): Invent
     if (count < 0) return;
 
     for (let index = 0; index < count; index++) {
-      const leveled = createLeveledItem(itemId);
+      const definition = LEVELED_ITEMS.find((entry) => entry.id === itemId);
+      const leveled = definition ? createLeveledItem(definition) : undefined;
       if (!leveled) continue;
 
       const picked = leveled.pickFrom();
