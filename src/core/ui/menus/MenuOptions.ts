@@ -21,9 +21,7 @@ function renderAsciiTitle(title: string): string {
     while (lines.length > 0 && lines[lines.length - 1].trim() === "") {
       lines.pop();
     }
-    const minIndent = Math.min(
-      ...lines.filter((l) => l.trim() !== "").map((l) => l.search(/\S/)),
-    );
+    const minIndent = Math.min(...lines.filter((l) => l.trim() !== "").map((l) => l.search(/\S/)));
     return minIndent > 0 ? lines.map((l) => l.slice(minIndent)) : lines;
   });
 
@@ -56,13 +54,7 @@ export async function showMainMenu(player: Player): Promise<void> {
       type: "list",
       name: "action",
       message: "What would you like to do?",
-      choices: [
-        "Travel",
-        "Check Stats",
-        "View Inventory",
-        "View Quests",
-        "Exit Game",
-      ],
+      choices: ["Travel", "Check Stats", "View Inventory", "View Quests", "Exit Game"],
     });
 
     switch (action) {

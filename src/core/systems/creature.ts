@@ -22,24 +22,12 @@ export function createCreature(creature: CreatureEntry): Creature {
     magicka: { base: creature.magicka ?? 0, current: creature.magicka ?? 0 },
     luck: { base: creature.luck ?? 0, current: creature.luck ?? 0 },
     strength: { base: creature.strength ?? 0, current: creature.strength ?? 0 },
-    endurance: {
-      base: creature.endurance ?? 0,
-      current: creature.endurance ?? 0,
-    },
-    intelligence: {
-      base: creature.intelligence ?? 0,
-      current: creature.intelligence ?? 0,
-    },
-    willpower: {
-      base: creature.willpower ?? 0,
-      current: creature.willpower ?? 0,
-    },
+    endurance: { base: creature.endurance ?? 0, current: creature.endurance ?? 0 },
+    intelligence: { base: creature.intelligence ?? 0, current: creature.intelligence ?? 0 },
+    willpower: { base: creature.willpower ?? 0, current: creature.willpower ?? 0 },
     agility: { base: creature.agility ?? 0, current: creature.agility ?? 0 },
     speed: { base: creature.speed ?? 0, current: creature.speed ?? 0 },
-    personality: {
-      base: creature.personality ?? 0,
-      current: creature.personality ?? 0,
-    },
+    personality: { base: creature.personality ?? 0, current: creature.personality ?? 0 },
   };
 }
 

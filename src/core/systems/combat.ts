@@ -5,9 +5,7 @@ import type { Creature, Player } from "../../types.ts";
 import { getObject } from "../gameState.ts";
 import { useItem } from "./item.ts";
 
-function getActionChoices(
-  player: Player,
-): Array<{ name: string; value: string }> {
+function getActionChoices(player: Player): Array<{ name: string; value: string }> {
   const choices = [
     { name: "Attack", value: "Attack" },
     { name: "Use Item", value: "Use Item" },
@@ -22,15 +20,13 @@ function getActionChoices(
 
 function calculateDamage(attacker: any, defender: any) {
   // Derive basic attack/defense from attributes for now
-  const attackRating =
-    attacker.strength?.base ?? attacker.intelligence?.base ?? 0;
+  const attackRating = attacker.strength?.base ?? attacker.intelligence?.base ?? 0;
   const defenseRating = defender.endurance?.base ?? defender.agility?.base ?? 0;
 
   // Base damage + variance
   const baseDamage =
     attackRating *
-    (COMBAT_BALANCE.ATTACK_VARIANCE_MIN +
-      Math.random() * COMBAT_BALANCE.ATTACK_VARIANCE_RANGE);
+    (COMBAT_BALANCE.ATTACK_VARIANCE_MIN + Math.random() * COMBAT_BALANCE.ATTACK_VARIANCE_RANGE);
 
   const critChance =
     COMBAT_BALANCE.CRIT_BASE_CHANCE +
@@ -97,10 +93,7 @@ export async function startCombat(player: Player, enemy: Creature) {
 
   updateBattleDisplay(player, enemy);
 
-  while (
-    (player.health?.current ?? 0) > 0 &&
-    (enemy.health?.current ?? 0) > 0
-  ) {
+  while ((player.health?.current ?? 0) > 0 && (enemy.health?.current ?? 0) > 0) {
     const { action } = await inquirer.prompt({
       type: "list",
       name: "action",
@@ -110,22 +103,14 @@ export async function startCombat(player: Player, enemy: Creature) {
 
     switch (action) {
       case "Attack":
-        const { damage: playerDmg, isCrit: playerCrit } = calculateDamage(
-          player,
-          enemy,
-        );
+        const { damage: playerDmg, isCrit: playerCrit } = calculateDamage(player, enemy);
         applyDamage(enemy, playerDmg);
         console.log(
-          chalk.red(
-            `You deal ${playerDmg} damage${playerCrit ? " CRITICAL HIT!" : ""}!`,
-          ),
+          chalk.red(`You deal ${playerDmg} damage${playerCrit ? " CRITICAL HIT!" : ""}!`),
         );
 
         // Enemy counterattack
-        const { damage: enemyDmg, isCrit: enemyCrit } = calculateDamage(
-          enemy,
-          player,
-        );
+        const { damage: enemyDmg, isCrit: enemyCrit } = calculateDamage(enemy, player);
         applyDamage(player, enemyDmg);
         console.log(
           chalk.yellow(
@@ -138,20 +123,17 @@ export async function startCombat(player: Player, enemy: Creature) {
         const inventoryList = player.inventory.items
           .filter(
             (stack) =>
-              stack.count > 0 &&
-              getObject(stack.object.id)?.objectType === OBJECT_TYPE.ALCHEMY,
+              stack.count > 0 && getObject(stack.object.id)?.objectType === OBJECT_TYPE.ALCHEMY,
           )
           .map((stack) => {
             const item = getObject(stack.object.id);
             if (!item) return null;
-            return {
-              name: `${item.name} x${stack.count}`,
-              value: stack.object.id,
-            } as { name: string; value: string } | null;
+            return { name: `${item.name} x${stack.count}`, value: stack.object.id } as {
+              name: string;
+              value: string;
+            } | null;
           })
-          .filter((item): item is { name: string; value: string } =>
-            Boolean(item),
-          );
+          .filter((item): item is { name: string; value: string } => Boolean(item));
         const { itemId } = await inquirer.prompt({
           type: "list",
           name: "itemId",
@@ -171,17 +153,13 @@ export async function startCombat(player: Player, enemy: Creature) {
 
         if (typeof result === "number" && result > 0) {
           if (classAction?.id === "divineHeal") {
-            console.log(
-              chalk.cyan(`\n${player.name}: ${player.health.current}HP`),
-            );
+            console.log(chalk.cyan(`\n${player.name}: ${player.health.current}HP`));
             continue;
           }
 
           if (classAction?.id === "fireball") {
             applyDamage(enemy, result);
-            console.log(
-              chalk.red(`${classAction.name} deals ${result} damage!`),
-            );
+            console.log(chalk.red(`${classAction.name} deals ${result} damage!`));
           }
         }
         break;

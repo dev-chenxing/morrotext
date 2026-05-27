@@ -22,32 +22,18 @@ export type NonDynamicData = {
   objects: GameObject[];
 };
 
-export type WorldController = {
-  allMobileActors: MobileActor[];
-  quests: Quest[];
-};
+export type WorldController = { allMobileActors: MobileActor[]; quests: Quest[] };
 
 export const game: {
   player: Player | null;
-  dataHandler: {
-    nonDynamicData: NonDynamicData;
-  };
+  dataHandler: { nonDynamicData: NonDynamicData };
   worldController: WorldController;
 } = {
   player: null,
   dataHandler: {
-    nonDynamicData: {
-      actions: [],
-      cells: [],
-      classes: [],
-      dialogues: [],
-      objects: [],
-    },
+    nonDynamicData: { actions: [], cells: [], classes: [], dialogues: [], objects: [] },
   },
-  worldController: {
-    allMobileActors: [],
-    quests: [],
-  },
+  worldController: { allMobileActors: [], quests: [] },
 };
 
 export function getNonDynamicData(): NonDynamicData {

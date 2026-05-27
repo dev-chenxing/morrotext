@@ -3,10 +3,7 @@ import type { Player } from "../../types.ts";
 import { getObject } from "../gameState.ts";
 import { handleEquipment } from "./equipment.ts";
 
-export async function useItem(
-  player: Player,
-  itemId: string,
-): Promise<string | null> {
+export async function useItem(player: Player, itemId: string): Promise<string | null> {
   const item = getObject(itemId);
   if (!item) return "Item not found.";
 

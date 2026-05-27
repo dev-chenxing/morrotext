@@ -31,10 +31,7 @@ async function startGame() {
 
   const classChoices = getNonDynamicData()
     .classes.filter((cls) => cls.playable)
-    .map((cls) => ({
-      name: cls.name,
-      value: cls.id,
-    }));
+    .map((cls) => ({ name: cls.name, value: cls.id }));
 
   const { className } = await inquirer.prompt<{ className: string }>({
     type: "list",

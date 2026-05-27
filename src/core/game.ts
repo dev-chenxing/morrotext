@@ -116,10 +116,7 @@ export async function showQuests(player: Player) {
     name: "questId",
     message: "Active Quests:",
     choices: [
-      ...activeQuests.map((quest) => ({
-        name: `${quest.id} [Started]`,
-        value: quest.id,
-      })),
+      ...activeQuests.map((quest) => ({ name: `${quest.id} [Started]`, value: quest.id })),
       { name: "Return", value: null },
     ],
   });
@@ -286,10 +283,7 @@ async function startGame() {
 
   const classChoices = getNonDynamicData()
     .classes.filter((cls) => cls.playable)
-    .map((cls) => ({
-      name: cls.name,
-      value: cls.id,
-    }));
+    .map((cls) => ({ name: cls.name, value: cls.id }));
 
   const { className } = await inquirer.prompt<{ className: string }>({
     type: "list",

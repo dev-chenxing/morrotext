@@ -1,4 +1,10 @@
 {
   "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "endOfLine": "lf",
+  "insertFinalNewline": true,
+  "tabWidth": 2,
+  "useTabs": false,
+  "printWidth": 100,
+  "objectWrap": "collapse",
   "ignorePatterns": []
 }

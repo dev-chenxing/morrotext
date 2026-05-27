@@ -8,12 +8,7 @@ import { talkToNPC } from "../../systems/dialogue.ts";
 import { createNPCInstance } from "../../systems/npc.ts";
 import { exploreRuins } from "../../../data/cells/ruins.ts";
 import { resolveDynamic } from "../../utils/dynamicUtils.ts";
-import {
-  getDialogue,
-  getNPC,
-  getNonDynamicData,
-  getCreature,
-} from "../../gameState.ts";
+import { getDialogue, getNPC, getNonDynamicData, getCreature } from "../../gameState.ts";
 
 function collectActorIdsFromCell(cell: Cell): string[] {
   const ids: string[] = [];

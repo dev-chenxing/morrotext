@@ -8,21 +8,12 @@ import { createCreatureInstance } from "../../core/systems/creature.ts";
 import { hasStartedQuest, updateJournal } from "../../core/systems/quest.ts";
 
 export async function exploreRuins(player: Player) {
-  console.log(
-    chalk.yellow(figlet.textSync("ANCIENT RUINS", { font: "Small" })),
-  );
-  console.log(
-    chalk.gray(
-      "You stand before the entrance of a long-forgotten civilization...",
-    ),
-  );
+  console.log(chalk.yellow(figlet.textSync("ANCIENT RUINS", { font: "Small" })));
+  console.log(chalk.gray("You stand before the entrance of a long-forgotten civilization..."));
 
-  const hasDecipheredTablet =
-    player.inventory.getItemCount("deciphered_tablet") > 0;
+  const hasDecipheredTablet = player.inventory.getItemCount("deciphered_tablet") > 0;
   if (hasDecipheredTablet) {
-    console.log(
-      chalk.green("\nYour deciphered tablet glows, revealing a hidden path!"),
-    );
+    console.log(chalk.green("\nYour deciphered tablet glows, revealing a hidden path!"));
   }
 
   let exploring = true;
@@ -69,11 +60,7 @@ export async function exploreRuins(player: Player) {
         break;
 
       case "Explore the central chamber":
-        console.log(
-          chalk.yellow(
-            "\nYou find ancient murals depicting forgotten battles.",
-          ),
-        );
+        console.log(chalk.yellow("\nYou find ancient murals depicting forgotten battles."));
         if (Math.random() > RUINS_BALANCE.CENTRAL_CHAMBER_POTION_THRESHOLD) {
           console.log(chalk.green("Found a health potion in a broken urn!"));
           player.inventory.addItem("health_potion", 1);
@@ -90,9 +77,7 @@ export async function exploreRuins(player: Player) {
             ),
           );
         } else {
-          console.log(
-            chalk.gray("The remaining tablets are too damaged to read."),
-          );
+          console.log(chalk.gray("The remaining tablets are too damaged to read."));
         }
         break;
 
@@ -107,11 +92,7 @@ export async function exploreRuins(player: Player) {
 
       case "Check for hidden rooms":
         if (Math.random() > RUINS_BALANCE.HIDDEN_ROOM_LOOT_THRESHOLD) {
-          console.log(
-            chalk.green(
-              "\nYou discover a hidden alcove! But find only rubble.",
-            ),
-          );
+          console.log(chalk.green("\nYou discover a hidden alcove! But find only rubble."));
         } else {
           console.log(chalk.gray("\nYou find nothing but dust and cobwebs."));
         }
@@ -128,9 +109,7 @@ export async function exploreRuins(player: Player) {
 
 async function handleArtifactChamber(player: Player) {
   console.log(
-    chalk.yellow(
-      "\nYou enter a massive chamber with a glowing artifact on a pedestal...",
-    ),
+    chalk.yellow("\nYou enter a massive chamber with a glowing artifact on a pedestal..."),
   );
 
   if (hasStartedQuest("investigate_ruins")) {
@@ -140,41 +119,25 @@ async function handleArtifactChamber(player: Player) {
       type: "list",
       name: "action",
       message: "What do you do?",
-      choices: [
-        "Take the artifact",
-        "Examine it carefully",
-        "Destroy it",
-        "Leave it alone",
-      ],
+      choices: ["Take the artifact", "Examine it carefully", "Destroy it", "Leave it alone"],
     });
 
     switch (action) {
       case "Take the artifact":
         player.inventory.addItem("crown_of_wisdom", 1);
-        console.log(
-          chalk.yellow("You carefully lift the artifact from its pedestal."),
-        );
+        console.log(chalk.yellow("You carefully lift the artifact from its pedestal."));
         updateJournal("investigate_ruins", 1);
         break;
 
       case "Examine it carefully":
-        if (
-          player.class.id === "cleric" &&
-          player.inventory.getItemCount("holy_symbol") > 0
-        ) {
-          console.log(
-            chalk.cyan(
-              "\nYou notice faint inscriptions matching your holy symbol...",
-            ),
-          );
+        if (player.class.id === "cleric" && player.inventory.getItemCount("holy_symbol") > 0) {
+          console.log(chalk.cyan("\nYou notice faint inscriptions matching your holy symbol..."));
           console.log(chalk.green("Divine energy flows through you!"));
           player.magicka.base += RUINS_BALANCE.CLERIC_MANA_BONUS;
           player.magicka.current = player.magicka.base;
         } else {
           console.log(
-            chalk.cyan(
-              "\nYou study the artifact carefully but can't decipher its markings.",
-            ),
+            chalk.cyan("\nYou study the artifact carefully but can't decipher its markings."),
           );
         }
         break;

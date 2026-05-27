@@ -34,10 +34,7 @@ export namespace OBJECT_TYPE {
   export type WEAPON = typeof OBJECT_TYPES.WEAPON;
 }
 
-const MERCHANT_SERVICE_VALUES = {
-  TRAINING: "training",
-  REPAIR: "repair",
-} as const;
+const MERCHANT_SERVICE_VALUES = { TRAINING: "training", REPAIR: "repair" } as const;
 
 export const MERCHANT_SERVICE = MERCHANT_SERVICE_VALUES;
 
@@ -49,10 +46,7 @@ export namespace MERCHANT_SERVICE {
   export type REPAIR = typeof MERCHANT_SERVICE_VALUES.REPAIR;
 }
 
-const SLOT_VALUES = {
-  WEAPON: "weapon",
-  ARMOR: "armor",
-} as const;
+const SLOT_VALUES = { WEAPON: "weapon", ARMOR: "armor" } as const;
 
 export const SLOT = SLOT_VALUES;
 
@@ -81,11 +75,7 @@ export namespace CREATURE_TYPE {
   export type HUMANOID = typeof CREATURE_TYPE_VALUES.HUMANOID;
 }
 
-const ACTOR_TYPE_VALUES = {
-  PLAYER: "player",
-  NPC: "npc",
-  CREATURE: "creature",
-} as const;
+const ACTOR_TYPE_VALUES = { PLAYER: "player", NPC: "npc", CREATURE: "creature" } as const;
 
 export const ACTOR_TYPE = ACTOR_TYPE_VALUES;
 
@@ -101,22 +91,14 @@ export const GAME_SETTINGS = {};
 
 export const GOLD_ID = "gold";
 
-export const PLAYER_DEFAULTS = {
-  LEVEL: 1,
-  GOLD: 50,
-  LUCK: 5,
-  LEVEL_UP_HP_GAIN: 20,
-} as const;
+export const PLAYER_DEFAULTS = { LEVEL: 1, GOLD: 50, LUCK: 5, LEVEL_UP_HP_GAIN: 20 } as const;
 
 export const GAME_TIMINGS = {
   EFFECT_TICK_INTERVAL_MS: 100,
   BLESSING_DURATION_SECONDS: 60,
 } as const;
 
-export const SHOP_PRICES = {
-  BUY_MULTIPLIER: 1.2,
-  SELL_MULTIPLIER: 0.6,
-} as const;
+export const SHOP_PRICES = { BUY_MULTIPLIER: 1.2, SELL_MULTIPLIER: 0.6 } as const;
 
 export const COMBAT_BALANCE = {
   ATTACK_VARIANCE_MIN: 0.9,
@@ -129,10 +111,7 @@ export const COMBAT_BALANCE = {
   ENEMY_LOOT_DROP_CHANCE: 0.65,
 } as const;
 
-export const LOOT_BALANCE = {
-  EPIC_THRESHOLD: 0.05,
-  RARE_THRESHOLD: 0.3,
-} as const;
+export const LOOT_BALANCE = { EPIC_THRESHOLD: 0.05, RARE_THRESHOLD: 0.3 } as const;
 
 export const RUINS_BALANCE = {
   RANDOM_ENCOUNTER_THRESHOLD: 0.6,

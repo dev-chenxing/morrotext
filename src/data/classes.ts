@@ -107,9 +107,7 @@ export const CLASSES: ClassEntry[] = [
     id: "publican",
     name: "Publican",
     attributes: [ATTRIBUTES.PERSONALITY, ATTRIBUTES.LUCK],
-    barters: {
-      [OBJECT_TYPE.ALCHEMY]: true,
-    },
+    barters: { [OBJECT_TYPE.ALCHEMY]: true },
     description: "Publican and purveyor of potions.",
     playable: false,
   },

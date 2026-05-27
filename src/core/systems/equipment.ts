@@ -7,9 +7,7 @@ export function getSlotForItemType(
   itemOrObjectType: Item | ValueOf<typeof OBJECT_TYPE>,
 ): SLOT | null {
   const objectType =
-    typeof itemOrObjectType === "string"
-      ? itemOrObjectType
-      : itemOrObjectType.objectType;
+    typeof itemOrObjectType === "string" ? itemOrObjectType : itemOrObjectType.objectType;
 
   switch (objectType) {
     case OBJECT_TYPE.WEAPON:
@@ -36,10 +34,7 @@ export async function handleEquipment(player: Player, item: Item) {
     choices.push({ name: "Equip", value: "equip" });
   }
 
-  choices.push(
-    { name: "Inspect", value: "inspect" },
-    { name: "Cancel", value: "cancel" },
-  );
+  choices.push({ name: "Inspect", value: "inspect" }, { name: "Cancel", value: "cancel" });
 
   const { action } = await inquirer.prompt({
     type: "list",
@@ -56,11 +51,9 @@ export async function handleEquipment(player: Player, item: Item) {
     console.log(chalk.yellow(`\n${item.name}:`));
     console.log(`Type: ${item.objectType}`);
     // `value` exists on valued item subtypes (weapon/armor/alchemy)
-    if ("value" in (item as any))
-      console.log(`Value: ${(item as any).value} gold`);
+    if ("value" in (item as any)) console.log(`Value: ${(item as any).value} gold`);
     // Show armor rating for armor items
-    if ("armorRating" in (item as any))
-      console.log(`Armor: ${(item as any).armorRating}`);
+    if ("armorRating" in (item as any)) console.log(`Armor: ${(item as any).armorRating}`);
     // Show generic stats for items that expose a `stats` map.
     if ("stats" in (item as any) && (item as any).stats)
       Object.entries((item as any).stats).forEach(([stat, val]) => {

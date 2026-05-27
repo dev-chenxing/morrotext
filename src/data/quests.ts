@@ -1,9 +1,6 @@
 export type QuestRegistryEntry = {
   id: string;
-  dialogue: {
-    id: string;
-    info: { text: string; journalIndex: number }[];
-  }[];
+  dialogue: { id: string; info: { text: string; journalIndex: number }[] }[];
 };
 
 export const QUESTS: QuestRegistryEntry[] = [

@@ -23,10 +23,7 @@ export abstract class GameObject {
   }
 }
 
-export type LeveledListNode = {
-  levelRequired: number;
-  object: GameObject;
-};
+export type LeveledListNode = { levelRequired: number; object: GameObject };
 
 export interface LeveledItem extends GameObject {
   chanceForNothing: number; // The percent chance, from 0 to 100, for no object to be chosen.

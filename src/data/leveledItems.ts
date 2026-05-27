@@ -20,11 +20,7 @@ export function getLeveledItemRegistryEntry(
 }
 
 export const LEVELED_ITEMS: LeveledItemRegistryEntry[] = [
-  {
-    id: "random_gold",
-    chanceForNothing: 0.4,
-    list: [{ levelRequired: 1, object: ITEMS.gold.id }],
-  },
+  { id: "random_gold", chanceForNothing: 0.4, list: [{ levelRequired: 1, object: ITEMS.gold.id }] },
   {
     id: "l_forest",
     chanceForNothing: 0,

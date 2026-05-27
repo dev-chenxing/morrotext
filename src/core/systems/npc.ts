@@ -26,10 +26,7 @@ export function createNPC(entry: NPCRegistryEntry, classes: Class[]): NPC {
     fight: 0,
     level: entry.level ?? 1,
     class: npcClass,
-    equipment: {
-      [SLOT.WEAPON]: null,
-      [SLOT.ARMOR]: null,
-    },
+    equipment: { [SLOT.WEAPON]: null, [SLOT.ARMOR]: null },
     inventory: createInventoryFromRecord(entry.inventory ?? {}),
     health: { ...classProfile.health },
     magicka: { ...classProfile.magicka },
@@ -42,11 +39,7 @@ export function createNPC(entry: NPCRegistryEntry, classes: Class[]): NPC {
     endurance: { ...classProfile.attributes[ATTRIBUTES.ENDURANCE] },
     personality: { ...classProfile.attributes[ATTRIBUTES.PERSONALITY] },
     skills: [...classProfile.skills],
-    aiConfig: {
-      barters: npcClass.barters,
-      offers: npcClass.offers,
-      fight: 0,
-    },
+    aiConfig: { barters: npcClass.barters, offers: npcClass.offers, fight: 0 },
     actions: [...npcClass.actions],
     hasItemEquipped: () => false,
     offersServices(service) {

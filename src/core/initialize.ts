@@ -18,12 +18,7 @@ import { createNPC } from "./systems/npc.ts";
 import { game } from "./gameState.ts";
 
 function createEmptyReferenceList(cell: Cell): ReferenceList {
-  return {
-    cell,
-    head: null,
-    tail: null,
-    size: 0,
-  };
+  return { cell, head: null, tail: null, size: 0 };
 }
 
 function cloneCells(source: Record<string, Cell>): Cell[] {

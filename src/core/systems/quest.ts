@@ -3,7 +3,6 @@ import { QUESTS } from "../../data/quests.ts";
 import type { Dialogue, Quest } from "../../types.ts";
 import { game } from "../gameState.ts";
 
-
 export function findQuest(journal?: Dialogue | string, name?: string): Quest | undefined {
   const quests = game.worldController.quests;
   if (!quests || quests.length === 0) return undefined;
@@ -97,11 +96,7 @@ export function startQuest(questId: string): Quest | null {
   return quest;
 }
 
-export function updateJournal(
-  id: Dialogue | string,
-  index: number,
-  showMessage = true,
-) {
+export function updateJournal(id: Dialogue | string, index: number, showMessage = true) {
   const quest = findQuest(id);
   if (!quest) return false;
 

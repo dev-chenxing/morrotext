@@ -15,10 +15,7 @@ export async function showQuestsMenu(): Promise<void> {
     name: "questId",
     message: "Active Quests:",
     choices: [
-      ...activeQuests.map((quest) => ({
-        name: `${quest.id} [Started]`,
-        value: quest.id,
-      })),
+      ...activeQuests.map((quest) => ({ name: `${quest.id} [Started]`, value: quest.id })),
       { name: "Return", value: null },
     ],
   });

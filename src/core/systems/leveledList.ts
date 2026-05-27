@@ -84,10 +84,7 @@ export function createLeveledItem(leveledItemId: string): LeveledItem | undefine
     const object = resolveLeveledListObject(entry.object);
     if (!object) return list;
 
-    list.push({
-      levelRequired: entry.levelRequired,
-      object,
-    });
+    list.push({ levelRequired: entry.levelRequired, object });
     return list;
   }, []);
 

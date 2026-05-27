@@ -26,11 +26,7 @@ export const CREATURES: CreatureEntry[] = [
     health: 45,
     strength: 12,
     endurance: 6,
-    inventory: {
-      rusty_dagger: 1,
-      goblin_ear: 1,
-      random_gold: 10,
-    },
+    inventory: { rusty_dagger: 1, goblin_ear: 1, random_gold: 10 },
   },
   {
     type: CREATURE_TYPE.HUMANOID,
@@ -39,12 +35,7 @@ export const CREATURES: CreatureEntry[] = [
     health: 65,
     strength: 18,
     endurance: 7,
-    inventory: {
-      mana_essence: 1,
-      bone_charm: 1,
-      goblin_ear: 1,
-      random_gold: 20,
-    },
+    inventory: { mana_essence: 1, bone_charm: 1, goblin_ear: 1, random_gold: 20 },
   },
   {
     type: CREATURE_TYPE.UNDEAD,
@@ -53,11 +44,7 @@ export const CREATURES: CreatureEntry[] = [
     health: 60,
     strength: 14,
     endurance: 8,
-    inventory: {
-      bone_fragment: 1,
-      rusty_sword: 1,
-      random_gold: 20,
-    },
+    inventory: { bone_fragment: 1, rusty_sword: 1, random_gold: 20 },
   },
   {
     type: CREATURE_TYPE.NORMAL,
@@ -66,10 +53,7 @@ export const CREATURES: CreatureEntry[] = [
     health: 120,
     strength: 18,
     endurance: 15,
-    inventory: {
-      stone_core: 1,
-      random_gold: 30,
-    },
+    inventory: { stone_core: 1, random_gold: 30 },
   },
   {
     type: CREATURE_TYPE.HUMANOID,
@@ -78,11 +62,7 @@ export const CREATURES: CreatureEntry[] = [
     health: 80,
     strength: 20,
     endurance: 10,
-    inventory: {
-      void_essence: 1,
-      dark_tome: 1,
-      random_gold: 20,
-    },
+    inventory: { void_essence: 1, dark_tome: 1, random_gold: 20 },
   },
   {
     type: CREATURE_TYPE.NORMAL,
@@ -91,11 +71,7 @@ export const CREATURES: CreatureEntry[] = [
     health: 40,
     strength: 10,
     endurance: 5,
-    inventory: {
-      wolf_pelt: 1,
-      fangs: 1,
-      random_gold: 10,
-    },
+    inventory: { wolf_pelt: 1, fangs: 1, random_gold: 10 },
   },
   {
     type: CREATURE_TYPE.NORMAL,
@@ -104,10 +80,6 @@ export const CREATURES: CreatureEntry[] = [
     health: 25,
     strength: 12,
     endurance: 3,
-    inventory: {
-      spider_silk: 1,
-      venom_sac: 1,
-      random_gold: 10,
-    },
+    inventory: { spider_silk: 1, venom_sac: 1, random_gold: 10 },
   },
 ];

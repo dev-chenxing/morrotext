@@ -56,9 +56,7 @@ export class NPC extends Actor {
   }
 
   offersServices(service: ValueOf<typeof MERCHANT_SERVICE>) {
-    return !!this.aiConfig.offers?.[
-      service as ValueOf<typeof MERCHANT_SERVICE>
-    ];
+    return !!this.aiConfig.offers?.[service as ValueOf<typeof MERCHANT_SERVICE>];
   }
 
   tradesItemType(objectType: ValueOf<typeof OBJECT_TYPE>) {

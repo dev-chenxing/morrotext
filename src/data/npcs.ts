@@ -13,9 +13,7 @@ export const NPC_REGISTRY: NPCRegistryEntry[] = [
     name: "Smith",
     level: 1,
     classId: "smith",
-    inventory: {
-      steel_sword: -1,
-    },
+    inventory: { steel_sword: -1 },
     description: "A skilled blacksmith.",
   },
   {
@@ -23,10 +21,7 @@ export const NPC_REGISTRY: NPCRegistryEntry[] = [
     name: "Publican",
     level: 1,
     classId: "publican",
-    inventory: {
-      health_potion: -5,
-      mana_potion: -5,
-    },
+    inventory: { health_potion: -5, mana_potion: -5 },
     description: "A friendly publican.",
   },
 ];

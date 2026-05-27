@@ -29,9 +29,7 @@ describe("barter", () => {
     // 5) talkToNPC prompt -> choose "leave"
     const promptMock = vi
       .spyOn(inquirer, "prompt")
-      .mockResolvedValueOnce({
-        choice: { action: "open_shop", data: {} },
-      } as any)
+      .mockResolvedValueOnce({ choice: { action: "open_shop", data: {} } } as any)
       .mockResolvedValueOnce({ action: "Buy Items" } as any)
       .mockResolvedValueOnce({ itemId: "health_potion" } as any)
       .mockResolvedValueOnce({ action: "Exit" } as any)
