@@ -1,6 +1,6 @@
 import { getObject } from "../gameState.ts";
 import type { Inventory, Item, ItemStack } from "../../types.ts";
-import { createLeveledItem } from "../../data/leveledItems.ts";
+import { createLeveledItem } from "./leveledList.ts";
 
 class DefaultInventory implements Inventory {
   items: ItemStack[] = [];
@@ -8,8 +8,7 @@ class DefaultInventory implements Inventory {
   private consumed: Record<string, number> = {};
 
   addItem(item: Item | string, count = 1) {
-    const resolved: Item | null =
-      typeof item === "string" ? (getObject(item) ?? null) : item;
+    const resolved: Item | null = typeof item === "string" ? (getObject(item) ?? null) : item;
     if (!resolved) return 0;
 
     const existing = this.items.find((s) => s.object.id === resolved.id);
@@ -118,9 +117,7 @@ export function cloneInventory(inventory: Inventory): Inventory {
   return cloned;
 }
 
-export function createInventoryFromRecord(
-  items: Record<string, number>,
-): Inventory {
+export function createInventoryFromRecord(items: Record<string, number>): Inventory {
   // Create an empty runtime inventory object
   const inventory = createInventory();
 
