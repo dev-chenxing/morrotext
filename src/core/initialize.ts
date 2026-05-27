@@ -13,6 +13,7 @@ import { QUESTS } from "../data/quests.ts";
 import { WEAPONS } from "../data/weapons.ts";
 import { createClass } from "./systems/class.ts";
 import { createCreature } from "./systems/creature.ts";
+import { createAlchemy, createArmor, createMisc, createWeapon } from "./systems/item.ts";
 import { createLeveledItems } from "./systems/leveledList.ts";
 import { createNPC } from "./systems/npc.ts";
 import { game } from "./gameState.ts";
@@ -68,12 +69,12 @@ function createActions(): void {
 }
 
 function createObjects(): void {
-  game.dataHandler.nonDynamicData.objects = Object.values({
-    ...ALCHEMY,
-    ...WEAPONS,
-    ...ARMORS,
-    ...MISC_ITEMS,
-  }).map((item) => ({ ...item }));
+  game.dataHandler.nonDynamicData.objects = [
+    ...Object.values(ALCHEMY).map((entry) => createAlchemy(entry)),
+    ...Object.values(WEAPONS).map((entry) => createWeapon(entry)),
+    ...Object.values(ARMORS).map((entry) => createArmor(entry)),
+    ...Object.values(MISC_ITEMS).map((entry) => createMisc(entry)),
+  ];
 }
 
 function createCreatures(): void {

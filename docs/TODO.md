@@ -48,7 +48,8 @@
 
 ### "So a leveled item is an 'object'"
 - [x] refactor: rename `loot.ts` to `leveledItems.ts`, rename `generateLoot` to `pickFromLeveledItems`
-- [ ] refactor: instead of `useItem`, create `createX` factory functions that takes a weapon/armor/alchemy/misc/etc registry entry and returns the runtime object of that item and push it to non-dynamic data
+- [x] refactor: split static item registry entries from runtime item objects
+  - [x] feat: add `createAlchemy`/`createArmor`/`createMisc`/`createWeapon` factories
 - [x] refactor: separate the `LeveledItem` registry from the logic
 - [ ] refactor: `leveledItems.ts` should not directly import `items.ts`
 

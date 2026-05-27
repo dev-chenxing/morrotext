@@ -1,7 +1,7 @@
-import type { Weapon } from "../types.ts";
+import type { WeaponRegistryEntry } from "../types.ts";
 import { OBJECT_TYPE } from "../constants.ts";
 
-export const WEAPONS: Record<string, Weapon> = {
+export const WEAPONS: Record<string, WeaponRegistryEntry> = {
   rusty_dagger: {
     id: "rusty_dagger",
     name: "Rusty Dagger",
@@ -9,7 +9,7 @@ export const WEAPONS: Record<string, Weapon> = {
     min: 4,
     max: 4,
     value: 15,
-  } as Weapon,
+  },
   rusty_sword: {
     id: "rusty_sword",
     name: "Rusty Sword",
@@ -18,7 +18,7 @@ export const WEAPONS: Record<string, Weapon> = {
     max: 5,
     value: 15,
     description: "A corroded blade that has seen better days",
-  } as Weapon,
+  },
   iron_sword: {
     id: "iron_sword",
     name: "Iron Sword",
@@ -26,7 +26,7 @@ export const WEAPONS: Record<string, Weapon> = {
     min: 6,
     max: 6,
     value: 50,
-  } as Weapon,
+  },
   oak_staff: {
     id: "oak_staff",
     name: "Oak Staff",
@@ -34,7 +34,7 @@ export const WEAPONS: Record<string, Weapon> = {
     min: 7,
     max: 7,
     value: 80,
-  } as Weapon,
+  },
   steel_sword: {
     id: "steel_sword",
     name: "Steel Sword",
@@ -42,7 +42,7 @@ export const WEAPONS: Record<string, Weapon> = {
     min: 8,
     max: 8,
     value: 75,
-  } as Weapon,
+  },
   mace: {
     id: "mace",
     name: "Sacred Mace",
@@ -50,7 +50,7 @@ export const WEAPONS: Record<string, Weapon> = {
     min: 10,
     max: 10,
     value: 100,
-  } as Weapon,
+  },
   steel_dagger: {
     id: "steel_dagger",
     name: "Steel Dagger",
@@ -58,7 +58,7 @@ export const WEAPONS: Record<string, Weapon> = {
     min: 12,
     max: 12,
     value: 85,
-  } as Weapon,
+  },
   seraphim_staff: {
     id: "seraphim_staff",
     name: "Seraphim Staff",
@@ -66,7 +66,7 @@ export const WEAPONS: Record<string, Weapon> = {
     min: 8,
     max: 12,
     value: 450,
-  } as Weapon,
+  },
   masterwork_hammer: {
     id: "masterwork_hammer",
     name: "Masterwork Hammer",
@@ -75,7 +75,7 @@ export const WEAPONS: Record<string, Weapon> = {
     max: 15,
     value: 300,
     description: "Exceptional hammer",
-  } as Weapon,
+  },
   dragon_slayer: {
     id: "dragon_slayer",
     name: "Dragon Slayer",
@@ -83,5 +83,5 @@ export const WEAPONS: Record<string, Weapon> = {
     min: 18,
     max: 18,
     value: 500,
-  } as Weapon,
+  },
 };

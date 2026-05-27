@@ -91,20 +91,52 @@ export interface Item extends GameObject {
   description?: string;
 }
 
+export interface ItemRegistryEntry {
+  id: string;
+  name: string;
+  description?: string;
+}
+
+export interface AlchemyRegistryEntry extends ItemRegistryEntry {
+  objectType: OBJECT_TYPE.ALCHEMY;
+  value: number;
+}
+
+export interface ArmorRegistryEntry extends ItemRegistryEntry {
+  objectType: OBJECT_TYPE.ARMOR;
+  value: number;
+  armorRating: number;
+}
+
+export interface MiscRegistryEntry extends ItemRegistryEntry {
+  objectType: OBJECT_TYPE.BOOK | OBJECT_TYPE.MISC;
+  value: number;
+}
+
+export interface WeaponRegistryEntry extends ItemRegistryEntry {
+  objectType: OBJECT_TYPE.WEAPON;
+  value: number;
+  min: number;
+  max: number;
+}
+
 export interface Alchemy extends Item {
   value: number;
-  effect: any;
+}
+
+export interface Armor extends Item {
+  value: number;
+  armorRating: number;
+}
+
+export interface Misc extends Item {
+  value: number;
 }
 
 export interface Weapon extends Item {
   value: number;
   min: number;
   max: number;
-}
-
-export interface Armor extends Item {
-  value: number;
-  armorRating: number;
 }
 
 export interface ItemStack {

@@ -1,7 +1,33 @@
 import { OBJECT_TYPE } from "../../constants.ts";
-import type { Player } from "../../types.ts";
+import type {
+  Alchemy,
+  AlchemyRegistryEntry,
+  Armor,
+  ArmorRegistryEntry,
+  Misc,
+  MiscRegistryEntry,
+  Player,
+  Weapon,
+  WeaponRegistryEntry,
+} from "../../types.ts";
 import { getObject } from "../gameState.ts";
 import { handleEquipment } from "./equipment.ts";
+
+export function createAlchemy(entry: AlchemyRegistryEntry): Alchemy {
+  return { ...entry };
+}
+
+export function createArmor(entry: ArmorRegistryEntry): Armor {
+  return { ...entry };
+}
+
+export function createMisc(entry: MiscRegistryEntry): Misc {
+  return { ...entry };
+}
+
+export function createWeapon(entry: WeaponRegistryEntry): Weapon {
+  return { ...entry };
+}
 
 export async function useItem(player: Player, itemId: string): Promise<string | null> {
   const item = getObject(itemId);
