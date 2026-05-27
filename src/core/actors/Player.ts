@@ -1,8 +1,9 @@
 import chalk from "chalk";
-import { ATTRIBUTES, PLAYER_DEFAULTS, OBJECT_TYPE } from "../../constants.ts";
+import { ATTRIBUTES, OBJECT_TYPE } from "../../constants.ts";
 import type { Class } from "../../types.ts";
 import { createClassActorProfile } from "../systems/class.ts";
 import { getClass } from "../gameState.ts";
+import * as math from "../utils/math.ts";
 import Actor from "./Actor.ts";
 
 export class Player extends Actor {
@@ -14,7 +15,7 @@ export class Player extends Actor {
 
   constructor(name: string, classId: string) {
     // use a stable id for player
-    super("player", name, PLAYER_DEFAULTS.LEVEL);
+    super("player", name);
     this.objectType = OBJECT_TYPE.PLAYER;
 
     const selectedClass = getClass(classId);
@@ -48,7 +49,7 @@ export class Player extends Actor {
 
   levelUp() {
     super.levelUp();
-    this.health.base += PLAYER_DEFAULTS.LEVEL_UP_HP_GAIN;
+    this.health.base = math.roundToTenth(this.health.base + this.endurance.base / 10);
     this.health.current = this.health.base;
     console.log(chalk.yellow(`\n=== LEVEL UP! (${this.level}) ===`));
     console.log(`Max HP increased to ${this.health.base}`);

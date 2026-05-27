@@ -87,16 +87,7 @@ export namespace ACTOR_TYPE {
   export type CREATURE = typeof ACTOR_TYPE_VALUES.CREATURE;
 }
 
-export const GAME_SETTINGS = {};
-
 export const GOLD_ID = "gold";
-
-export const PLAYER_DEFAULTS = { LEVEL: 1, GOLD: 50, LUCK: 5, LEVEL_UP_HP_GAIN: 20 } as const;
-
-export const GAME_TIMINGS = {
-  EFFECT_TICK_INTERVAL_MS: 100,
-  BLESSING_DURATION_SECONDS: 60,
-} as const;
 
 export const SHOP_PRICES = { BUY_MULTIPLIER: 1.2, SELL_MULTIPLIER: 0.6 } as const;
 
@@ -108,10 +99,7 @@ export const COMBAT_BALANCE = {
   CRIT_BASE_CHANCE: 0.05,
   LUCK_CRIT_DIVISOR: 100,
   MIN_DAMAGE: 1,
-  ENEMY_LOOT_DROP_CHANCE: 0.65,
 } as const;
-
-export const LOOT_BALANCE = { EPIC_THRESHOLD: 0.05, RARE_THRESHOLD: 0.3 } as const;
 
 export const RUINS_BALANCE = {
   RANDOM_ENCOUNTER_THRESHOLD: 0.6,
