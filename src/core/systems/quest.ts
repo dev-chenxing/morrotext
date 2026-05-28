@@ -123,9 +123,23 @@ export function updateJournal(id: Dialogue | string, index: number, showMessage 
     target = quest.dialogue.find((d) => d === id || d.id === id.id);
   }
 
+  // Enforce monotonicity: allow moving forward or staying the same, but
+  // disallow moving the journal index backwards.
   if (target) {
+    const current = target.journalIndex ?? 0;
+    if (index < current) {
+      if (showMessage) console.log(chalk.yellow("\nCannot move journal entry backwards."));
+      return false;
+    }
+
     target.journalIndex = index;
   } else if (quest.dialogue && quest.dialogue.length > 0) {
+    const current = quest.dialogue[0].journalIndex ?? 0;
+    if (index < current) {
+      if (showMessage) console.log(chalk.yellow("\nCannot move journal entry backwards."));
+      return false;
+    }
+
     quest.dialogue[0].journalIndex = index;
   }
 

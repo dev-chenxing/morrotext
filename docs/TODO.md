@@ -64,15 +64,12 @@
 - [x] refactor: move shared logic from current `Player.ts` into `Actor.ts`
 - [x] refactor: refactor `src/actors/Player.ts` to extend `Actor` and keep only player-specific concerns
 
-### Cell & World Controller Overhaul
-- [ ] docs: research how to give each cell a small progression script or transition rule so the player is naturally led from `Imperial Prison Ship` to `Seyda Neen` and then to `Seyda Neen, Census and Excise Office`
-
 ### Quest & Dialogue Overhaul
 - [ ] feat: create `src/systems/quest.ts`.
   - [x] feat: implement `Quest` extend `GameObject` and add `isActive`, `isFinished`, `isStarted`, and `objectType` fields.
   - [x] refactor: migrate story flag writes into actual `Reference.data`/`tempData` helpers
   - [x] refactor: remove `activeQuests`, `completedQuests`, `storyFlags`, and `killCount` from `Player`
-  - [ ] feat: enforce stage monotonicity (can skip stages but can't go backwards)
+  - [x] fix: enforce stage monotonicity (can skip stages but can't go backwards)
 - [x] feat: add `worldController` to `gameState`
 - [ ] refactor: refactor dialogue to prioritized dialogue entries that each have a condition and result
 - [ ] refactor: remove deprecated helper functions `startQuest()` from `world/quests.ts`
