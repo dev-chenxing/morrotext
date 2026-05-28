@@ -1,7 +1,6 @@
 import inquirer from "inquirer";
 import chalk from "chalk";
 import figlet from "figlet";
-import { exploreRuins } from "../data/cells/ruins.ts";
 import type { Cell, Dialogue, Reference } from "../types.ts";
 import { Player } from "./actors/Player.ts";
 import { startCombat } from "./systems/combat.ts";
@@ -162,74 +161,68 @@ function getRandomCreatureFromCell(cell: Cell) {
 export async function enterCell(player: Player, cell: Cell) {
   const description = resolveDynamic(cell.description, player) ?? "";
   const displayName = resolveDynamic(cell.displayName, player) ?? cell.editorName;
-  if (displayName === "Ancient Ruins") {
-    const creature = getRandomCreatureFromCell(cell);
-    if (creature) await startCombat(player, creature);
-    await exploreRuins(player);
-  } else {
-    let inCell = true;
-    while (inCell && player.health.current > 0) {
-      console.log(chalk.cyan(`\n=== ${displayName} ===`));
-      console.log(chalk.hex("#8B4513")(description));
-      const actorNodes: Reference[] = [];
-      let currentActorNode = cell.actors?.head ?? null;
-      while (currentActorNode) {
-        actorNodes.push(currentActorNode);
-        currentActorNode = currentActorNode.nextNode ?? null;
+  let inCell = true;
+  while (inCell && player.health.current > 0) {
+    console.log(chalk.cyan(`\n=== ${displayName} ===`));
+    console.log(chalk.hex("#8B4513")(description));
+    const actorNodes: Reference[] = [];
+    let currentActorNode = cell.actors?.head ?? null;
+    while (currentActorNode) {
+      actorNodes.push(currentActorNode);
+      currentActorNode = currentActorNode.nextNode ?? null;
+    }
+
+    const actorIds = actorNodes.map((node) => String((node.object as { id: string }).id));
+    const talkableActors = actorNodes.filter((node) => canTalkToActor(node, player));
+    const creatureIds = actorIds.filter((id) => Boolean(getCreature(id)));
+
+    const choices = [
+      ...talkableActors.map((actorRef) => ({
+        name: `Talk to ${getNPC((actorRef.object as any).id)?.name || getCreature((actorRef.object as any).id)?.name || (actorRef.object as any).id}`,
+        value: `npc:${(actorRef.object as any).id}`,
+      })),
+      { name: "Return to Main Menu", value: "return" },
+    ];
+
+    if (creatureIds.length > 0) {
+      choices.unshift({ name: "Explore area", value: "explore" });
+    }
+
+    const { action } = await inquirer.prompt({
+      type: "list",
+      name: "action",
+      message: "What would you like to do?",
+      choices,
+    });
+
+    if (action.startsWith("npc:")) {
+      const npcKey = action.split(":")[1];
+
+      // Try to find the runtime Reference for this actor in the current cell.
+      let node = cell.actors?.head ?? null;
+      let foundRef: Reference | undefined;
+      while (node) {
+        const obj: any = node.object as any;
+        if (obj && typeof obj.id === "string" && obj.id === npcKey) {
+          foundRef = node;
+          break;
+        }
+        node = node.nextNode ?? null;
       }
 
-      const actorIds = actorNodes.map((node) => String((node.object as { id: string }).id));
-      const talkableActors = actorNodes.filter((node) => canTalkToActor(node, player));
-      const creatureIds = actorIds.filter((id) => Boolean(getCreature(id)));
-
-      const choices = [
-        ...talkableActors.map((actorRef) => ({
-          name: `Talk to ${getNPC((actorRef.object as any).id)?.name || getCreature((actorRef.object as any).id)?.name || (actorRef.object as any).id}`,
-          value: `npc:${(actorRef.object as any).id}`,
-        })),
-        { name: "Return to Main Menu", value: "return" },
-      ];
-
-      if (creatureIds.length > 0) {
-        choices.unshift({ name: "Explore area", value: "explore" });
-      }
-
-      const { action } = await inquirer.prompt({
-        type: "list",
-        name: "action",
-        message: "What would you like to do?",
-        choices,
-      });
-
-      if (action.startsWith("npc:")) {
-        const npcKey = action.split(":")[1];
-
-        // Try to find the runtime Reference for this NPC in the current cell.
-        let node = cell.actors?.head ?? null;
-        let foundRef: Reference | undefined;
-        while (node) {
-          const obj: any = node.object as any;
-          if (obj && typeof obj.id === "string" && obj.id === npcKey) {
-            foundRef = node;
-            break;
-          }
-          node = node.nextNode ?? null;
-        }
-
-        if (foundRef) {
-          await talkToNPC(foundRef, player);
-        } else {
-          // Fallback when cell references aren't populated (unit tests / legacy callers)
-          await talkToNPC(createNPCInstance(npcKey), player);
-        }
-
-        return enterCell(player, cell);
-      } else if (action === "explore") {
-        const creature = getRandomCreatureFromCell(cell);
-        if (creature) await startCombat(player, creature);
+      if (foundRef) {
+        await talkToNPC(foundRef, player);
       } else {
-        inCell = false;
+        // Fallback when cell references aren't populated (unit tests / legacy callers)
+        await talkToNPC(createNPCInstance(npcKey), player);
       }
+
+      return enterCell(player, cell);
+    } else if (action === "explore") {
+      const creature = getRandomCreatureFromCell(cell);
+      if (creature) await startCombat(player, creature);
+    } else {
+      inCell = false;
     }
   }
   return showMainMenu(player);

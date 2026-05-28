@@ -27,11 +27,7 @@ async function loadCellRegistryEntries(): Promise<CellRegistryEntry[]> {
 
   const modulePaths = directoryEntries
     .filter(
-      (entry) =>
-        entry.isFile() &&
-        extname(entry.name) === ".ts" &&
-        entry.name !== "index.ts" &&
-        entry.name !== "ruins.ts",
+      (entry) => entry.isFile() && extname(entry.name) === ".ts" && entry.name !== "index.ts",
     )
     .map((entry) => pathToFileURL(join(directoryPath, entry.name)).href);
 
