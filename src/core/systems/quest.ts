@@ -9,30 +9,39 @@ function cloneQuestDialogue(questId: string) {
   return (
     questEntry?.dialogue.map((dialogue) => ({
       ...dialogue,
-      dialogueType: DIALOGUE_TYPE.JOURNAL,
+      type: DIALOGUE_TYPE.JOURNAL,
       objectType: OBJECT_TYPE.DIALOGUE,
-      info: dialogue.info.map((info) => ({ ...info })),
+      info: dialogue.info.map((info) => ({ ...info, id: questId })),
       journalIndex: 0,
     })) ?? []
   );
 }
 
-export function findQuest(journal?: Dialogue | string, name?: string): Quest | undefined {
+export function findQuest(
+  journal?: Dialogue | string,
+  name?: string,
+): Quest | undefined {
   const quests = game.worldController.quests;
   if (!quests || quests.length === 0) return undefined;
 
   if (journal) {
     if (typeof journal !== "string") {
-      const byObj = quests.find((quest) => quest.dialogue?.some((d) => d === journal));
+      const byObj = quests.find((quest) =>
+        quest.dialogue?.some((d) => d === journal),
+      );
       if (byObj) return byObj;
 
-      const byDialogueId = quests.find((quest) => quest.dialogue?.some((d) => d.id === journal.id));
+      const byDialogueId = quests.find((quest) =>
+        quest.dialogue?.some((d) => d.id === journal.id),
+      );
       if (byDialogueId) return byDialogueId;
 
       const byQuestId = quests.find((quest) => quest.id === journal.id);
       if (byQuestId) return byQuestId;
     } else {
-      const byJournal = quests.find((quest) => quest.dialogue?.some((d) => d.id === journal));
+      const byJournal = quests.find((quest) =>
+        quest.dialogue?.some((d) => d.id === journal),
+      );
       if (byJournal) return byJournal;
       const byId = quests.find((quest) => quest.id === journal);
       if (byId) return byId;
@@ -110,7 +119,11 @@ export function startQuest(questId: string): Quest | null {
   return quest;
 }
 
-export function updateJournal(id: Dialogue | string, index: number, showMessage = true) {
+export function updateJournal(
+  id: Dialogue | string,
+  index: number,
+  showMessage = true,
+) {
   const quest = findQuest(id);
   if (!quest) return false;
 
@@ -128,7 +141,8 @@ export function updateJournal(id: Dialogue | string, index: number, showMessage 
   if (target) {
     const current = target.journalIndex ?? 0;
     if (index < current) {
-      if (showMessage) console.log(chalk.yellow("\nCannot move journal entry backwards."));
+      if (showMessage)
+        console.log(chalk.yellow("\nCannot move journal entry backwards."));
       return false;
     }
 
@@ -136,7 +150,8 @@ export function updateJournal(id: Dialogue | string, index: number, showMessage 
   } else if (quest.dialogue && quest.dialogue.length > 0) {
     const current = quest.dialogue[0].journalIndex ?? 0;
     if (index < current) {
-      if (showMessage) console.log(chalk.yellow("\nCannot move journal entry backwards."));
+      if (showMessage)
+        console.log(chalk.yellow("\nCannot move journal entry backwards."));
       return false;
     }
 

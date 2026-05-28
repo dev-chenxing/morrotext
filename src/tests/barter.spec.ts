@@ -4,7 +4,7 @@ import { Player } from "../core/actors/Player.ts";
 import { talkToNPC } from "../core/systems/dialogue.ts";
 import { initializeGameData } from "../core/initialize.ts";
 import { cells } from "../data/cells/index.ts";
-import dialogues from "../data/dialogues.ts";
+import { getDialogues } from "../core/gameState.ts";
 import { createNPCInstance } from "../core/systems/npc.ts";
 import { game } from "../core/gameState.ts";
 import { hasStartedQuest } from "../core/systems/quest.ts";
@@ -37,8 +37,11 @@ describe("Prisoner Released opening", () => {
     game.player = player;
 
     const sellus = createNPCInstance("chargen captain");
-    vi.spyOn(inquirer, "prompt").mockResolvedValueOnce({
-      topicId: dialogues.topics["I'm ready for my release papers."].id,
+    const topic = getDialogues().find(
+      (d) => d.id === "I'm ready for my release papers.",
+    );
+    vi.spyOn(inquirer, "prompt").mockResolvedValue({
+      topicId: topic?.id ?? null,
     } as any);
 
     await talkToNPC(sellus, player);
@@ -48,7 +51,9 @@ describe("Prisoner Released opening", () => {
     expect(player.inventory.getItemCount("common_shirt")).toBe(1);
     expect(player.inventory.getItemCount("common_pants")).toBe(1);
     expect(player.inventory.getItemCount("common_shoes")).toBe(1);
-    expect(player.inventory.getItemCount("directions_to_caius_cosades")).toBe(1);
+    expect(player.inventory.getItemCount("directions_to_caius_cosades")).toBe(
+      1,
+    );
     expect(player.inventory.getItemCount("package_for_caius_cosades")).toBe(1);
   });
 });

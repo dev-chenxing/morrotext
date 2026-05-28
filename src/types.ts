@@ -62,7 +62,10 @@ export interface Statistic {
 
 export type JsonPrimitive = boolean | number | string | null;
 
-export type JsonValue = JsonPrimitive | JsonValue[] | { [key: string]: JsonValue };
+export type JsonValue =
+  | JsonPrimitive
+  | JsonValue[]
+  | { [key: string]: JsonValue };
 
 export type JsonRecord = Record<string, JsonValue>;
 
@@ -271,21 +274,15 @@ export interface DialogueExecutionResult {
   exit?: boolean;
   message?: string;
 }
-
-export interface DialogueContext {
-  actor: Actor;
-  player: Player;
-  reference: Reference;
-}
-
 export interface DialogueInfo {
   // The actor (speaker) this info is filtered for.
   actor?: Actor;
   // The cell (speaker's current cell) this info is filtered for.
   cell?: Cell;
-  condition?: (context: DialogueContext) => boolean;
   // Quick access to whether the related quest is finished. Null for non-journal dialogues.
   isQuestFinished?: boolean | null;
+  // Id (e.g. a quest/journal id) this dialogue info relates to (for journal-based filters).
+  id: string;
   // Current journal index for quests; null for non-journal dialogues.
   journalIndex?: number | null;
   // The NPC's class this info is filtered for.
@@ -293,11 +290,8 @@ export interface DialogueInfo {
   // Optional object type filter (if applicable).
   objectType?: ValueOf<typeof OBJECT_TYPE>;
   priority?: number;
-  result?: (
-    context: DialogueContext,
-  ) => Promise<DialogueExecutionResult | void> | DialogueExecutionResult | void;
-  // Optional runner executed when this dialogue info is chosen. Receives the
-  // `Reference` the script should operate on.
+  // Optional runner executed when this dialogue info is chosen.
+  // Receives the `reference` the script should operate on.
   runScript?: (reference: Reference) => Promise<void> | void;
   // Display text for this dialogue choice / info.
   text: string;
@@ -309,7 +303,7 @@ export interface Dialogue extends GameObject {
   id: string;
   // Collection of individual dialogue entries.
   info: DialogueInfo[];
-  dialogueType: ValueOf<typeof DIALOGUE_TYPE>;
+  type: ValueOf<typeof DIALOGUE_TYPE>;
   objectType: OBJECT_TYPE.DIALOGUE;
   // For journal-style dialogues, the currently active entry index.
   journalIndex?: number | null;

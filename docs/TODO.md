@@ -65,25 +65,24 @@
 - [x] refactor: refactor `src/actors/Player.ts` to extend `Actor` and keep only player-specific concerns
 
 ### Quest & Dialogue Overhaul
-- [ ] feat: create `src/systems/quest.ts`.
+- [x] feat: create `src/systems/quest.ts`.
   - [x] feat: implement `Quest` extend `GameObject` and add `isActive`, `isFinished`, `isStarted`, and `objectType` fields.
   - [x] refactor: migrate story flag writes into actual `Reference.data`/`tempData` helpers
   - [x] refactor: remove `activeQuests`, `completedQuests`, `storyFlags`, and `killCount` from `Player`
   - [x] fix: enforce stage monotonicity (can skip stages but can't go backwards)
 - [x] feat: add `worldController` to `gameState`
-- [ ] refactor: refactor dialogue to prioritized dialogue entries that each have a condition and result
-- [ ] refactor: remove deprecated helper functions `startQuest()` from `world/quests.ts`
-- [ ] refactor: migrate dialogue content entries to include `script` fields where they should grant rewards or update journals
+- [ ] refactor: remove deprecated helper functions `startQuest()` from `systems/quest.ts`
+- [x] refactor: migrate dialogue content entries to include `script` fields where they should grant rewards or update journals
 
 ### Dialogue Engine Refactor
-- [ ] refactor: no NPC-specific code in dialogue engine
-- [ ] refactor: remove dialogue option `shop`
-- [ ] feat: gate barter dialogue options on NPC barter flags (only show if NPC has at least one set)
-- [ ] refactor: rename menu wording from “Shop” semantics to “Barter” where appropriate
+- [x] refactor: no NPC-specific code in dialogue engine
+- [x] refactor: remove dialogue option `shop`
+- [x] feat: gate barter dialogue options on NPC barter flags (only show if NPC has at least one set)
+- [x] refactor: rename menu wording from “Shop” semantics to “Barter” where appropriate
 
 ### Data Handler
 - [x] refactor: rename `areas.ts` to `cells.ts`
-- [ ] feat: use `game.dataHandler.nonDynamicData` for all base content (cells, classes, etc.). be globally accessible but isn't player-specific
+- [x] feat: use `game.dataHandler.nonDynamicData` for all base content (cells, classes, etc.). be globally accessible but isn't player-specific
 - [ ] feat: each `Cell` contains `activators`, `actors`, and `statics` — each a `ReferenceList` of `Reference` objects holding runtime `data`.
 - [ ] feat: populate cell reference lists from content so NPCs/statics/activators become real `Reference` instances
 - [ ] feat: Add `Mobile` types to represent ephemeral runtime actors (combat/spawns) and track them in `game.worldController.allMobileActors`.

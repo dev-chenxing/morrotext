@@ -5,7 +5,6 @@ import type {
   Class,
   Creature,
   Dialogue,
-  DialogueRecordSet,
   GameObject,
   Item,
   LeveledItem,
@@ -19,11 +18,14 @@ export type NonDynamicData = {
   actions: Action[];
   cells: Cell[];
   classes: Class[];
-  dialogues: DialogueRecordSet;
+  dialogues: Dialogue[];
   objects: GameObject[];
 };
 
-export type WorldController = { allMobileActors: MobileActor[]; quests: Quest[] };
+export type WorldController = {
+  allMobileActors: MobileActor[];
+  quests: Quest[];
+};
 
 export const game: {
   player: Player | null;
@@ -36,7 +38,7 @@ export const game: {
       actions: [],
       cells: [],
       classes: [],
-      dialogues: { greetings: {}, topics: {} },
+      dialogues: [],
       objects: [],
     },
   },
@@ -56,7 +58,9 @@ export function getCell(cellId: string): Cell | undefined {
 }
 
 export function getClass(classId: string): Class | undefined {
-  return getNonDynamicData().classes.find((gameClass) => gameClass.id === classId);
+  return getNonDynamicData().classes.find(
+    (gameClass) => gameClass.id === classId,
+  );
 }
 
 export function getGameObject(objectId: string): GameObject | undefined {
@@ -88,7 +92,9 @@ function isNPCObject(object: GameObject): object is NPC {
 
 export function getLeveledItem(leveledItemId: string): LeveledItem | undefined {
   const object = getGameObject(leveledItemId);
-  return object?.objectType === OBJECT_TYPE.LEVELED_ITEM ? (object as LeveledItem) : undefined;
+  return object?.objectType === OBJECT_TYPE.LEVELED_ITEM
+    ? (object as LeveledItem)
+    : undefined;
 }
 
 export function getCreature(creatureId: string): Creature | undefined {
@@ -96,18 +102,15 @@ export function getCreature(creatureId: string): Creature | undefined {
   return object && isCreatureObject(object) ? object : undefined;
 }
 
-export function getDialogues(): DialogueRecordSet {
+export function getDialogues(): Dialogue[] {
   return getNonDynamicData().dialogues;
 }
 
 export function getDialogue(dialogueId: string): Dialogue | undefined {
-  const { greetings, journals = {}, services = {}, topics } = getNonDynamicData().dialogues;
-  return (
-    greetings[dialogueId] ?? topics[dialogueId] ?? services[dialogueId] ?? journals[dialogueId]
-  );
+  return getNonDynamicData().dialogues.find((d) => d.id === dialogueId);
 }
 
-export function getDialogueStore(): DialogueRecordSet {
+export function getDialogueStore(): Dialogue[] {
   return getNonDynamicData().dialogues;
 }
 

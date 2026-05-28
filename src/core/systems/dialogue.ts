@@ -3,13 +3,14 @@ import chalk from "chalk";
 import type {
   Actor,
   Dialogue,
-  DialogueContext,
-  DialogueExecutionResult,
   DialogueInfo,
   Player,
   Reference,
+  ValueOf,
 } from "../../types.ts";
+import { DIALOGUE_TYPE } from "../../constants.ts";
 import { getCreature, getDialogues, getNPC } from "../gameState.ts";
+import { hasStartedQuest, hasCompletedQuest } from "../systems/quest.ts";
 
 type DialogueMatch = { dialogue: Dialogue; entry: DialogueInfo };
 
@@ -39,83 +40,164 @@ function resolveActorReference(actorOrRef: Actor | Reference): {
   return { actor, reference: createTemporaryReference(actor) };
 }
 
-function getDialogueContext(actor: Actor, player: Player, reference: Reference): DialogueContext {
-  return { actor, player, reference };
+function matchesFilters(
+  entry: DialogueInfo,
+  actor: Actor,
+  player: Player,
+  reference: Reference,
+): boolean {
+  // Actor filter
+  if (entry.actor) {
+    if (entry.actor.id !== actor.id) return false;
+  }
+
+  // Cell filter
+  if (entry.cell) {
+    if (!reference.cell) return false;
+    if (entry.cell.id !== reference.cell.id) return false;
+  }
+
+  // Object type filter
+  if (entry.objectType) {
+    if (actor.objectType !== entry.objectType) return false;
+  }
+
+  // NPC class filter
+  if (entry.npcClass) {
+    const actorClass = (actor as any).class;
+    if (!actorClass) return false;
+    if ((entry.npcClass as any).id !== actorClass.id) return false;
+  }
+
+  // Other filters such as `journalIndex` or `isQuestFinished` are handled
+  // here — entries should use explicit filter fields. Use `runScript` for
+  // side-effects after an entry has been selected.
+  if (
+    entry.id &&
+    entry.journalIndex !== undefined &&
+    entry.journalIndex !== null
+  ) {
+    const started = hasStartedQuest(entry.id);
+    // If the entry is for the not-started case (journalIndex < 1) but the
+    // quest has started, skip it.
+    if ((entry.journalIndex ?? 0) < 1 && started) return false;
+    // If the entry is for started quests (journalIndex >= 1) but the quest
+    // has not started, skip it.
+    if ((entry.journalIndex ?? 0) >= 1 && !started) return false;
+  }
+
+  // Quest-finished filter (requires entry.id to resolve which quest).
+  if (
+    entry.isQuestFinished !== undefined &&
+    entry.isQuestFinished !== null &&
+    entry.id
+  ) {
+    const wantFinished = Boolean(entry.isQuestFinished);
+    const finished = hasCompletedQuest(entry.id) || false;
+    if (wantFinished !== finished) return false;
+  }
+
+  return true;
 }
 
-function getMatchingEntry(entries: DialogueInfo[], context: DialogueContext): DialogueInfo | null {
+function getMatchingEntry(
+  entries: DialogueInfo[],
+  actor: Actor,
+  player: Player,
+  reference: Reference,
+): DialogueInfo | null {
   const matchingEntries = entries
-    .filter((entry) => (entry.condition ? entry.condition(context) : true))
+    .filter((entry) => matchesFilters(entry, actor, player, reference))
     .sort((left, right) => (right.priority ?? 0) - (left.priority ?? 0));
 
   return matchingEntries[0] ?? null;
 }
 
-function getGreetingMatch(context: DialogueContext): DialogueMatch | null {
-  const greetings = Object.values(getDialogues().greetings)
-    .map((greeting) => {
-      const entry = getMatchingEntry(greeting.info, context);
-      return entry ? { dialogue: greeting, entry } : null;
-    })
-    .filter((match): match is DialogueMatch => match !== null)
-    .sort((left, right) => (right.entry.priority ?? 0) - (left.entry.priority ?? 0));
-
-  return greetings[0] ?? null;
+function getGreetingMatch(
+  actor: Actor,
+  player: Player,
+  reference: Reference,
+): DialogueMatch | null {
+  const matches = getMatchesForType(
+    DIALOGUE_TYPE.GREETING,
+    actor,
+    player,
+    reference,
+  );
+  return matches[0] ?? null;
 }
 
-function getTopicMatches(context: DialogueContext): Array<DialogueMatch> {
-  return Object.values(getDialogues().topics)
-    .map((topic) => {
-      const entry = getMatchingEntry(topic.info, context);
-      return entry ? { dialogue: topic, entry } : null;
+function getTopicMatches(
+  actor: Actor,
+  player: Player,
+  reference: Reference,
+): Array<DialogueMatch> {
+  return getMatchesForType(DIALOGUE_TYPE.TOPIC, actor, player, reference);
+}
+
+function getMatchesForType(
+  type: ValueOf<typeof DIALOGUE_TYPE>,
+  actor: Actor,
+  player: Player,
+  reference: Reference,
+): Array<DialogueMatch> {
+  return getDialogues()
+    .filter((d) => d.type === type)
+    .map((item) => {
+      const entry = getMatchingEntry(item.info, actor, player, reference);
+      return entry ? { dialogue: item, entry } : null;
     })
     .filter((match): match is DialogueMatch => match !== null)
     .sort((left, right) => {
-      const byPriority = (right.entry.priority ?? 0) - (left.entry.priority ?? 0);
+      const byPriority =
+        (right.entry.priority ?? 0) - (left.entry.priority ?? 0);
       if (byPriority !== 0) return byPriority;
       return left.dialogue.id.localeCompare(right.dialogue.id);
     });
 }
 
-async function runEntryResult(
+async function runEntryScript(
   entry: DialogueInfo,
-  context: DialogueContext,
-): Promise<DialogueExecutionResult | undefined> {
-  if (!entry.result) return undefined;
-  const result = await Promise.resolve(entry.result(context));
-  return result ?? undefined;
+  reference: Reference,
+): Promise<void> {
+  // Prefer new `runScript(reference)` API.
+  if (entry.runScript) {
+    await Promise.resolve(entry.runScript(reference));
+    return;
+  }
+
+  // No legacy `result` support: use `runScript` for side-effects.
 }
 
-function shouldExitDialogue(reference: Reference, result?: DialogueExecutionResult): boolean {
+function shouldExitDialogue(reference: Reference): boolean {
   if ((reference.tempData as Record<string, unknown>).__dialogue_exit) {
     delete (reference.tempData as Record<string, unknown>).__dialogue_exit;
     return true;
   }
 
-  return result?.exit === true;
+  return false;
 }
 
 function printEntryText(text: string): void {
   console.log(chalk.yellow(`\n${text}`));
 }
 
-function printResult(result?: DialogueExecutionResult): void {
-  if (!result) return;
-  if (result.message) {
-    console.log(chalk.yellow(`\n${result.message}`));
-  }
-  result.effect?.();
+export function canTalkToActor(
+  actorOrRef: Actor | Reference,
+  player: Player,
+): boolean {
+  const { actor, reference } = resolveActorReference(actorOrRef);
+  return (
+    getGreetingMatch(actor, player, reference) !== null ||
+    getTopicMatches(actor, player, reference).length > 0
+  );
 }
 
-export function canTalkToActor(actorOrRef: Actor | Reference, player: Player): boolean {
+export async function talkToActor(
+  actorOrRef: Actor | Reference,
+  player: Player,
+) {
   const { actor, reference } = resolveActorReference(actorOrRef);
-  const context = getDialogueContext(actor, player, reference);
-  return getGreetingMatch(context) !== null || getTopicMatches(context).length > 0;
-}
-
-export async function talkToActor(actorOrRef: Actor | Reference, player: Player) {
-  const { actor, reference } = resolveActorReference(actorOrRef);
-  const context = getDialogueContext(actor, player, reference);
 
   if (!canTalkToActor(actorOrRef, player)) {
     console.log(chalk.yellow(`${actor.name} has nothing to say.`));
@@ -124,18 +206,17 @@ export async function talkToActor(actorOrRef: Actor | Reference, player: Player)
 
   console.log(chalk.cyan(`\n=== ${actor.name} ===`));
 
-  const greeting = getGreetingMatch(context);
+  const greeting = getGreetingMatch(actor, player, reference);
   if (greeting) {
     printEntryText(greeting.entry.text);
-    const greetingResult = await runEntryResult(greeting.entry, context);
-    printResult(greetingResult);
-    if (shouldExitDialogue(reference, greetingResult)) {
+    await runEntryScript(greeting.entry, reference);
+    if (shouldExitDialogue(reference)) {
       return;
     }
   }
 
   while (true) {
-    const topics = getTopicMatches(context);
+    const topics = getTopicMatches(actor, player, reference);
 
     if (topics.length === 0) {
       console.log(chalk.yellow("There are no topics to discuss."));
@@ -147,7 +228,10 @@ export async function talkToActor(actorOrRef: Actor | Reference, player: Player)
       name: "topicId",
       message: `Ask ${actor.name} about:`,
       choices: [
-        ...topics.map((topic) => ({ name: topic.dialogue.id, value: topic.dialogue.id })),
+        ...topics.map((topic) => ({
+          name: topic.dialogue.id,
+          value: topic.dialogue.id,
+        })),
         { name: "Goodbye", value: null },
       ],
     });
@@ -162,10 +246,9 @@ export async function talkToActor(actorOrRef: Actor | Reference, player: Player)
     }
 
     printEntryText(selectedTopic.entry.text);
-    const result = await runEntryResult(selectedTopic.entry, context);
-    printResult(result);
+    await runEntryScript(selectedTopic.entry, reference);
 
-    if (shouldExitDialogue(reference, result)) {
+    if (shouldExitDialogue(reference)) {
       return;
     }
   }

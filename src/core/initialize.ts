@@ -2,7 +2,6 @@ import { DIALOGUE_TYPE, OBJECT_TYPE } from "../constants.ts";
 import type {
   Cell,
   Dialogue,
-  DialogueInfo,
   DialogueRecordSet,
   GameObject,
   Reference,
@@ -21,7 +20,12 @@ import { QUESTS } from "../data/quests.ts";
 import { WEAPONS } from "../data/weapons.ts";
 import { createClass } from "./systems/class.ts";
 import { createCreature } from "./systems/creature.ts";
-import { createAlchemy, createArmor, createMisc, createWeapon } from "./systems/item.ts";
+import {
+  createAlchemy,
+  createArmor,
+  createMisc,
+  createWeapon,
+} from "./systems/item.ts";
 import { createLeveledItems } from "./systems/leveledList.ts";
 import { createNPC } from "./systems/npc.ts";
 import { game } from "./gameState.ts";
@@ -65,30 +69,34 @@ function cloneCells(source: Record<string, Cell>): Cell[] {
   }));
 }
 
-function cloneDialogueInfo(info: DialogueInfo): DialogueInfo {
-  return { ...info };
-}
-
-function cloneDialogueRecord(source: Record<string, Dialogue>): Record<string, Dialogue> {
+function cloneDialogueRecord(
+  source: Record<string, Dialogue>,
+): Record<string, any> {
   return Object.fromEntries(
     Object.entries(source).map(([id, dialogue]) => [
       id,
-      { ...dialogue, info: dialogue.info.map(cloneDialogueInfo) },
+      { ...dialogue, info: dialogue.info.map((info) => ({ ...info })) },
     ]),
   );
 }
 
-function cloneDialogues(source: DialogueRecordSet): DialogueRecordSet {
+function cloneDialogues(source: DialogueRecordSet): any {
   return {
     greetings: cloneDialogueRecord(source.greetings),
-    journals: source.journals ? cloneDialogueRecord(source.journals) : undefined,
-    services: source.services ? cloneDialogueRecord(source.services) : undefined,
+    journals: source.journals
+      ? cloneDialogueRecord(source.journals)
+      : undefined,
+    services: source.services
+      ? cloneDialogueRecord(source.services)
+      : undefined,
     topics: cloneDialogueRecord(source.topics),
   };
 }
 
 function createActions(): void {
-  game.dataHandler.nonDynamicData.actions = ACTIONS.map((action) => ({ ...action }));
+  game.dataHandler.nonDynamicData.actions = ACTIONS.map((action) => ({
+    ...action,
+  }));
 }
 
 function createObjects(): void {
@@ -101,7 +109,9 @@ function createObjects(): void {
 }
 
 function createCreatures(): void {
-  game.dataHandler.nonDynamicData.objects.push(...CREATURES.map((entry) => createCreature(entry)));
+  game.dataHandler.nonDynamicData.objects.push(
+    ...CREATURES.map((entry) => createCreature(entry)),
+  );
 }
 
 function createClasses(): void {
@@ -112,12 +122,37 @@ function createClasses(): void {
 
 function createNPCs(): void {
   game.dataHandler.nonDynamicData.objects.push(
-    ...NPC_REGISTRY.map((entry) => createNPC(entry, game.dataHandler.nonDynamicData.classes)),
+    ...NPC_REGISTRY.map((entry) =>
+      createNPC(entry, game.dataHandler.nonDynamicData.classes),
+    ),
   );
 }
 
 function createDialogues(): void {
-  game.dataHandler.nonDynamicData.dialogues = cloneDialogues(dialogues);
+  const cloned = cloneDialogues(dialogues);
+  const arr: Dialogue[] = [];
+  Object.values(cloned.greetings).forEach((d) =>
+    arr.push(
+      Object.assign({}, d, { type: DIALOGUE_TYPE.GREETING }) as Dialogue,
+    ),
+  );
+  Object.values(cloned.topics).forEach((d) =>
+    arr.push(Object.assign({}, d, { type: DIALOGUE_TYPE.TOPIC }) as Dialogue),
+  );
+  if (cloned.services)
+    Object.values(cloned.services).forEach((d) =>
+      arr.push(
+        Object.assign({}, d, { type: DIALOGUE_TYPE.SERVICE }) as Dialogue,
+      ),
+    );
+  if (cloned.journals)
+    Object.values(cloned.journals).forEach((d) =>
+      arr.push(
+        Object.assign({}, d, { type: DIALOGUE_TYPE.JOURNAL }) as Dialogue,
+      ),
+    );
+
+  game.dataHandler.nonDynamicData.dialogues = arr;
 }
 
 function createCells(): void {
@@ -128,21 +163,27 @@ function createCells(): void {
     if (!references) return;
 
     references.activators.forEach((objectId: string) => {
-      const object = game.dataHandler.nonDynamicData.objects.find((entry) => entry.id === objectId);
+      const object = game.dataHandler.nonDynamicData.objects.find(
+        (entry) => entry.id === objectId,
+      );
       if (object && cell.activators) {
         appendReference(cell.activators, object);
       }
     });
 
     references.actors.forEach((objectId: string) => {
-      const object = game.dataHandler.nonDynamicData.objects.find((entry) => entry.id === objectId);
+      const object = game.dataHandler.nonDynamicData.objects.find(
+        (entry) => entry.id === objectId,
+      );
       if (object && cell.actors) {
         appendReference(cell.actors, object);
       }
     });
 
     references.statics.forEach((objectId: string) => {
-      const object = game.dataHandler.nonDynamicData.objects.find((entry) => entry.id === objectId);
+      const object = game.dataHandler.nonDynamicData.objects.find(
+        (entry) => entry.id === objectId,
+      );
       if (object && cell.statics) {
         appendReference(cell.statics, object);
       }
@@ -158,9 +199,9 @@ function createQuests(): void {
     objectType: OBJECT_TYPE.QUEST,
     dialogue: quest.dialogue.map((entry) => ({
       ...entry,
-      dialogueType: DIALOGUE_TYPE.JOURNAL,
+      type: DIALOGUE_TYPE.JOURNAL,
       objectType: OBJECT_TYPE.DIALOGUE,
-      info: entry.info.map((info) => ({ ...info })),
+      info: entry.info.map((info) => ({ ...info, id: quest.id })),
       journalIndex: 0,
     })),
     isActive: false,
