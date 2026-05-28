@@ -1,8 +1,9 @@
 import inquirer from "inquirer";
 import chalk from "chalk";
+import type { Dialogue } from "../../../types.ts";
 import { findQuest, getActiveQuests } from "../../systems/quest.ts";
 
-export async function showQuestsMenu(): Promise<void> {
+export async function showJournalMenu(): Promise<void> {
   const activeQuests = getActiveQuests();
 
   if (activeQuests.length === 0) {
@@ -32,7 +33,7 @@ export async function showQuestsMenu(): Promise<void> {
 
   const journalEntries =
     quest.dialogue.length > 0
-      ? quest.dialogue.map((d) => {
+      ? quest.dialogue.map((d: Dialogue) => {
           if (d.info && d.info.length > 0) return d.info[d.journalIndex ?? 0]?.text ?? d.id;
           return d.id;
         })
@@ -40,5 +41,5 @@ export async function showQuestsMenu(): Promise<void> {
 
   journalEntries.forEach((entry, index) => console.log(`${index + 1}. ${entry}`));
 
-  await showQuestsMenu();
+  await showJournalMenu();
 }

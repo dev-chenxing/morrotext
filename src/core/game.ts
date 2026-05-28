@@ -2,24 +2,18 @@ import inquirer from "inquirer";
 import chalk from "chalk";
 import figlet from "figlet";
 import { exploreRuins } from "../data/cells/ruins.ts";
-import type { Cell, Reference } from "../types.ts";
+import type { Cell, Dialogue, Reference } from "../types.ts";
 import { Player } from "./actors/Player.ts";
 import { startCombat } from "./systems/combat.ts";
 import { createCreatureInstance } from "./systems/creature.ts";
-import { talkToNPC } from "./systems/dialogue.ts";
+import { canTalkToActor, talkToNPC } from "./systems/dialogue.ts";
 import { useItem } from "./systems/item.ts";
 import { createNPCInstance } from "./systems/npc.ts";
 import { findQuest, getActiveQuests } from "./systems/quest.ts";
 import { resolveDynamic } from "./utils/dynamicUtils.ts";
+import { showJournalMenu } from "./ui/menus/MenuJournal.ts";
 import { showStatsMenu } from "./ui/menus/MenuStat.ts";
-import {
-  game,
-  getDialogue,
-  getNPC,
-  getNonDynamicData,
-  getObject,
-  getCreature,
-} from "./gameState.ts";
+import { game, getCreature, getNPC, getNonDynamicData, getObject } from "./gameState.ts";
 import { initializeGameData } from "./initialize.ts";
 
 process.on("uncaughtException", (error: unknown) => {
@@ -58,7 +52,7 @@ export async function showMainMenu(player: Player) {
       await showInventory(player);
       break;
     case "View Quests":
-      await showQuests(player);
+      await showJournalMenu();
       break;
     default:
       process.exit();
@@ -133,7 +127,7 @@ export async function showQuests(player: Player) {
 
   const journalEntries =
     quest.dialogue.length > 0
-      ? quest.dialogue.map((d) => {
+      ? quest.dialogue.map((d: Dialogue) => {
           if (d.info && d.info.length > 0) return d.info[d.journalIndex ?? 0]?.text ?? d.id;
           return d.id;
         })
@@ -177,14 +171,21 @@ export async function enterCell(player: Player, cell: Cell) {
     while (inCell && player.health.current > 0) {
       console.log(chalk.cyan(`\n=== ${displayName} ===`));
       console.log(chalk.hex("#8B4513")(description));
-      const actorIds = collectActorIdsFromCell(cell);
-      const npcIds = actorIds.filter((id) => Boolean(getDialogue(id)));
+      const actorNodes: Reference[] = [];
+      let currentActorNode = cell.actors?.head ?? null;
+      while (currentActorNode) {
+        actorNodes.push(currentActorNode);
+        currentActorNode = currentActorNode.nextNode ?? null;
+      }
+
+      const actorIds = actorNodes.map((node) => String((node.object as { id: string }).id));
+      const talkableActors = actorNodes.filter((node) => canTalkToActor(node, player));
       const creatureIds = actorIds.filter((id) => Boolean(getCreature(id)));
 
       const choices = [
-        ...npcIds.map((npcKey: string) => ({
-          name: `Talk to ${getNPC(npcKey)?.name || npcKey}`,
-          value: `npc:${npcKey}`,
+        ...talkableActors.map((actorRef) => ({
+          name: `Talk to ${getNPC((actorRef.object as any).id)?.name || getCreature((actorRef.object as any).id)?.name || (actorRef.object as any).id}`,
+          value: `npc:${(actorRef.object as any).id}`,
         })),
         { name: "Return to Main Menu", value: "return" },
       ];

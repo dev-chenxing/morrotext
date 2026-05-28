@@ -5,6 +5,7 @@ import type {
   Class,
   Creature,
   Dialogue,
+  DialogueRecordSet,
   GameObject,
   Item,
   LeveledItem,
@@ -18,7 +19,7 @@ export type NonDynamicData = {
   actions: Action[];
   cells: Cell[];
   classes: Class[];
-  dialogues: Dialogue[];
+  dialogues: DialogueRecordSet;
   objects: GameObject[];
 };
 
@@ -31,7 +32,13 @@ export const game: {
 } = {
   player: null,
   dataHandler: {
-    nonDynamicData: { actions: [], cells: [], classes: [], dialogues: [], objects: [] },
+    nonDynamicData: {
+      actions: [],
+      cells: [],
+      classes: [],
+      dialogues: { greetings: {}, topics: {} },
+      objects: [],
+    },
   },
   worldController: { allMobileActors: [], quests: [] },
 };
@@ -89,8 +96,19 @@ export function getCreature(creatureId: string): Creature | undefined {
   return object && isCreatureObject(object) ? object : undefined;
 }
 
+export function getDialogues(): DialogueRecordSet {
+  return getNonDynamicData().dialogues;
+}
+
 export function getDialogue(dialogueId: string): Dialogue | undefined {
-  return getNonDynamicData().dialogues.find((dialogue) => dialogue.id === dialogueId);
+  const { greetings, journals = {}, services = {}, topics } = getNonDynamicData().dialogues;
+  return (
+    greetings[dialogueId] ?? topics[dialogueId] ?? services[dialogueId] ?? journals[dialogueId]
+  );
+}
+
+export function getDialogueStore(): DialogueRecordSet {
+  return getNonDynamicData().dialogues;
 }
 
 export function getNPC(npcId: string): NPC | undefined {

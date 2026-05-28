@@ -44,6 +44,7 @@
 - [x] docs: audit outdated claims in README against current code
   - [x] docs: fix overstated or mistated features (e.g., "procedural world", "dynamic dialogues", "multi-stage quests")
 - [x] chore: rename `text-rpg` to `morrotext` across the codebase and documentation
+- [ ] refactor: remove `ruins.ts`
 - [ ] feat: add a demo PNG and GIF to the README showcasing gameplay
 
 ### "So a leveled item is an 'object'"
@@ -64,13 +65,16 @@
 - [x] refactor: move shared logic from current `Player.ts` into `Actor.ts`
 - [x] refactor: refactor `src/actors/Player.ts` to extend `Actor` and keep only player-specific concerns
 
+### Cell & World Controller Overhaul
+- [ ] docs: research how to give each cell a small progression script or transition rule so the player is naturally led from `Imperial Prison Ship` to `Seyda Neen` and then to `Seyda Neen, Census and Excise Office`
+
 ### Quest & Dialogue Overhaul
 - [ ] feat: create `src/systems/quest.ts`.
   - [x] feat: implement `Quest` extend `GameObject` and add `isActive`, `isFinished`, `isStarted`, and `objectType` fields.
-  - [ ] refactor: migrate story flag writes into actual `Reference.data`/`tempData` helpers
-  - [ ] refactor: remove `activeQuests`, `completedQuests`, `storyFlags`, and `killCount` from `Player`
+  - [x] refactor: migrate story flag writes into actual `Reference.data`/`tempData` helpers
+  - [x] refactor: remove `activeQuests`, `completedQuests`, `storyFlags`, and `killCount` from `Player`
   - [ ] feat: enforce stage monotonicity (can skip stages but can't go backwards)
-- [ ] feat: add `worldController` to `gameState`
+- [x] feat: add `worldController` to `gameState`
 - [ ] refactor: refactor dialogue to prioritized dialogue entries that each have a condition and result
 - [ ] refactor: remove deprecated helper functions `startQuest()` from `world/quests.ts`
 - [ ] refactor: migrate dialogue content entries to include `script` fields where they should grant rewards or update journals

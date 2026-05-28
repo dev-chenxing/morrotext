@@ -2,6 +2,7 @@ import type { Player as PlayerType } from "./core/actors/Player.ts";
 import {
   ACTOR_TYPE,
   CREATURE_TYPE,
+  DIALOGUE_TYPE,
   MERCHANT_SERVICE,
   OBJECT_TYPE,
   SLOT,
@@ -265,11 +266,24 @@ export interface Cell {
   statics?: ReferenceList;
 }
 
+export interface DialogueExecutionResult {
+  effect?: () => void;
+  exit?: boolean;
+  message?: string;
+}
+
+export interface DialogueContext {
+  actor: Actor;
+  player: Player;
+  reference: Reference;
+}
+
 export interface DialogueInfo {
   // The actor (speaker) this info is filtered for.
   actor?: Actor;
   // The cell (speaker's current cell) this info is filtered for.
   cell?: Cell;
+  condition?: (context: DialogueContext) => boolean;
   // Quick access to whether the related quest is finished. Null for non-journal dialogues.
   isQuestFinished?: boolean | null;
   // Current journal index for quests; null for non-journal dialogues.
@@ -278,18 +292,32 @@ export interface DialogueInfo {
   npcClass?: Class;
   // Optional object type filter (if applicable).
   objectType?: ValueOf<typeof OBJECT_TYPE>;
-  // Display text for this dialogue choice / info.
-  text: string;
+  priority?: number;
+  result?: (
+    context: DialogueContext,
+  ) => Promise<DialogueExecutionResult | void> | DialogueExecutionResult | void;
   // Optional runner executed when this dialogue info is chosen. Receives the
   // `Reference` the script should operate on.
   runScript?: (reference: Reference) => Promise<void> | void;
+  // Display text for this dialogue choice / info.
+  text: string;
 }
 
-export interface Dialogue {
+export type DialogueEntry = DialogueInfo;
+
+export interface Dialogue extends GameObject {
   id: string;
   // Collection of individual dialogue entries.
   info: DialogueInfo[];
+  dialogueType: ValueOf<typeof DIALOGUE_TYPE>;
+  objectType: OBJECT_TYPE.DIALOGUE;
   // For journal-style dialogues, the currently active entry index.
   journalIndex?: number | null;
-  objectType: ValueOf<typeof OBJECT_TYPE>;
+}
+
+export interface DialogueRecordSet {
+  greetings: Record<string, Dialogue>;
+  journals?: Record<string, Dialogue>;
+  services?: Record<string, Dialogue>;
+  topics: Record<string, Dialogue>;
 }

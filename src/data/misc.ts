@@ -10,6 +10,42 @@ export const MISC_ITEMS: Record<string, MiscRegistryEntry> = {
     description: "A single gold coin.",
   },
 
+  common_shirt: {
+    id: "common_shirt",
+    name: "common shirt",
+    objectType: OBJECT_TYPE.MISC,
+    value: 1,
+    description: "A plain shirt issued to prisoners upon release.",
+  },
+  common_pants: {
+    id: "common_pants",
+    name: "common pants",
+    objectType: OBJECT_TYPE.MISC,
+    value: 1,
+    description: "Simple trousers suitable for a newly released prisoner.",
+  },
+  common_shoes: {
+    id: "common_shoes",
+    name: "common shoes",
+    objectType: OBJECT_TYPE.MISC,
+    value: 1,
+    description: "Plain walking shoes with worn soles.",
+  },
+  directions_to_caius_cosades: {
+    id: "directions_to_caius_cosades",
+    name: "Directions to Caius Cosades",
+    objectType: OBJECT_TYPE.BOOK,
+    value: 0,
+    description: "A note from Glabrio Bellienus directing you to Caius Cosades in Balmora.",
+  },
+  package_for_caius_cosades: {
+    id: "package_for_caius_cosades",
+    name: "Package for Caius Cosades",
+    objectType: OBJECT_TYPE.MISC,
+    value: 0,
+    description: "A sealed package containing ciphered Imperial correspondence.",
+  },
+
   // Quest Items
   goblin_ear: {
     id: "goblin_ear",

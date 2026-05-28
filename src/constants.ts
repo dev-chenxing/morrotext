@@ -34,6 +34,24 @@ export namespace OBJECT_TYPE {
   export type WEAPON = typeof OBJECT_TYPES.WEAPON;
 }
 
+const DIALOGUE_TYPES = {
+  GREETING: "greeting",
+  JOURNAL: "journal",
+  SERVICE: "service",
+  TOPIC: "topic",
+} as const;
+
+export const DIALOGUE_TYPE = DIALOGUE_TYPES;
+
+export type DIALOGUE_TYPE = (typeof DIALOGUE_TYPES)[keyof typeof DIALOGUE_TYPES];
+
+export namespace DIALOGUE_TYPE {
+  export type GREETING = typeof DIALOGUE_TYPES.GREETING;
+  export type JOURNAL = typeof DIALOGUE_TYPES.JOURNAL;
+  export type SERVICE = typeof DIALOGUE_TYPES.SERVICE;
+  export type TOPIC = typeof DIALOGUE_TYPES.TOPIC;
+}
+
 const MERCHANT_SERVICE_VALUES = { TRAINING: "training", REPAIR: "repair" } as const;
 
 export const MERCHANT_SERVICE = MERCHANT_SERVICE_VALUES;

@@ -1,11 +1,6 @@
 import inquirer from "inquirer";
 import chalk from "chalk";
 import figlet from "figlet";
-import { Player } from "../../actors/Player.ts";
-import { showInventoryMenu } from "./MenuInventory.ts";
-import { showQuestsMenu } from "./MenuQuests.ts";
-import { showStatsMenu } from "./MenuStat.ts";
-import { showTravelMenu } from "./MenuTravel.ts";
 
 const title = "MORROTEXT";
 const subtitle = "The Text-Based RPG";
@@ -48,30 +43,16 @@ console.log(chalk.yellow(" ".repeat(Math.max(0, pad)) + subtitle));
 console.log(chalk.yellow(separatorChar.repeat(titleWidth)));
 console.log(chalk.yellow(asciiTitle));
 
-export async function showMainMenu(player: Player): Promise<void> {
-  while (true) {
-    const { action } = await inquirer.prompt({
-      type: "list",
-      name: "action",
-      message: "What would you like to do?",
-      choices: ["Travel", "Check Stats", "View Inventory", "View Quests", "Exit Game"],
-    });
+export async function showMainMenu(): Promise<"new-game" | "exit"> {
+  const { action } = await inquirer.prompt<{ action: "new-game" | "exit" }>({
+    type: "list",
+    name: "action",
+    message: "What would you like to do?",
+    choices: [
+      { name: "New Game", value: "new-game" },
+      { name: "Exit", value: "exit" },
+    ],
+  });
 
-    switch (action) {
-      case "Travel":
-        await showTravelMenu(player);
-        break;
-      case "Check Stats":
-        showStatsMenu(player);
-        break;
-      case "View Inventory":
-        await showInventoryMenu(player);
-        break;
-      case "View Quests":
-        await showQuestsMenu();
-        break;
-      default:
-        process.exit();
-    }
-  }
+  return action;
 }

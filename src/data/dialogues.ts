@@ -1,283 +1,208 @@
-import type { Dialogue } from "../types.ts";
-import { GOLD_ID, OBJECT_TYPE } from "../constants.ts";
-import { barter } from "../core/systems/barter.ts";
-import { startQuest, completeQuest, hasStartedQuest } from "../core/systems/quest.ts";
-import { game } from "../core/gameState.ts";
+import { DIALOGUE_TYPE, GOLD_ID, OBJECT_TYPE } from "../constants.ts";
+import { hasStartedQuest, startQuest } from "../core/systems/quest.ts";
+import type {
+  DialogueContext,
+  DialogueEntry,
+  DialogueExecutionResult,
+  DialogueRecordSet,
+} from "../types.ts";
 
-const npcDialogues: Record<string, Dialogue> = {
-  smith: {
-    id: "smith",
-    objectType: OBJECT_TYPE.DIALOGUE,
-    info: [
-      {
-        text: "Browse weapons and armor",
-        runScript: async (ref) => {
-          const actor = ref.object as any;
-          const player = game.player;
-          if (!player) {
-            (ref.tempData as any).__dialogue_exit = true;
-            return;
-          }
-          await barter(player, actor);
-        },
-      },
-      {
-        text: "Ask about special orders",
-        runScript: () => {
-          console.log("The smith asks for rare Void Essence to craft special weapons.");
-        },
-      },
-      {
-        text: "I'll gather the materials",
-        runScript: (ref) => {
-          const player = game.player;
-          if (!player) {
-            (ref.tempData as any).__dialogue_exit = true;
-            return;
-          }
-          const quest = startQuest("special_orders");
-          if (quest) {
-            console.log(`Quest started: "special_orders"`);
-            (ref.tempData as any).__dialogue_exit = true;
-            return;
-          }
-          console.log("That quest is unavailable right now.");
-        },
-      },
-      {
-        text: "[Hand over materials] I have everything",
-        runScript: (ref) => {
-          const player = game.player;
-          if (!player) {
-            (ref.tempData as any).__dialogue_exit = true;
-            return;
-          }
-          if (player.inventory.getItemCount("void_essence") < 5) {
-            console.log("You don't have enough Void Essence.");
-            return;
-          }
-          player.inventory.removeItem("void_essence", 5);
-          completeQuest("special_orders");
-          console.log("The smith forges a masterwork hammer for you.");
-          (ref.tempData as any).__dialogue_exit = true;
-        },
-      },
-      {
-        text: "Leave",
-        runScript: (ref) => {
-          (ref.tempData as any).__dialogue_exit = true;
-        },
-      },
-    ],
+const noOpResult = (): void => {};
+
+const exitDialogue = ({ reference }: DialogueContext): DialogueExecutionResult => {
+  (reference.tempData as Record<string, unknown>).__dialogue_exit = true;
+  return { exit: true };
+};
+
+const matchSpeaker =
+  (speakerId: string) =>
+  ({ actor }: DialogueContext): boolean =>
+    actor.id === speakerId;
+
+const createEntry = (
+  priority: number,
+  text: string,
+  condition: DialogueEntry["condition"],
+  result: DialogueEntry["result"] = noOpResult,
+): DialogueEntry => ({ condition, priority, result, text });
+
+const dialogues: DialogueRecordSet = {
+  greetings: {
+    greeting_0: {
+      dialogueType: DIALOGUE_TYPE.GREETING,
+      id: "Greeting 0",
+      info: [
+        createEntry(
+          100,
+          'Jiub grins wearily. "Jiub. Last I checked, anyway. Better get moving before they decide to keep us both down here."',
+          matchSpeaker("jiub"),
+        ),
+        createEntry(
+          90,
+          "The guard eyes you for a moment. \"If you're meant to be processed, don't waste time standing around.\"",
+          matchSpeaker("Imperial Guard"),
+        ),
+        createEntry(
+          80,
+          'Socucius Ergalla shuffles a stack of papers. "State your business and we\'ll see you sorted."',
+          matchSpeaker("chargen class"),
+        ),
+        createEntry(
+          80,
+          "Sellus Gravius looks up from his desk. \"If you're here for your release, let's make this brief.\"",
+          matchSpeaker("chargen captain"),
+        ),
+      ],
+      objectType: OBJECT_TYPE.DIALOGUE,
+    },
   },
+  topics: {
+    "Who are you?": {
+      dialogueType: DIALOGUE_TYPE.TOPIC,
+      id: "Who are you?",
+      info: [
+        createEntry(
+          100,
+          'Jiub grins wearily. "Jiub. Last I checked, anyway. Better get moving before they decide to keep us both down here."',
+          matchSpeaker("jiub"),
+        ),
+      ],
+      objectType: OBJECT_TYPE.DIALOGUE,
+    },
+    "Where are we?": {
+      dialogueType: DIALOGUE_TYPE.TOPIC,
+      id: "Where are we?",
+      info: [
+        createEntry(
+          100,
+          "\"On an Imperial prison ship. We've made port at Seyda Neen, on Vvardenfell. If this is your lucky day, you'll be off these boards soon.\"",
+          matchSpeaker("jiub"),
+        ),
+      ],
+      objectType: OBJECT_TYPE.DIALOGUE,
+    },
+    "I'm ready to get up.": {
+      dialogueType: DIALOGUE_TYPE.TOPIC,
+      id: "I'm ready to get up.",
+      info: [
+        createEntry(
+          100,
+          "Jiub steps aside and nods toward the stairs leading up to the deck.",
+          matchSpeaker("jiub"),
+          exitDialogue,
+        ),
+      ],
+      objectType: OBJECT_TYPE.DIALOGUE,
+    },
+    "Where should I go?": {
+      dialogueType: DIALOGUE_TYPE.TOPIC,
+      id: "Where should I go?",
+      info: [
+        createEntry(
+          100,
+          "The guard gestures toward the nearby office. \"Report to the Census and Excise Office if you're meant to be processed. Don't loiter on the dock.\"",
+          matchSpeaker("Imperial Guard"),
+        ),
+      ],
+      objectType: OBJECT_TYPE.DIALOGUE,
+    },
+    "I'm just passing through.": {
+      dialogueType: DIALOGUE_TYPE.TOPIC,
+      id: "I'm just passing through.",
+      info: [
+        createEntry(
+          100,
+          '"Then move along. Seyda Neen is quiet, and we\'d like to keep it that way."',
+          matchSpeaker("Imperial Guard"),
+          exitDialogue,
+        ),
+      ],
+      objectType: OBJECT_TYPE.DIALOGUE,
+    },
+    "I'm here for processing.": {
+      dialogueType: DIALOGUE_TYPE.TOPIC,
+      id: "I'm here for processing.",
+      info: [
+        createEntry(
+          100,
+          'Socucius Ergalla adjusts his papers. "Ah yes. Fresh off the boat. Everything seems to be in order. Speak to Sellus Gravius for your release papers."',
+          matchSpeaker("chargen class"),
+        ),
+      ],
+      objectType: OBJECT_TYPE.DIALOGUE,
+    },
+    "Tell me about Seyda Neen.": {
+      dialogueType: DIALOGUE_TYPE.TOPIC,
+      id: "Tell me about Seyda Neen.",
+      info: [
+        createEntry(
+          100,
+          '"Small town. Mudcrabs, marshes, and Imperial paperwork. If you have business elsewhere, Balmora is where your road truly begins."',
+          matchSpeaker("chargen class"),
+        ),
+      ],
+      objectType: OBJECT_TYPE.DIALOGUE,
+    },
+    "I'm ready for my release papers.": {
+      dialogueType: DIALOGUE_TYPE.TOPIC,
+      id: "I'm ready for my release papers.",
+      info: [
+        createEntry(
+          100,
+          "Sellus Gravius reaches for the release papers on his desk.",
+          matchSpeaker("chargen captain"),
+          ({ player, reference, actor }) => {
+            const hasAlreadyBeenReleased = hasStartedQuest("Report to Caius Cosades");
+            if (!hasAlreadyBeenReleased) {
+              player.inventory.addItem(GOLD_ID, 87);
+              player.inventory.addItem("common_shirt", 1);
+              player.inventory.addItem("common_pants", 1);
+              player.inventory.addItem("common_shoes", 1);
+              player.inventory.addItem("directions_to_caius_cosades", 1);
+              player.inventory.addItem("package_for_caius_cosades", 1);
 
-  publican: {
-    id: "publican",
-    objectType: OBJECT_TYPE.DIALOGUE,
-    info: [
-      {
-        text: "Rest for the night (10 gold)",
-        runScript: (ref) => {
-          const player = game.player;
-          if (!player) {
-            (ref.tempData as any).__dialogue_exit = true;
-            return;
-          }
-          const cost = 10;
-          if (player.inventory.getItemCount(GOLD_ID) >= cost) {
-            player.inventory.removeItem(GOLD_ID, cost);
-            player.health.current = player.health.base;
-            player.magicka.current = player.magicka.base;
-            console.log("You rest and recover fully.");
-            (ref.tempData as any).__dialogue_exit = true;
-            return;
-          }
-          console.log("Not enough gold for a room!");
-        },
-      },
-      {
-        text: "Buy supplies",
-        runScript: async (ref) => {
-          const actor = ref.object as any;
-          const player = game.player;
-          if (!player) {
-            (ref.tempData as any).__dialogue_exit = true;
-            return;
-          }
-          await barter(player, actor);
-        },
-      },
-      {
-        text: "Hear local rumors",
-        runScript: () => {
-          console.log("They say the ancient ruins north of town hold powerful artifacts.");
-        },
-      },
-      {
-        text: "Return to tavern hall",
-        runScript: (ref) => {
-          (ref.tempData as any).__dialogue_exit = true;
-        },
-      },
-    ],
-  },
+              const quest = startQuest("Report to Caius Cosades");
+              if (quest) {
+                console.log(
+                  "Sellus Gravius hands over your release papers, a sealed package, and a few coins.",
+                );
+                console.log('Quest started: "Report to Caius Cosades"');
+              }
+            } else {
+              console.log(
+                '"I\'ve already given you your papers. Take them to Caius Cosades in Balmora."',
+              );
+            }
 
-  hermit: {
-    id: "hermit",
-    objectType: OBJECT_TYPE.DIALOGUE,
-    info: [
-      {
-        text: "I've retrieved the ancient artifact",
-        runScript: (ref) => {
-          const player = game.player;
-          if (!player) {
-            (ref.tempData as any).__dialogue_exit = true;
-            return;
-          }
-          if (!player.inventory.getItemCount("crown_of_wisdom")) {
-            console.log("You don't have the required item!");
-            (ref.tempData as any).__dialogue_exit = true;
-            return;
-          }
-          player.inventory.removeItem("crown_of_wisdom", 1);
-          console.log("The Hermit places the artifact in the town vault.");
-          completeQuest("investigate_ruins");
-          (ref.tempData as any).__dialogue_exit = true;
-        },
-      },
-      {
-        text: "I found this ancient tablet",
-        runScript: (ref) => {
-          const player = game.player;
-          if (!player) {
-            (ref.tempData as any).__dialogue_exit = true;
-            return;
-          }
-          if (player.inventory.getItemCount("ancient_tablet") === 0) {
-            console.log("You don't have a tablet.");
-            return;
-          }
-          console.log("The tablet speaks of a hidden passage behind the throne.");
-        },
-      },
-      {
-        text: "Accept quest",
-        runScript: (ref) => {
-          const player = game.player;
-          if (!player) {
-            (ref.tempData as any).__dialogue_exit = true;
-            return;
-          }
-          const quest = startQuest("investigate_ruins");
-          if (quest) {
-            console.log(`Quest started: "investigate_ruins"`);
-            (ref.tempData as any).__dialogue_exit = true;
-            return;
-          }
-          console.log("That quest is unavailable right now.");
-        },
-      },
-      {
-        text: "Maybe later",
-        runScript: (ref) => {
-          (ref.tempData as any).__dialogue_exit = true;
-        },
-      },
-    ],
-  },
+            console.log(
+              '"This package came with the Emperor\'s private instructions. Deliver it to Caius Cosades in Balmora, and do not lose it."',
+            );
 
-  priestess: {
-    id: "priestess",
-    objectType: OBJECT_TYPE.DIALOGUE,
-    info: [
-      {
-        text: "Receive blessing (50 gold)",
-        runScript: (ref) => {
-          const player = game.player;
-          if (!player) {
-            (ref.tempData as any).__dialogue_exit = true;
-            return;
-          }
-          const cost = 50;
-          if (player.inventory.getItemCount(GOLD_ID) >= cost) {
-            player.inventory.removeItem(GOLD_ID, cost);
-            player.health.current = Math.min(player.health.base, player.health.current + 10);
-            player.magicka.current = Math.min(player.magicka.base, player.magicka.current + 10);
-            (ref.tempData as any).__dialogue_exit = true;
-            return;
-          }
-          console.log("Not enough gold for blessing!");
-        },
-      },
-      {
-        text: "Learn holy prayer",
-        runScript: (ref) => {
-          console.log("You learn a simple prayer.");
-          (ref.tempData as any).__dialogue_exit = true;
-        },
-      },
-      {
-        text: "Seek guidance",
-        runScript: () => {
-          console.log("Darkness gathers in the ancient ruins.");
-        },
-      },
-      {
-        text: "Leave",
-        runScript: (ref) => {
-          (ref.tempData as any).__dialogue_exit = true;
-        },
-      },
-    ],
-  },
-
-  forest_warden: {
-    id: "forest_warden",
-    objectType: OBJECT_TYPE.DIALOGUE,
-    info: [
-      {
-        text: "I've cleared the goblins",
-        runScript: (ref) => {
-          const player = game.player;
-          if (!player) {
-            (ref.tempData as any).__dialogue_exit = true;
-            return;
-          }
-          if (!hasStartedQuest("slay_goblins") || player.inventory.getItemCount("goblin_ear") < 5) {
-            console.log("You haven't completed the requirements.");
-            return;
-          }
-          player.inventory.removeItem("goblin_ear", 5);
-          completeQuest("slay_goblins");
-          console.log("You've done us a great service!");
-          (ref.tempData as any).__dialogue_exit = true;
-        },
-      },
-      {
-        text: "I'll clear the infestation",
-        runScript: (ref) => {
-          const player = game.player;
-          if (!player) {
-            (ref.tempData as any).__dialogue_exit = true;
-            return;
-          }
-          const quest = startQuest("slay_goblins");
-          if (quest) {
-            console.log(`Quest started: "slay_goblins"`);
-            (ref.tempData as any).__dialogue_exit = true;
-            return;
-          }
-          console.log("That quest is unavailable right now.");
-        },
-      },
-      {
-        text: "Leave",
-        runScript: (ref) => {
-          (ref.tempData as any).__dialogue_exit = true;
-        },
-      },
-    ],
+            return exitDialogue({ actor, player, reference });
+          },
+        ),
+      ],
+      objectType: OBJECT_TYPE.DIALOGUE,
+    },
+    "What am I supposed to do now?": {
+      dialogueType: DIALOGUE_TYPE.TOPIC,
+      id: "What am I supposed to do now?",
+      info: [
+        createEntry(
+          200,
+          '"Go to Balmora. Find Caius Cosades. Give him the package and the directions note. That\'s all you need to know for now."',
+          ({ actor }) =>
+            actor.id === "chargen captain" && hasStartedQuest("Report to Caius Cosades"),
+        ),
+        createEntry(
+          100,
+          '"First, let me finish your release. Then we\'ll discuss your orders."',
+          matchSpeaker("chargen captain"),
+        ),
+      ],
+      objectType: OBJECT_TYPE.DIALOGUE,
+    },
   },
 };
 
-export default npcDialogues;
+export default dialogues;

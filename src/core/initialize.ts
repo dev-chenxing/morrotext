@@ -1,12 +1,20 @@
-import { OBJECT_TYPE } from "../constants.ts";
-import type { Cell, Dialogue, DialogueInfo, ReferenceList } from "../types.ts";
+import { DIALOGUE_TYPE, OBJECT_TYPE } from "../constants.ts";
+import type {
+  Cell,
+  Dialogue,
+  DialogueInfo,
+  DialogueRecordSet,
+  GameObject,
+  Reference,
+  ReferenceList,
+} from "../types.ts";
 import { ACTIONS } from "../data/actions.ts";
 import { ALCHEMY } from "../data/alchemy.ts";
 import { ARMORS } from "../data/armors.ts";
-import { cells } from "../data/cells.ts";
+import { CELL_REFERENCES, cells } from "../data/cells/index.ts";
 import { CLASSES } from "../data/classes.ts";
 import { CREATURES } from "../data/creatures.ts";
-import npcDialogues from "../data/dialogues.ts";
+import dialogues from "../data/dialogues.ts";
 import { MISC_ITEMS } from "../data/misc.ts";
 import { NPC_REGISTRY } from "../data/npcs.ts";
 import { QUESTS } from "../data/quests.ts";
@@ -22,6 +30,32 @@ function createEmptyReferenceList(cell: Cell): ReferenceList {
   return { cell, head: null, tail: null, size: 0 };
 }
 
+function appendReference(list: ReferenceList, object: GameObject): Reference {
+  const reference: Reference = {
+    id: `${list.cell.id}:${object.id}:${list.size + 1}`,
+    objectType: object.objectType as Reference["objectType"],
+    data: {},
+    tempData: {},
+    object,
+    cell: list.cell,
+    previousNode: list.tail ?? null,
+    nextNode: null,
+  };
+
+  if (!list.head) {
+    list.head = reference;
+  }
+
+  if (list.tail) {
+    list.tail.nextNode = reference;
+  }
+
+  list.tail = reference;
+  list.size += 1;
+
+  return reference;
+}
+
 function cloneCells(source: Record<string, Cell>): Cell[] {
   return Object.values(source).map((cell) => ({
     ...cell,
@@ -31,37 +65,26 @@ function cloneCells(source: Record<string, Cell>): Cell[] {
   }));
 }
 
-function cloneDialogues(source: Record<string, any>): Dialogue[] {
-  return Object.values(source).map((dialogue: any) => {
-    const cloned: Dialogue = {
-      id: dialogue.id,
-      info: [],
-      journalIndex: dialogue.journalIndex ?? null,
-      objectType: dialogue.objectType,
-    } as Dialogue;
+function cloneDialogueInfo(info: DialogueInfo): DialogueInfo {
+  return { ...info };
+}
 
-    // If the source already provides `info` (new format), clone it first.
-    if (dialogue.info) {
-      cloned.info = dialogue.info.map((entry: any) => ({ ...entry }));
-    }
+function cloneDialogueRecord(source: Record<string, Dialogue>): Record<string, Dialogue> {
+  return Object.fromEntries(
+    Object.entries(source).map(([id, dialogue]) => [
+      id,
+      { ...dialogue, info: dialogue.info.map(cloneDialogueInfo) },
+    ]),
+  );
+}
 
-    // If the source uses the legacy `dialogues` state map, flatten states
-    // into `info` entries while preserving the state's question and key.
-    if (dialogue.dialogues) {
-      for (const [stateKey, state] of Object.entries(dialogue.dialogues)) {
-        const question = (state as any).question;
-        const options = (state as any).options ?? [];
-        for (const opt of options) {
-          const infoEntry: any = { ...(opt as any) };
-          if (question !== undefined) infoEntry.prompt = question;
-          infoEntry._state = stateKey;
-          cloned.info.push(infoEntry as DialogueInfo);
-        }
-      }
-    }
-
-    return cloned;
-  });
+function cloneDialogues(source: DialogueRecordSet): DialogueRecordSet {
+  return {
+    greetings: cloneDialogueRecord(source.greetings),
+    journals: source.journals ? cloneDialogueRecord(source.journals) : undefined,
+    services: source.services ? cloneDialogueRecord(source.services) : undefined,
+    topics: cloneDialogueRecord(source.topics),
+  };
 }
 
 function createActions(): void {
@@ -94,18 +117,52 @@ function createNPCs(): void {
 }
 
 function createDialogues(): void {
-  game.dataHandler.nonDynamicData.dialogues = cloneDialogues(npcDialogues);
+  game.dataHandler.nonDynamicData.dialogues = cloneDialogues(dialogues);
 }
 
 function createCells(): void {
-  game.dataHandler.nonDynamicData.cells = cloneCells(cells);
+  const clonedCells = cloneCells(cells);
+
+  clonedCells.forEach((cell) => {
+    const references = CELL_REFERENCES[cell.id];
+    if (!references) return;
+
+    references.activators.forEach((objectId: string) => {
+      const object = game.dataHandler.nonDynamicData.objects.find((entry) => entry.id === objectId);
+      if (object && cell.activators) {
+        appendReference(cell.activators, object);
+      }
+    });
+
+    references.actors.forEach((objectId: string) => {
+      const object = game.dataHandler.nonDynamicData.objects.find((entry) => entry.id === objectId);
+      if (object && cell.actors) {
+        appendReference(cell.actors, object);
+      }
+    });
+
+    references.statics.forEach((objectId: string) => {
+      const object = game.dataHandler.nonDynamicData.objects.find((entry) => entry.id === objectId);
+      if (object && cell.statics) {
+        appendReference(cell.statics, object);
+      }
+    });
+  });
+
+  game.dataHandler.nonDynamicData.cells = clonedCells;
 }
 
 function createQuests(): void {
-  game.worldController.quests = Object.keys(QUESTS).map((questId) => ({
-    id: questId,
+  game.worldController.quests = QUESTS.map((quest) => ({
+    id: quest.id,
     objectType: OBJECT_TYPE.QUEST,
-    dialogue: [],
+    dialogue: quest.dialogue.map((entry) => ({
+      ...entry,
+      dialogueType: DIALOGUE_TYPE.JOURNAL,
+      objectType: OBJECT_TYPE.DIALOGUE,
+      info: entry.info.map((info) => ({ ...info })),
+      journalIndex: 0,
+    })),
     isActive: false,
     isStarted: false,
     isFinished: false,
