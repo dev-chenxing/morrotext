@@ -3,7 +3,6 @@ import inquirer from "inquirer";
 import { Player } from "../core/actors/Player.ts";
 import { talkToNPC } from "../core/systems/dialogue.ts";
 import { initializeGameData } from "../core/initialize.ts";
-import { cells } from "../data/cells/index.ts";
 import { getDialogues } from "../core/gameState.ts";
 import { createNPCInstance } from "../core/systems/npc.ts";
 import { game } from "../core/gameState.ts";
@@ -22,6 +21,13 @@ describe("Prisoner Released opening", () => {
 
   it("uses the Seyda Neen opening cells", async () => {
     initializeGameData();
+    const cells = game.dataHandler.nonDynamicData.cells.reduce(
+      (acc, cell) => {
+        acc[cell.id] = cell;
+        return acc;
+      },
+      {} as Record<string, (typeof game.dataHandler.nonDynamicData.cells)[0]>,
+    );
 
     expect(cells["Imperial Prison Ship"].id).toBe("Imperial Prison Ship");
     expect(cells["Seyda Neen"].id).toBe("Seyda Neen");

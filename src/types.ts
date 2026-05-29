@@ -62,10 +62,7 @@ export interface Statistic {
 
 export type JsonPrimitive = boolean | number | string | null;
 
-export type JsonValue =
-  | JsonPrimitive
-  | JsonValue[]
-  | { [key: string]: JsonValue };
+export type JsonValue = JsonPrimitive | JsonValue[] | { [key: string]: JsonValue };
 
 export type JsonRecord = Record<string, JsonValue>;
 
@@ -199,8 +196,8 @@ export interface Reference extends GameObject {
 
 export interface ReferenceList {
   cell: Cell;
-  head?: Reference | null;
-  tail?: Reference | null;
+  head: Reference | null;
+  tail: Reference | null;
   size: number;
 }
 
@@ -253,9 +250,7 @@ export interface Class extends GameObject {
 
 export type DynamicValue<T> = T | ((player: Player) => T);
 
-export interface Cell {
-  activators?: ReferenceList;
-  actors?: ReferenceList;
+export interface CellRegistryEntry {
   // In-game display name. For unnamed exterior cells this should be the region name.
   displayName: DynamicValue<string>;
   // Editor-facing name. For exterior cells include coordinates.
@@ -266,7 +261,15 @@ export interface Cell {
   // Interior cell name. Only present for interior cells.
   name?: string;
   description: DynamicValue<string>;
-  statics?: ReferenceList;
+  activators: string[];
+  actors: string[];
+  statics: string[];
+}
+
+export interface Cell extends Omit<CellRegistryEntry, "activators" | "actors" | "statics"> {
+  activators: ReferenceList;
+  actors: ReferenceList;
+  statics: ReferenceList;
 }
 
 export interface DialogueExecutionResult {

@@ -83,8 +83,7 @@ const dialogues: any = {
           "Jiub steps aside and nods toward the stairs leading up to the deck.",
           "jiub",
           (reference: any) => {
-            (reference.tempData as Record<string, unknown>).__dialogue_exit =
-              true;
+            (reference.tempData as Record<string, unknown>).__dialogue_exit = true;
           },
         ),
       ],
@@ -111,8 +110,7 @@ const dialogues: any = {
           '"Then move along. Seyda Neen is quiet, and we\'d like to keep it that way."',
           "Imperial Guard",
           (reference: any) => {
-            (reference.tempData as Record<string, unknown>).__dialogue_exit =
-              true;
+            (reference.tempData as Record<string, unknown>).__dialogue_exit = true;
           },
         ),
       ],
@@ -152,9 +150,7 @@ const dialogues: any = {
           "chargen captain",
           (reference: any) => {
             const player = game.player;
-            const hasAlreadyBeenReleased = hasStartedQuest(
-              "Report to Caius Cosades",
-            );
+            const hasAlreadyBeenReleased = hasStartedQuest("Report to Caius Cosades");
             if (player) {
               if (!hasAlreadyBeenReleased) {
                 player.inventory.addItem(GOLD_ID, 87);
@@ -181,8 +177,7 @@ const dialogues: any = {
                 '"This package came with the Emperor\'s private instructions. Deliver it to Caius Cosades in Balmora, and do not lose it."',
               );
 
-              (reference.tempData as Record<string, unknown>).__dialogue_exit =
-                true;
+              (reference.tempData as Record<string, unknown>).__dialogue_exit = true;
             }
           },
         ),
@@ -196,11 +191,7 @@ const dialogues: any = {
         createEntry(
           200,
           '"Go to Balmora. Find Caius Cosades. Give him the package and the directions note. That\'s all you need to know for now."',
-          {
-            actor: { id: "chargen captain" },
-            journalIndex: 1,
-            id: "Report to Caius Cosades",
-          },
+          { actor: { id: "chargen captain" }, journalIndex: 1, id: "Report to Caius Cosades" },
         ),
         createEntry(
           100,

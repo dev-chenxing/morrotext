@@ -119,7 +119,6 @@ export const COMBAT_BALANCE = {
   MIN_DAMAGE: 1,
 } as const;
 
-
 export const ATTRIBUTES = {
   STRENGTH: "strength",
   INTELLIGENCE: "intelligence",

@@ -22,10 +22,7 @@ export type NonDynamicData = {
   objects: GameObject[];
 };
 
-export type WorldController = {
-  allMobileActors: MobileActor[];
-  quests: Quest[];
-};
+export type WorldController = { allMobileActors: MobileActor[]; quests: Quest[] };
 
 export const game: {
   player: Player | null;
@@ -34,13 +31,7 @@ export const game: {
 } = {
   player: null,
   dataHandler: {
-    nonDynamicData: {
-      actions: [],
-      cells: [],
-      classes: [],
-      dialogues: [],
-      objects: [],
-    },
+    nonDynamicData: { actions: [], cells: [], classes: [], dialogues: [], objects: [] },
   },
   worldController: { allMobileActors: [], quests: [] },
 };
@@ -58,9 +49,7 @@ export function getCell(cellId: string): Cell | undefined {
 }
 
 export function getClass(classId: string): Class | undefined {
-  return getNonDynamicData().classes.find(
-    (gameClass) => gameClass.id === classId,
-  );
+  return getNonDynamicData().classes.find((gameClass) => gameClass.id === classId);
 }
 
 export function getGameObject(objectId: string): GameObject | undefined {
@@ -92,9 +81,7 @@ function isNPCObject(object: GameObject): object is NPC {
 
 export function getLeveledItem(leveledItemId: string): LeveledItem | undefined {
   const object = getGameObject(leveledItemId);
-  return object?.objectType === OBJECT_TYPE.LEVELED_ITEM
-    ? (object as LeveledItem)
-    : undefined;
+  return object?.objectType === OBJECT_TYPE.LEVELED_ITEM ? (object as LeveledItem) : undefined;
 }
 
 export function getCreature(creatureId: string): Creature | undefined {

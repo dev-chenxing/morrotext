@@ -1,16 +1,9 @@
 import { DIALOGUE_TYPE, OBJECT_TYPE } from "../constants.ts";
-import type {
-  Cell,
-  Dialogue,
-  DialogueRecordSet,
-  GameObject,
-  Reference,
-  ReferenceList,
-} from "../types.ts";
+import type { Dialogue, DialogueRecordSet } from "../types.ts";
 import { ACTIONS } from "../data/actions.ts";
 import { ALCHEMY } from "../data/alchemy.ts";
 import { ARMORS } from "../data/armors.ts";
-import { CELL_REFERENCES, cells } from "../data/cells/index.ts";
+import { CELLS } from "../data/cells/index.ts";
 import { CLASSES } from "../data/classes.ts";
 import { CREATURES } from "../data/creatures.ts";
 import dialogues from "../data/dialogues.ts";
@@ -19,6 +12,7 @@ import { NPC_REGISTRY } from "../data/npcs.ts";
 import { QUESTS } from "../data/quests.ts";
 import { WEAPONS } from "../data/weapons.ts";
 import { createClass } from "./systems/class.ts";
+import { createCell } from "./systems/cell.ts";
 import { createCreature } from "./systems/creature.ts";
 import {
   createAlchemy,
@@ -29,45 +23,6 @@ import {
 import { createLeveledItems } from "./systems/leveledList.ts";
 import { createNPC } from "./systems/npc.ts";
 import { game } from "./gameState.ts";
-
-function createEmptyReferenceList(cell: Cell): ReferenceList {
-  return { cell, head: null, tail: null, size: 0 };
-}
-
-function appendReference(list: ReferenceList, object: GameObject): Reference {
-  const reference: Reference = {
-    id: `${list.cell.id}:${object.id}:${list.size + 1}`,
-    objectType: object.objectType as Reference["objectType"],
-    data: {},
-    tempData: {},
-    object,
-    cell: list.cell,
-    previousNode: list.tail ?? null,
-    nextNode: null,
-  };
-
-  if (!list.head) {
-    list.head = reference;
-  }
-
-  if (list.tail) {
-    list.tail.nextNode = reference;
-  }
-
-  list.tail = reference;
-  list.size += 1;
-
-  return reference;
-}
-
-function cloneCells(source: Record<string, Cell>): Cell[] {
-  return Object.values(source).map((cell) => ({
-    ...cell,
-    activators: createEmptyReferenceList(cell),
-    actors: createEmptyReferenceList(cell),
-    statics: createEmptyReferenceList(cell),
-  }));
-}
 
 function cloneDialogueRecord(
   source: Record<string, Dialogue>,
@@ -156,41 +111,13 @@ function createDialogues(): void {
 }
 
 function createCells(): void {
-  const clonedCells = cloneCells(cells);
-
-  clonedCells.forEach((cell) => {
-    const references = CELL_REFERENCES[cell.id];
-    if (!references) return;
-
-    references.activators.forEach((objectId: string) => {
-      const object = game.dataHandler.nonDynamicData.objects.find(
-        (entry) => entry.id === objectId,
-      );
-      if (object && cell.activators) {
-        appendReference(cell.activators, object);
-      }
-    });
-
-    references.actors.forEach((objectId: string) => {
-      const object = game.dataHandler.nonDynamicData.objects.find(
-        (entry) => entry.id === objectId,
-      );
-      if (object && cell.actors) {
-        appendReference(cell.actors, object);
-      }
-    });
-
-    references.statics.forEach((objectId: string) => {
-      const object = game.dataHandler.nonDynamicData.objects.find(
-        (entry) => entry.id === objectId,
-      );
-      if (object && cell.statics) {
-        appendReference(cell.statics, object);
-      }
-    });
+  game.dataHandler.nonDynamicData.cells = CELLS.map((entry) => {
+    const cell = createCell(
+      entry,
+      game.dataHandler.nonDynamicData.objects as any,
+    );
+    return cell;
   });
-
-  game.dataHandler.nonDynamicData.cells = clonedCells;
 }
 
 function createQuests(): void {
@@ -221,8 +148,8 @@ export function initializeGameData() {
   createLeveledItems();
   createCreatures();
   createNPCs();
-  createDialogues();
   createCells();
+  createDialogues();
   createQuests();
 
   return game.dataHandler.nonDynamicData;
