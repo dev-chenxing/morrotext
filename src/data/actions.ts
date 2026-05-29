@@ -1,5 +1,5 @@
 import chalk from "chalk";
-import type { Action, Player } from "../types.ts";
+import type { Action, MobilePlayer } from "../types.ts";
 
 export const ACTIONS: Action[] = [
   {
@@ -8,7 +8,7 @@ export const ACTIONS: Action[] = [
     description: "Hurl a fiery projectile (40 mana)",
     manaCost: 40,
     damageMultiplier: 2.5,
-    execute(player: Player) {
+    execute(player: MobilePlayer) {
       const manaCost = this.manaCost ?? 0;
       const damageMultiplier = this.damageMultiplier ?? 0;
       if (player.magicka.current >= manaCost) {
@@ -27,7 +27,7 @@ export const ACTIONS: Action[] = [
     description: "Heal wounds with divine light (30 mana)",
     manaCost: 30,
     healMultiplier: 2,
-    execute(player: Player) {
+    execute(player: MobilePlayer) {
       const manaCost = this.manaCost ?? 0;
       const healMultiplier = this.healMultiplier ?? 0;
       if (player.magicka.current >= manaCost) {

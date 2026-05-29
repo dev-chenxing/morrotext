@@ -1,6 +1,5 @@
 import { DIALOGUE_TYPE, GOLD_ID, OBJECT_TYPE } from "../constants.ts";
 import { hasStartedQuest, startQuest } from "../core/systems/quest.ts";
-import { game } from "../core/gameState.ts";
 
 const createEntry = (
   priority: number,
@@ -149,7 +148,7 @@ const dialogues: any = {
           "Sellus Gravius reaches for the release papers on his desk.",
           "chargen captain",
           (reference: any) => {
-            const player = game.player;
+            const player = mt.mobilePlayer;
             const hasAlreadyBeenReleased = hasStartedQuest("Report to Caius Cosades");
             if (player) {
               if (!hasAlreadyBeenReleased) {

@@ -1,4 +1,3 @@
-import type { Player as PlayerType } from "./core/actors/Player.ts";
 import {
   ACTOR_TYPE,
   CREATURE_TYPE,
@@ -9,8 +8,6 @@ import {
   ATTRIBUTES,
   SKILL,
 } from "./constants.ts";
-
-export type Player = PlayerType;
 
 export type ValueOf<T> = T[keyof T];
 
@@ -62,7 +59,10 @@ export interface Statistic {
 
 export type JsonPrimitive = boolean | number | string | null;
 
-export type JsonValue = JsonPrimitive | JsonValue[] | { [key: string]: JsonValue };
+export type JsonValue =
+  | JsonPrimitive
+  | JsonValue[]
+  | { [key: string]: JsonValue };
 
 export type JsonRecord = Record<string, JsonValue>;
 
@@ -188,6 +188,7 @@ export interface Reference extends GameObject {
   data: JsonRecord;
   tempData: Record<string, unknown>;
   object: GameObject;
+  mobile?: MobileCreature | MobileNPC | MobilePlayer | null;
   cell: Cell | null;
   previousNode?: Reference | null;
   nextNode?: Reference | null;
@@ -215,19 +216,82 @@ export interface MobileActor {
   endurance: Statistic;
   personality: Statistic;
   inventory: Inventory;
+  barterGold: number;
+  description?: string;
+  fight: number;
+  equip: (itemId: string) => boolean;
+  unequip: (itemId?: string, slot?: ValueOf<typeof SLOT>) => boolean | void;
 }
+
+export interface CreatureInstance extends Actor {
+  type: ValueOf<typeof CREATURE_TYPE>;
+  name: string;
+  health: Statistic;
+  magicka: Statistic;
+  luck: Statistic;
+  strength: Statistic;
+  intelligence: Statistic;
+  willpower: Statistic;
+  agility: Statistic;
+  speed: Statistic;
+  endurance: Statistic;
+  personality: Statistic;
+}
+
+export interface MobileCreature extends MobileActor {
+  actorType: ACTOR_TYPE.CREATURE;
+  object: CreatureInstance;
+}
+
+export interface NPCInstance extends Actor {
+  aiConfig: AiConfig;
+  health: Statistic;
+  magicka: Statistic;
+  luck: Statistic;
+  strength: Statistic;
+  intelligence: Statistic;
+  willpower: Statistic;
+  agility: Statistic;
+  speed: Statistic;
+  endurance: Statistic;
+  personality: Statistic;
+  skills: number[];
+  class: Class;
+  level: number;
+  name: string;
+  objectType: OBJECT_TYPE.NPC;
+  actions: Action[];
+  hasItemEquipped: (item: string) => boolean;
+  offersServices: (service: ValueOf<typeof MERCHANT_SERVICE>) => boolean;
+  tradesItemType: (objectType: ValueOf<typeof OBJECT_TYPE>) => boolean;
+}
+
+export type MobileNPC = Omit<MobileActor, "actorType"> & {
+  actorType: ACTOR_TYPE.NPC;
+  object: NPCInstance;
+  skills: number[];
+};
 
 export interface Action {
   id: string;
   name: string;
   description: string;
-  execute: (player: Player, target?: any) => number | void;
-  condition?: (player: Player, target?: any) => boolean;
+  execute: (player: MobilePlayer, target?: any) => number | void;
+  condition?: (player: MobilePlayer, target?: any) => boolean;
   // optional legacy fields for data-driven actions
   manaCost?: number;
   damageMultiplier?: number;
   healMultiplier?: number;
 }
+
+export type MobilePlayer = Omit<MobileNPC, "actorType"> & {
+  actorType: ACTOR_TYPE.PLAYER;
+  bounty: number;
+  levelUpProgress: number;
+  reference: Reference;
+  addExperience: (xp: number) => void;
+  levelUp: () => void;
+};
 
 export interface Class extends GameObject {
   name: string;
@@ -248,7 +312,7 @@ export interface Class extends GameObject {
   playable: boolean;
 }
 
-export type DynamicValue<T> = T | ((player: Player) => T);
+export type DynamicValue<T> = T | ((player: MobilePlayer) => T);
 
 export interface CellRegistryEntry {
   // In-game display name. For unnamed exterior cells this should be the region name.
@@ -266,7 +330,10 @@ export interface CellRegistryEntry {
   statics: string[];
 }
 
-export interface Cell extends Omit<CellRegistryEntry, "activators" | "actors" | "statics"> {
+export interface Cell extends Omit<
+  CellRegistryEntry,
+  "activators" | "actors" | "statics"
+> {
   activators: ReferenceList;
   actors: ReferenceList;
   statics: ReferenceList;
@@ -317,4 +384,41 @@ export interface DialogueRecordSet {
   journals?: Record<string, Dialogue>;
   services?: Record<string, Dialogue>;
   topics: Record<string, Dialogue>;
+}
+
+export interface NonDynamicData {
+  actions: Action[];
+  cells: Cell[];
+  classes: Class[];
+  dialogues: Dialogue[];
+  objects: GameObject[];
+}
+
+export interface DataHandler {
+  nonDynamicData: NonDynamicData;
+}
+
+export interface WorldController {
+  allMobileActors: MobileActor[];
+  mobilePlayer: MobilePlayer | null;
+  quests: Quest[];
+}
+
+export interface MtApi {
+  player: Reference | null;
+  mobilePlayer: MobilePlayer | null;
+  dataHandler: DataHandler;
+  worldController: WorldController;
+  getActions: (target: Reference | MobileActor | Actor) => Action[];
+  getCell: (cellId: string) => Cell | undefined;
+  getClass: (classId: string) => Class | undefined;
+  getDialogueInfo: (
+    dialogue: Dialogue | string,
+    id: string,
+  ) => DialogueInfo | null;
+  getObject: (objectId: string) => Item | undefined;
+}
+
+declare global {
+  var mt: MtApi;
 }

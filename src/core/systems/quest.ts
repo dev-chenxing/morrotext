@@ -2,7 +2,6 @@ import chalk from "chalk";
 import { DIALOGUE_TYPE, OBJECT_TYPE } from "../../constants.ts";
 import { QUESTS } from "../../data/quests.ts";
 import type { Dialogue, Quest } from "../../types.ts";
-import { game } from "../gameState.ts";
 
 function cloneQuestDialogue(questId: string) {
   const questEntry = QUESTS.find((entry) => entry.id === questId);
@@ -18,7 +17,7 @@ function cloneQuestDialogue(questId: string) {
 }
 
 export function findQuest(journal?: Dialogue | string, name?: string): Quest | undefined {
-  const quests = game.worldController.quests;
+  const quests = mt.worldController.quests;
   if (!quests || quests.length === 0) return undefined;
 
   if (journal) {
@@ -79,7 +78,7 @@ export function getJournalIndex(id: Dialogue | string): number | null {
 }
 
 export function getActiveQuests(): Quest[] {
-  return game.worldController.quests.filter((quest) => quest.isActive === true);
+  return mt.worldController.quests.filter((quest) => quest.isActive === true);
 }
 
 export function hasStartedQuest(questId: string): boolean {

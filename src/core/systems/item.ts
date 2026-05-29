@@ -4,13 +4,12 @@ import type {
   AlchemyRegistryEntry,
   Armor,
   ArmorRegistryEntry,
+  MobilePlayer,
   Misc,
   MiscRegistryEntry,
-  Player,
   Weapon,
   WeaponRegistryEntry,
 } from "../../types.ts";
-import { getObject } from "../gameState.ts";
 import { handleEquipment } from "./equipment.ts";
 
 export function createAlchemy(entry: AlchemyRegistryEntry): Alchemy {
@@ -29,8 +28,8 @@ export function createWeapon(entry: WeaponRegistryEntry): Weapon {
   return { ...entry };
 }
 
-export async function useItem(player: Player, itemId: string): Promise<string | null> {
-  const item = getObject(itemId);
+export async function useItem(player: MobilePlayer, itemId: string): Promise<string | null> {
+  const item = mt.getObject(itemId);
   if (!item) return "Item not found.";
 
   let message = null;

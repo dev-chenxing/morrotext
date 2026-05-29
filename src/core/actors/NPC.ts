@@ -2,7 +2,6 @@ import Actor from "./Actor.ts";
 import { OBJECT_TYPE, ATTRIBUTES, MERCHANT_SERVICE } from "../../constants.ts";
 import type { AiConfig, Class, Action, ValueOf } from "../../types.ts";
 import { createClassActorProfile } from "../systems/class.ts";
-import { getClass } from "../gameState.ts";
 
 export class NPC extends Actor {
   class: Class;
@@ -23,7 +22,7 @@ export class NPC extends Actor {
     super(id, name, level, description, fight);
     this.objectType = OBJECT_TYPE.NPC;
 
-    const selectedClass = getClass(classId);
+    const selectedClass = mt.getClass(classId);
     if (!selectedClass) {
       throw new Error(`Unknown class: ${classId}`);
     }

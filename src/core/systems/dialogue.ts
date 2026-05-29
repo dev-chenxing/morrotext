@@ -1,8 +1,14 @@
 import inquirer from "inquirer";
 import chalk from "chalk";
-import type { Actor, Dialogue, DialogueInfo, Player, Reference, ValueOf } from "../../types.ts";
+import type {
+  Actor,
+  Dialogue,
+  DialogueInfo,
+  MobilePlayer,
+  Reference,
+  ValueOf,
+} from "../../types.ts";
 import { DIALOGUE_TYPE } from "../../constants.ts";
-import { getCreature, getDialogues, getNPC } from "../gameState.ts";
 import { hasStartedQuest, hasCompletedQuest } from "../systems/quest.ts";
 
 type DialogueMatch = { dialogue: Dialogue; entry: DialogueInfo };
@@ -36,7 +42,7 @@ function resolveActorReference(actorOrRef: Actor | Reference): {
 function matchesFilters(
   entry: DialogueInfo,
   actor: Actor,
-  player: Player,
+  player: MobilePlayer,
   reference: Reference,
 ): boolean {
   // Actor filter
@@ -65,7 +71,11 @@ function matchesFilters(
   // Other filters such as `journalIndex` or `isQuestFinished` are handled
   // here — entries should use explicit filter fields. Use `runScript` for
   // side-effects after an entry has been selected.
-  if (entry.id && entry.journalIndex !== undefined && entry.journalIndex !== null) {
+  if (
+    entry.id &&
+    entry.journalIndex !== undefined &&
+    entry.journalIndex !== null
+  ) {
     const started = hasStartedQuest(entry.id);
     // If the entry is for the not-started case (journalIndex < 1) but the
     // quest has started, skip it.
@@ -76,7 +86,11 @@ function matchesFilters(
   }
 
   // Quest-finished filter (requires entry.id to resolve which quest).
-  if (entry.isQuestFinished !== undefined && entry.isQuestFinished !== null && entry.id) {
+  if (
+    entry.isQuestFinished !== undefined &&
+    entry.isQuestFinished !== null &&
+    entry.id
+  ) {
     const wantFinished = Boolean(entry.isQuestFinished);
     const finished = hasCompletedQuest(entry.id) || false;
     if (wantFinished !== finished) return false;
@@ -88,7 +102,7 @@ function matchesFilters(
 function getMatchingEntry(
   entries: DialogueInfo[],
   actor: Actor,
-  player: Player,
+  player: MobilePlayer,
   reference: Reference,
 ): DialogueInfo | null {
   const matchingEntries = entries
@@ -100,24 +114,33 @@ function getMatchingEntry(
 
 function getGreetingMatch(
   actor: Actor,
-  player: Player,
+  player: MobilePlayer,
   reference: Reference,
 ): DialogueMatch | null {
-  const matches = getMatchesForType(DIALOGUE_TYPE.GREETING, actor, player, reference);
+  const matches = getMatchesForType(
+    DIALOGUE_TYPE.GREETING,
+    actor,
+    player,
+    reference,
+  );
   return matches[0] ?? null;
 }
 
-function getTopicMatches(actor: Actor, player: Player, reference: Reference): Array<DialogueMatch> {
+function getTopicMatches(
+  actor: Actor,
+  player: MobilePlayer,
+  reference: Reference,
+): Array<DialogueMatch> {
   return getMatchesForType(DIALOGUE_TYPE.TOPIC, actor, player, reference);
 }
 
 function getMatchesForType(
   type: ValueOf<typeof DIALOGUE_TYPE>,
   actor: Actor,
-  player: Player,
+  player: MobilePlayer,
   reference: Reference,
 ): Array<DialogueMatch> {
-  return getDialogues()
+  return mt.dataHandler.nonDynamicData.dialogues
     .filter((d) => d.type === type)
     .map((item) => {
       const entry = getMatchingEntry(item.info, actor, player, reference);
@@ -125,13 +148,17 @@ function getMatchesForType(
     })
     .filter((match): match is DialogueMatch => match !== null)
     .sort((left, right) => {
-      const byPriority = (right.entry.priority ?? 0) - (left.entry.priority ?? 0);
+      const byPriority =
+        (right.entry.priority ?? 0) - (left.entry.priority ?? 0);
       if (byPriority !== 0) return byPriority;
       return left.dialogue.id.localeCompare(right.dialogue.id);
     });
 }
 
-async function runEntryScript(entry: DialogueInfo, reference: Reference): Promise<void> {
+async function runEntryScript(
+  entry: DialogueInfo,
+  reference: Reference,
+): Promise<void> {
   // Prefer new `runScript(reference)` API.
   if (entry.runScript) {
     await Promise.resolve(entry.runScript(reference));
@@ -154,7 +181,10 @@ function printEntryText(text: string): void {
   console.log(chalk.yellow(`\n${text}`));
 }
 
-export function canTalkToActor(actorOrRef: Actor | Reference, player: Player): boolean {
+export function canTalkToActor(
+  actorOrRef: Actor | Reference,
+  player: MobilePlayer,
+): boolean {
   const { actor, reference } = resolveActorReference(actorOrRef);
   return (
     getGreetingMatch(actor, player, reference) !== null ||
@@ -162,7 +192,10 @@ export function canTalkToActor(actorOrRef: Actor | Reference, player: Player): b
   );
 }
 
-export async function talkToActor(actorOrRef: Actor | Reference, player: Player) {
+export async function talkToActor(
+  actorOrRef: Actor | Reference,
+  player: MobilePlayer,
+) {
   const { actor, reference } = resolveActorReference(actorOrRef);
 
   if (!canTalkToActor(actorOrRef, player)) {
@@ -194,7 +227,10 @@ export async function talkToActor(actorOrRef: Actor | Reference, player: Player)
       name: "topicId",
       message: `Ask ${actor.name} about:`,
       choices: [
-        ...topics.map((topic) => ({ name: topic.dialogue.id, value: topic.dialogue.id })),
+        ...topics.map((topic) => ({
+          name: topic.dialogue.id,
+          value: topic.dialogue.id,
+        })),
         { name: "Goodbye", value: null },
       ],
     });
@@ -220,5 +256,5 @@ export async function talkToActor(actorOrRef: Actor | Reference, player: Player)
 export const talkToNPC = talkToActor;
 
 export function getNPCName(npcKey: string) {
-  return getNPC(npcKey)?.name ?? getCreature(npcKey)?.name ?? npcKey;
+  return mt.getObject(npcKey)?.name ?? npcKey;
 }

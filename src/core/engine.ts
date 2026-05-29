@@ -1,6 +1,6 @@
 import inquirer from "inquirer";
-import { Player } from "./actors/Player.ts";
-import { game } from "./gameState.ts";
+import type { MobilePlayer } from "../types.ts";
+import { createPlayer } from "./actors/Player.ts";
 import { runDataScript } from "./systems/script.ts";
 import { showChooseClassMenu } from "./ui/menus/MenuChooseClass.ts";
 import { showMainMenu } from "./ui/menus/MenuOptions.ts";
@@ -40,12 +40,16 @@ async function startGame() {
 
     const classId = await showChooseClassMenu();
 
-    const player = new Player(name, classId);
-    game.player = player;
+    const playerReference = createPlayer(name, classId);
+    const mobilePlayer = playerReference.mobile as MobilePlayer;
+    mt.player = playerReference;
+    mt.mobilePlayer = mobilePlayer;
+    mt.worldController.allMobileActors.length = 0;
+    mt.worldController.allMobileActors.push(mobilePlayer);
 
-    await runDataScript("StartScript", { player });
+    await runDataScript("StartScript", { player: mobilePlayer });
 
-    await showServiceTravelMenu(player);
+    await showServiceTravelMenu(mobilePlayer);
   }
 }
 void startGame();

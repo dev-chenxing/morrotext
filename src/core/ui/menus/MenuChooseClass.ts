@@ -1,9 +1,8 @@
 import inquirer from "inquirer";
-import { getNonDynamicData } from "../../gameState.ts";
 
 export async function showChooseClassMenu(): Promise<string> {
-  const classChoices = getNonDynamicData()
-    .classes.filter((gameClass) => gameClass.playable)
+  const classChoices = mt.dataHandler.nonDynamicData.classes
+    .filter((gameClass) => gameClass.playable)
     .map((gameClass) => ({
       name: `${gameClass.name} — ${gameClass.description}`,
       value: gameClass.id,

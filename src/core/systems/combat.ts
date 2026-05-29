@@ -1,17 +1,16 @@
 import chalk from "chalk";
 import inquirer from "inquirer";
 import { COMBAT_BALANCE, OBJECT_TYPE, GOLD_ID } from "../../constants.ts";
-import type { Creature, Player } from "../../types.ts";
-import { getObject } from "../gameState.ts";
+import type { Creature, MobilePlayer } from "../../types.ts";
 import { useItem } from "./item.ts";
 
-function getActionChoices(player: Player): Array<{ name: string; value: string }> {
+function getActionChoices(player: MobilePlayer): Array<{ name: string; value: string }> {
   const choices = [
     { name: "Attack", value: "Attack" },
     { name: "Use Item", value: "Use Item" },
   ];
 
-  for (const action of player.class.actions) {
+  for (const action of player.object.class.actions) {
     choices.push({ name: action.description, value: action.id });
   }
 
@@ -48,10 +47,11 @@ function calculateDamage(attacker: any, defender: any) {
 
 function formatCombatStatus(entity: any) {
   const currentHP = Math.max(0, entity.health?.current ?? 0);
-  return `${entity.name}: ${currentHP} HP`;
+  const name = entity.object?.name ?? entity.name ?? entity.id ?? "Unknown";
+  return `${name}: ${currentHP} HP`;
 }
 
-function updateBattleDisplay(player: Player, enemy: Creature) {
+function updateBattleDisplay(player: MobilePlayer, enemy: Creature) {
   console.log(chalk.cyan("\n==== BATTLE ===="));
   console.log(chalk.green(formatCombatStatus(player)));
   console.log(chalk.red(formatCombatStatus(enemy)));
@@ -65,7 +65,7 @@ function applyDamage(target: any, damage: number) {
   return actualDamage;
 }
 
-function transferCreatureLootToPlayer(player: Player, enemy: Creature) {
+function transferCreatureLootToPlayer(player: MobilePlayer, enemy: Creature) {
   let totalGold = 0;
 
   enemy.inventory.items.forEach((stack) => {
@@ -88,7 +88,7 @@ function transferCreatureLootToPlayer(player: Player, enemy: Creature) {
   }
 }
 
-export async function startCombat(player: Player, enemy: Creature) {
+export async function startCombat(player: MobilePlayer, enemy: Creature) {
   console.log(chalk.red(`\nA wild ${enemy.name} appears!`));
 
   updateBattleDisplay(player, enemy);
@@ -123,10 +123,10 @@ export async function startCombat(player: Player, enemy: Creature) {
         const inventoryList = player.inventory.items
           .filter(
             (stack) =>
-              stack.count > 0 && getObject(stack.object.id)?.objectType === OBJECT_TYPE.ALCHEMY,
+              stack.count > 0 && mt.getObject(stack.object.id)?.objectType === OBJECT_TYPE.ALCHEMY,
           )
           .map((stack) => {
-            const item = getObject(stack.object.id);
+            const item = mt.getObject(stack.object.id);
             if (!item) return null;
             return { name: `${item.name} x${stack.count}`, value: stack.object.id } as {
               name: string;
@@ -148,12 +148,12 @@ export async function startCombat(player: Player, enemy: Creature) {
         break;
 
       default: {
-        const classAction = player.class.actions.find((a) => a.id === action);
+          const classAction = player.object.class.actions.find((a) => a.id === action);
         const result = classAction?.execute(player, enemy);
 
         if (typeof result === "number" && result > 0) {
           if (classAction?.id === "divineHeal") {
-            console.log(chalk.cyan(`\n${player.name}: ${player.health.current}HP`));
+            console.log(chalk.cyan(`\n${player.object.name}: ${player.health.current}HP`));
             continue;
           }
 

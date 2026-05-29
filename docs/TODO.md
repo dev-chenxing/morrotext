@@ -80,13 +80,23 @@
 - [x] feat: gate barter dialogue options on NPC barter flags (only show if NPC has at least one set)
 - [x] refactor: rename menu wording from “Shop” semantics to “Barter” where appropriate
 
+### Global API
+
+
+
 ### Data Handler
 - [x] refactor: rename `areas.ts` to `cells.ts`
 - [x] feat: use `game.dataHandler.nonDynamicData` for all base content (cells, classes, etc.). be globally accessible but isn't player-specific
-- [ ] feat: each `Cell` contains `activators`, `actors`, and `statics` — each a `ReferenceList` of `Reference` objects holding runtime `data`.
+- [x] feat: each `Cell` contains `activators`, `actors`, and `statics` — each a `ReferenceList` of `Reference` objects holding runtime `data`.
+- [ ] feat: Add `MobileActor`/`MobileCreature`/`MobileNPC`/`MobilePlayer` contract in `types.ts` to represent ephemeral runtime actors
+- [x] feat: create a dedicated `mt` module under `core/`
+- [x] refactor: move the existing state and getters from `gameState` into `mt` global and remove `gameState.ts`, for example, `mt.worldController` instead of `gameState.worldController`, `mt.getCell()` instead of `gameState.getCell()`, etc.
+- [ ] feat: track all `MobileActor`s in `game.worldController.allMobileActors`
+- [x] refactor: update startup in `engine.ts` so creating a new game also creates and registers the `MobilePlayer`, then insert it into `mt.worldController.allMobileActors`
+- [ ] feat: finish the `MobileActor` split so combat/runtime code stops depending on the old direct `Player` shape
 - [ ] feat: populate cell reference lists from content so NPCs/statics/activators become real `Reference` instances
-- [ ] feat: Add `Mobile` types to represent ephemeral runtime actors (combat/spawns) and track them in `game.worldController.allMobileActors`.
-- [ ] feat: finish the `MobileActor` split so runtime combat actors stop depending on the old actor-stat layout
+- [ ] feat: start the next `mt` API slice for mutation methods like `addItem()`, `createObject()`, and `createReference()`.
+- [ ] refactor: remove legacy fields in `Action`
 
 ### Game State & Entry Point
 - [ ] feat: create `src/GameState.ts` to hold `player`, `questManager`, `dataHandler` and pass it to all systems instead of singletons or direct imports

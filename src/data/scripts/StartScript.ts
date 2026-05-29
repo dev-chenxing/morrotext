@@ -1,5 +1,4 @@
 import chalk from "chalk";
-import { getCell } from "../../core/gameState.ts";
 import { enterCell } from "../../core/ui/menus/MenuServiceTravel.ts";
 import type { DataScript, DataScriptRegistryEntry } from "../../core/systems/script.ts";
 
@@ -22,7 +21,7 @@ function narrateAzuraIntro(): void {
 const run: DataScript = async ({ player }) => {
   narrateAzuraIntro();
 
-  const prisonShip = getCell("Imperial Prison Ship");
+  const prisonShip = mt.getCell("Imperial Prison Ship");
   if (!prisonShip) {
     throw new Error('Missing start cell: "Imperial Prison Ship"');
   }

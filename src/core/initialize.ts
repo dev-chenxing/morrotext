@@ -14,19 +14,12 @@ import { WEAPONS } from "../data/weapons.ts";
 import { createClass } from "./systems/class.ts";
 import { createCell } from "./systems/cell.ts";
 import { createCreature } from "./systems/creature.ts";
-import {
-  createAlchemy,
-  createArmor,
-  createMisc,
-  createWeapon,
-} from "./systems/item.ts";
+import { createAlchemy, createArmor, createMisc, createWeapon } from "./systems/item.ts";
 import { createLeveledItems } from "./systems/leveledList.ts";
 import { createNPC } from "./systems/npc.ts";
-import { game } from "./gameState.ts";
+import { attachMtGlobal, mt } from "./mt.ts";
 
-function cloneDialogueRecord(
-  source: Record<string, Dialogue>,
-): Record<string, any> {
+function cloneDialogueRecord(source: Record<string, Dialogue>): Record<string, any> {
   return Object.fromEntries(
     Object.entries(source).map(([id, dialogue]) => [
       id,
@@ -38,24 +31,18 @@ function cloneDialogueRecord(
 function cloneDialogues(source: DialogueRecordSet): any {
   return {
     greetings: cloneDialogueRecord(source.greetings),
-    journals: source.journals
-      ? cloneDialogueRecord(source.journals)
-      : undefined,
-    services: source.services
-      ? cloneDialogueRecord(source.services)
-      : undefined,
+    journals: source.journals ? cloneDialogueRecord(source.journals) : undefined,
+    services: source.services ? cloneDialogueRecord(source.services) : undefined,
     topics: cloneDialogueRecord(source.topics),
   };
 }
 
 function createActions(): void {
-  game.dataHandler.nonDynamicData.actions = ACTIONS.map((action) => ({
-    ...action,
-  }));
+  mt.dataHandler.nonDynamicData.actions = ACTIONS.map((action) => ({ ...action }));
 }
 
 function createObjects(): void {
-  game.dataHandler.nonDynamicData.objects = [
+  mt.dataHandler.nonDynamicData.objects = [
     ...Object.values(ALCHEMY).map((entry) => createAlchemy(entry)),
     ...Object.values(WEAPONS).map((entry) => createWeapon(entry)),
     ...Object.values(ARMORS).map((entry) => createArmor(entry)),
@@ -64,22 +51,18 @@ function createObjects(): void {
 }
 
 function createCreatures(): void {
-  game.dataHandler.nonDynamicData.objects.push(
-    ...CREATURES.map((entry) => createCreature(entry)),
-  );
+  mt.dataHandler.nonDynamicData.objects.push(...CREATURES.map((entry) => createCreature(entry)));
 }
 
 function createClasses(): void {
-  game.dataHandler.nonDynamicData.classes = CLASSES.map((entry) =>
-    createClass(entry, game.dataHandler.nonDynamicData.actions),
+  mt.dataHandler.nonDynamicData.classes = CLASSES.map((entry) =>
+    createClass(entry, mt.dataHandler.nonDynamicData.actions),
   );
 }
 
 function createNPCs(): void {
-  game.dataHandler.nonDynamicData.objects.push(
-    ...NPC_REGISTRY.map((entry) =>
-      createNPC(entry, game.dataHandler.nonDynamicData.classes),
-    ),
+  mt.dataHandler.nonDynamicData.objects.push(
+    ...NPC_REGISTRY.map((entry) => createNPC(entry, mt.dataHandler.nonDynamicData.classes)),
   );
 }
 
@@ -87,41 +70,32 @@ function createDialogues(): void {
   const cloned = cloneDialogues(dialogues);
   const arr: Dialogue[] = [];
   Object.values(cloned.greetings).forEach((d) =>
-    arr.push(
-      Object.assign({}, d, { type: DIALOGUE_TYPE.GREETING }) as Dialogue,
-    ),
+    arr.push(Object.assign({}, d, { type: DIALOGUE_TYPE.GREETING }) as Dialogue),
   );
   Object.values(cloned.topics).forEach((d) =>
     arr.push(Object.assign({}, d, { type: DIALOGUE_TYPE.TOPIC }) as Dialogue),
   );
   if (cloned.services)
     Object.values(cloned.services).forEach((d) =>
-      arr.push(
-        Object.assign({}, d, { type: DIALOGUE_TYPE.SERVICE }) as Dialogue,
-      ),
+      arr.push(Object.assign({}, d, { type: DIALOGUE_TYPE.SERVICE }) as Dialogue),
     );
   if (cloned.journals)
     Object.values(cloned.journals).forEach((d) =>
-      arr.push(
-        Object.assign({}, d, { type: DIALOGUE_TYPE.JOURNAL }) as Dialogue,
-      ),
+      arr.push(Object.assign({}, d, { type: DIALOGUE_TYPE.JOURNAL }) as Dialogue),
     );
 
-  game.dataHandler.nonDynamicData.dialogues = arr;
+  mt.dataHandler.nonDynamicData.dialogues = arr;
 }
 
 function createCells(): void {
-  game.dataHandler.nonDynamicData.cells = CELLS.map((entry) => {
-    const cell = createCell(
-      entry,
-      game.dataHandler.nonDynamicData.objects as any,
-    );
+  mt.dataHandler.nonDynamicData.cells = CELLS.map((entry) => {
+    const cell = createCell(entry);
     return cell;
   });
 }
 
 function createQuests(): void {
-  game.worldController.quests = QUESTS.map((quest) => ({
+  mt.worldController.quests = QUESTS.map((quest) => ({
     id: quest.id,
     objectType: OBJECT_TYPE.QUEST,
     dialogue: quest.dialogue.map((entry) => ({
@@ -138,8 +112,10 @@ function createQuests(): void {
 }
 
 export function initializeGameData() {
-  if (game.dataHandler.nonDynamicData.actions.length > 0) {
-    return game.dataHandler.nonDynamicData;
+  attachMtGlobal();
+
+  if (mt.dataHandler.nonDynamicData.actions.length > 0) {
+    return mt.dataHandler.nonDynamicData;
   }
 
   createActions();
@@ -152,5 +128,5 @@ export function initializeGameData() {
   createDialogues();
   createQuests();
 
-  return game.dataHandler.nonDynamicData;
+  return mt.dataHandler.nonDynamicData;
 }

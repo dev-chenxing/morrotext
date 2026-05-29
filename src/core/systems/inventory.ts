@@ -1,5 +1,4 @@
 import { LEVELED_ITEMS } from "../../data/leveledItems.ts";
-import { getObject } from "../gameState.ts";
 import type { Inventory, Item, ItemStack } from "../../types.ts";
 import { createLeveledItem } from "./leveledList.ts";
 
@@ -9,7 +8,7 @@ class DefaultInventory implements Inventory {
   private consumed: Record<string, number> = {};
 
   addItem(item: Item | string, count = 1) {
-    const resolved: Item | null = typeof item === "string" ? (getObject(item) ?? null) : item;
+    const resolved: Item | null = typeof item === "string" ? (mt.getObject(item) ?? null) : item;
     if (!resolved) return 0;
 
     const existing = this.items.find((s) => s.object.id === resolved.id);
@@ -72,7 +71,7 @@ class DefaultInventory implements Inventory {
   resolveLeveledItems(items: Record<string, number>) {
     Object.entries(items).forEach(([itemId, count]) => {
       if (count === 0) return;
-      const resolved = getObject(itemId);
+      const resolved = mt.getObject(itemId);
       if (resolved) {
         // keep negative counts as restockable configuration
         this.items.push({ object: resolved, count });
@@ -130,7 +129,7 @@ export function createInventoryFromRecord(items: Record<string, number>): Invent
 
     // Try to resolve the ID as an object.
     // If it exists, it gets added directly.
-    const resolved = getObject(itemId);
+    const resolved = mt.getObject(itemId);
     if (resolved) {
       // keep negative counts as a restockable configuration (e.g. -1 means restockable 1)
       inventory.items.push({ object: resolved, count });

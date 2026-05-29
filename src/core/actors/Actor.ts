@@ -13,7 +13,6 @@ import type {
 } from "../../types.ts";
 import { getSlotForItemType } from "../systems/equipment.ts";
 import { createInventory } from "../systems/inventory.ts";
-import { getObject } from "../gameState.ts";
 
 export class Actor extends GameObject {
   // Common fields
@@ -77,7 +76,7 @@ export class Actor extends GameObject {
   }
 
   equip(itemId: string) {
-    const item = getObject(itemId) as Item | Weapon | Armor | Alchemy | null;
+    const item = mt.getObject(itemId) as Item | Weapon | Armor | Alchemy | null;
     if (!item) {
       console.log(chalk.red(`Cannot equip unknown item: ${itemId}`));
       return false;

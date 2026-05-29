@@ -1,15 +1,17 @@
 import inquirer from "inquirer";
 import chalk from "chalk";
-import type { Cell, Reference } from "../../../types.ts";
-import { Player } from "../../actors/Player.ts";
+import type { Cell, MobilePlayer, Reference } from "../../../types.ts";
 import { canTalkToActor, talkToNPC } from "../../systems/dialogue.ts";
 import { createNPCInstance } from "../../systems/npc.ts";
 import { resolveDynamic } from "../../utils/dynamicUtils.ts";
-import { getCreature, getNPC, getNonDynamicData } from "../../gameState.ts";
 
-export async function enterCell(player: Player, cell: Cell): Promise<void> {
+export async function enterCell(
+  player: MobilePlayer,
+  cell: Cell,
+): Promise<void> {
   const description = resolveDynamic(cell.description, player) ?? "";
-  const displayName = resolveDynamic(cell.displayName, player) ?? cell.editorName;
+  const displayName =
+    resolveDynamic(cell.displayName, player) ?? cell.editorName;
   let inCell = true;
   while (inCell && player.health.current > 0) {
     console.log(chalk.cyan(`\n=== ${displayName} ===`));
@@ -21,11 +23,13 @@ export async function enterCell(player: Player, cell: Cell): Promise<void> {
       currentActorNode = currentActorNode.nextNode ?? null;
     }
 
-    const talkableActors = actorNodes.filter((node) => canTalkToActor(node, player));
+    const talkableActors = actorNodes.filter((node) =>
+      canTalkToActor(node, player),
+    );
 
     const choices = [
       ...talkableActors.map((actorRef) => ({
-        name: `Talk to ${getNPC((actorRef.object as any).id)?.name || getCreature((actorRef.object as any).id)?.name || (actorRef.object as any).id}`,
+        name: `Talk to ${mt.getObject((actorRef.object as any).id)?.name || (actorRef.object as any).id}`,
         value: `npc:${(actorRef.object as any).id}`,
       })),
       { name: "Return to Travel Menu", value: "return" },
@@ -66,9 +70,11 @@ export async function enterCell(player: Player, cell: Cell): Promise<void> {
   }
 }
 
-export async function showServiceTravelMenu(player: Player): Promise<void> {
+export async function showServiceTravelMenu(
+  player: MobilePlayer,
+): Promise<void> {
   while (true) {
-    const availableCells = getNonDynamicData().cells;
+    const availableCells = mt.dataHandler.nonDynamicData.cells;
 
     const choices = availableCells.map((loc) => ({
       name: resolveDynamic(loc.displayName, player) ?? loc.editorName,
@@ -85,7 +91,9 @@ export async function showServiceTravelMenu(player: Player): Promise<void> {
 
     if (destination === "__cancel") return;
 
-    const selectedCell = getNonDynamicData().cells.find((loc) => loc.id === destination);
+    const selectedCell = mt.dataHandler.nonDynamicData.cells.find(
+      (loc) => loc.id === destination,
+    );
     if (!selectedCell) {
       console.log(chalk.red("Unknown destination selected."));
       continue;

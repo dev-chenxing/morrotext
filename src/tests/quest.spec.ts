@@ -1,12 +1,13 @@
 import { describe, it, expect, afterEach } from "vitest";
 import { initializeGameData } from "../core/initialize.ts";
-import { game } from "../core/gameState.ts";
 import { startQuest, updateJournal } from "../core/systems/quest.ts";
 
 describe("Quest journal monotonicity", () => {
   afterEach(() => {
-    game.player = null;
-    game.worldController.quests.forEach((q) => {
+    mt.player = null;
+    mt.mobilePlayer = null;
+    mt.worldController.allMobileActors.length = 0;
+    mt.worldController.quests.forEach((q) => {
       q.isActive = false;
       q.isStarted = false;
       q.isFinished = false;

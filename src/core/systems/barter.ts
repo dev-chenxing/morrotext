@@ -1,8 +1,7 @@
 import inquirer from "inquirer";
 import chalk from "chalk";
 import { SHOP_PRICES, GOLD_ID } from "../../constants.ts";
-import type { Armor, Item, NPC, Player, Weapon, Alchemy } from "../../types.ts";
-import { getObject } from "../gameState.ts";
+import type { Alchemy, Armor, Item, MobilePlayer, NPC, Weapon } from "../../types.ts";
 
 type ValuedItem = Alchemy | Armor | Weapon;
 
@@ -10,12 +9,12 @@ function isValuedItem(item: Item | undefined): item is ValuedItem {
   return typeof item === "object" && item !== null && "value" in item;
 }
 
-export async function barter(player: Player, actor: NPC) {
+export async function barter(player: MobilePlayer, actor: NPC) {
   // Ensure NPC restocks any restockable items before showing available items
   actor.inventory.restock();
   const invKeys = actor.inventory.items.map((stack) => stack.object.id);
   const availableItems = invKeys.filter((id) => {
-    const item = getObject(id);
+    const item = mt.getObject(id);
     if (!item) return false;
 
     // only include items the NPC trades and that have >0 available currently
@@ -44,14 +43,14 @@ export async function barter(player: Player, actor: NPC) {
   }
 }
 
-async function buyItems(player: Player, actor: NPC, availableItems: string[]) {
+async function buyItems(player: MobilePlayer, actor: NPC, availableItems: string[]) {
   if (availableItems.length === 0) {
     console.log(chalk.yellow("This merchant has nothing available for trade."));
     return;
   }
 
   const choices: Array<{ name: string; value: string | null }> = availableItems.map((itemId) => {
-    const item = getObject(itemId);
+    const item = mt.getObject(itemId);
     if (!isValuedItem(item)) {
       return { name: `${itemId} - unavailable`, value: null };
     }
@@ -70,7 +69,7 @@ async function buyItems(player: Player, actor: NPC, availableItems: string[]) {
   });
 
   if (itemId) {
-    const item = getObject(itemId);
+    const item = mt.getObject(itemId);
     if (!isValuedItem(item)) {
       console.log(chalk.red("That item cannot be purchased."));
       return;
@@ -94,13 +93,13 @@ async function buyItems(player: Player, actor: NPC, availableItems: string[]) {
   }
 }
 
-async function sellItems(player: Player, actor: NPC) {
+async function sellItems(player: MobilePlayer, actor: NPC) {
   const sellableItems = player.inventory.items.reduce<
     Array<{ name: string; value: string | null }>
   >((choices, stack) => {
     const id = stack.object.id;
     const count = stack.count < 0 ? Math.abs(stack.count) : stack.count;
-    const item = getObject(id);
+    const item = mt.getObject(id);
     if (
       !isValuedItem(item) ||
       item.value <= 0 ||
@@ -131,11 +130,11 @@ async function sellItems(player: Player, actor: NPC) {
   });
 
   if (itemId) {
-    if (player.isItemEquipped(itemId)) {
+    if (player.object.hasItemEquipped(itemId)) {
       player.unequip(itemId);
     }
 
-    const item = getObject(itemId);
+    const item = mt.getObject(itemId);
     if (!isValuedItem(item)) {
       console.log(chalk.red("That item cannot be sold."));
       return;
@@ -164,7 +163,7 @@ async function sellItems(player: Player, actor: NPC) {
         stack.count += qty;
       }
     } else {
-      const resolved = getObject(itemId);
+      const resolved = mt.getObject(itemId);
       if (resolved) actor.inventory.items.push({ object: resolved, count: qty });
     }
     player.inventory.addItem(GOLD_ID, value * qty);

@@ -1,7 +1,7 @@
-import type { Player } from "../../types.ts";
+import type { MobilePlayer } from "../../types.ts";
 import { DATA_SCRIPTS } from "../../data/scripts/index.ts";
 
-export type DataScriptContext = { player: Player };
+export type DataScriptContext = { player: MobilePlayer };
 
 export type DataScript = (context: DataScriptContext) => Promise<void> | void;
 

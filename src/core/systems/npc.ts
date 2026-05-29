@@ -1,7 +1,6 @@
 import type { NPCRegistryEntry } from "../../data/npcs.ts";
 import { ATTRIBUTES, OBJECT_TYPE, SLOT } from "../../constants.ts";
-import type { NPC, Class } from "../../types.ts";
-import { getNPC } from "../gameState.ts";
+import type { NPC, NPCInstance, Class } from "../../types.ts";
 import { createClassActorProfile } from "./class.ts";
 import { cloneInventory, createInventoryFromRecord } from "./inventory.ts";
 
@@ -51,7 +50,7 @@ export function createNPC(entry: NPCRegistryEntry, classes: Class[]): NPC {
   };
 }
 
-function cloneNPC(npc: NPC): NPC {
+function cloneNPC(npc: NPC): NPCInstance {
   return {
     ...npc,
     class: {
@@ -73,11 +72,11 @@ function cloneNPC(npc: NPC): NPC {
     },
     actions: [...npc.actions],
     skills: npc.skills ? [...npc.skills] : [],
-  };
+  } as NPCInstance;
 }
 
-export function createNPCInstance(npcId: string): NPC {
-  const npc = getNPC(npcId);
+export function createNPCInstance(npcId: string): NPCInstance {
+  const npc = mt.getObject(npcId) as NPC | null;
   if (!npc) {
     throw new Error(`Missing NPC registry entry for: ${npcId}`);
   }

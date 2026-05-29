@@ -1,8 +1,8 @@
 import inquirer from "inquirer";
 import chalk from "chalk";
 import figlet from "figlet";
-import type { Cell, Dialogue, Reference } from "../types.ts";
-import { Player } from "./actors/Player.ts";
+import type { Cell, Dialogue, MobilePlayer, Reference } from "../types.ts";
+import { createPlayer } from "./actors/Player.ts";
 import { startCombat } from "./systems/combat.ts";
 import { createCreatureInstance } from "./systems/creature.ts";
 import { canTalkToActor, talkToNPC } from "./systems/dialogue.ts";
@@ -12,7 +12,6 @@ import { findQuest, getActiveQuests } from "./systems/quest.ts";
 import { resolveDynamic } from "./utils/dynamicUtils.ts";
 import { showJournalMenu } from "./ui/menus/MenuJournal.ts";
 import { showStatsMenu } from "./ui/menus/MenuStat.ts";
-import { game, getCreature, getNPC, getNonDynamicData, getObject } from "./gameState.ts";
 import { initializeGameData } from "./initialize.ts";
 
 process.on("uncaughtException", (error: unknown) => {
@@ -31,12 +30,18 @@ console.log(chalk.gray("─".repeat(20)));
 console.log(chalk.yellow(figlet.textSync("MORROTEXT")));
 
 // Main menu system
-export async function showMainMenu(player: Player) {
+export async function showMainMenu(player: MobilePlayer) {
   const { action } = await inquirer.prompt({
     type: "list",
     name: "action",
     message: "What would you like to do?",
-    choices: ["Travel", "Check Stats", "View Inventory", "View Quests", "Exit Game"],
+    choices: [
+      "Travel",
+      "Check Stats",
+      "View Inventory",
+      "View Quests",
+      "Exit Game",
+    ],
   });
 
   switch (action) {
@@ -58,14 +63,14 @@ export async function showMainMenu(player: Player) {
   }
 }
 
-export async function showInventory(player: Player) {
+export async function showInventory(player: MobilePlayer) {
   const inventoryList = Object.entries(player.inventory)
     .map(([id, count]: [string, unknown]) => {
-      const item = getObject(id);
+      const item = mt.getObject(id);
       if (!item) {
         return null;
       }
-      const isEquipped = player.isItemEquipped(id);
+      const isEquipped = player.object.hasItemEquipped(id);
       return {
         name: `${item.name}${isEquipped ? " (Equipped)" : ""} x${String(count)}`,
         value: id,
@@ -87,7 +92,7 @@ export async function showInventory(player: Player) {
 
   if (!itemId) return showMainMenu(player);
 
-  const item = getObject(itemId);
+  const item = mt.getObject(itemId);
   if (item) {
     const result = await useItem(player, itemId);
     if (result) console.log(chalk.yellow(`\n${result}\n`));
@@ -96,7 +101,7 @@ export async function showInventory(player: Player) {
   return showInventory(player);
 }
 
-export async function showQuests(player: Player) {
+export async function showQuests(player: MobilePlayer) {
   const activeQuests = getActiveQuests();
 
   if (activeQuests.length === 0) {
@@ -109,7 +114,10 @@ export async function showQuests(player: Player) {
     name: "questId",
     message: "Active Quests:",
     choices: [
-      ...activeQuests.map((quest) => ({ name: `${quest.id} [Started]`, value: quest.id })),
+      ...activeQuests.map((quest) => ({
+        name: `${quest.id} [Started]`,
+        value: quest.id,
+      })),
       { name: "Return", value: null },
     ],
   });
@@ -127,12 +135,15 @@ export async function showQuests(player: Player) {
   const journalEntries =
     quest.dialogue.length > 0
       ? quest.dialogue.map((d: Dialogue) => {
-          if (d.info && d.info.length > 0) return d.info[d.journalIndex ?? 0]?.text ?? d.id;
+          if (d.info && d.info.length > 0)
+            return d.info[d.journalIndex ?? 0]?.text ?? d.id;
           return d.id;
         })
       : ["No journal entries yet."];
 
-  journalEntries.forEach((entry, index) => console.log(`${index + 1}. ${entry}`));
+  journalEntries.forEach((entry, index) =>
+    console.log(`${index + 1}. ${entry}`),
+  );
 
   await showQuests(player);
 }
@@ -152,15 +163,16 @@ function collectActorIdsFromCell(cell: Cell): string[] {
 
 function getRandomCreatureFromCell(cell: Cell) {
   const actorIds = collectActorIdsFromCell(cell);
-  const creatureIds = actorIds.filter((id) => Boolean(getCreature(id)));
+  const creatureIds = actorIds.filter((id) => Boolean(mt.getObject(id)));
   if (creatureIds.length === 0) return null;
   const selected = creatureIds[Math.floor(Math.random() * creatureIds.length)];
   return createCreatureInstance(selected);
 }
 
-export async function enterCell(player: Player, cell: Cell) {
+export async function enterCell(player: MobilePlayer, cell: Cell) {
   const description = resolveDynamic(cell.description, player) ?? "";
-  const displayName = resolveDynamic(cell.displayName, player) ?? cell.editorName;
+  const displayName =
+    resolveDynamic(cell.displayName, player) ?? cell.editorName;
   let inCell = true;
   while (inCell && player.health.current > 0) {
     console.log(chalk.cyan(`\n=== ${displayName} ===`));
@@ -172,13 +184,17 @@ export async function enterCell(player: Player, cell: Cell) {
       currentActorNode = currentActorNode.nextNode ?? null;
     }
 
-    const actorIds = actorNodes.map((node) => String((node.object as { id: string }).id));
-    const talkableActors = actorNodes.filter((node) => canTalkToActor(node, player));
-    const creatureIds = actorIds.filter((id) => Boolean(getCreature(id)));
+    const actorIds = actorNodes.map((node) =>
+      String((node.object as { id: string }).id),
+    );
+    const talkableActors = actorNodes.filter((node) =>
+      canTalkToActor(node, player),
+    );
+    const creatureIds = actorIds.filter((id) => Boolean(mt.getObject(id)));
 
     const choices = [
       ...talkableActors.map((actorRef) => ({
-        name: `Talk to ${getNPC((actorRef.object as any).id)?.name || getCreature((actorRef.object as any).id)?.name || (actorRef.object as any).id}`,
+        name: `Talk to ${mt.getObject((actorRef.object as any).id)?.name || mt.getObject((actorRef.object as any).id)?.name || (actorRef.object as any).id}`,
         value: `npc:${(actorRef.object as any).id}`,
       })),
       { name: "Return to Main Menu", value: "return" },
@@ -228,8 +244,8 @@ export async function enterCell(player: Player, cell: Cell) {
   return showMainMenu(player);
 }
 
-async function showTravelMenu(player: Player) {
-  const availableCells = getNonDynamicData().cells;
+async function showTravelMenu(player: MobilePlayer) {
+  const availableCells = mt.dataHandler.nonDynamicData.cells;
 
   const choices = availableCells.map((loc) => ({
     name: resolveDynamic(loc.displayName, player) ?? loc.editorName,
@@ -246,7 +262,9 @@ async function showTravelMenu(player: Player) {
 
   if (destination === "__cancel") return showMainMenu(player);
 
-  const selectedCell = getNonDynamicData().cells.find((loc) => loc.id === destination);
+  const selectedCell = mt.dataHandler.nonDynamicData.cells.find(
+    (loc) => loc.id === destination,
+  );
   if (!selectedCell) {
     console.log(chalk.red("Unknown destination selected."));
     return showMainMenu(player);
@@ -270,13 +288,14 @@ async function startGame() {
       type: "input",
       name: "name",
       message: "Enter your name:",
-      validate: (input: string) => input.trim() !== "" || "Name cannot be empty!",
+      validate: (input: string) =>
+        input.trim() !== "" || "Name cannot be empty!",
     });
     name = response.name.trim();
   }
 
-  const classChoices = getNonDynamicData()
-    .classes.filter((cls) => cls.playable)
+  const classChoices = mt.dataHandler.nonDynamicData.classes
+    .filter((cls) => cls.playable)
     .map((cls) => ({ name: cls.name, value: cls.id }));
 
   const { className } = await inquirer.prompt<{ className: string }>({
@@ -286,9 +305,13 @@ async function startGame() {
     choices: classChoices,
   });
 
-  const player = new Player(name, className);
-  game.player = player;
+  const playerReference = createPlayer(name, className);
+  const mobilePlayer = playerReference.mobile as MobilePlayer;
+  mt.player = playerReference;
+  mt.mobilePlayer = mobilePlayer;
+  mt.worldController.allMobileActors.length = 0;
+  mt.worldController.allMobileActors.push(mobilePlayer);
 
-  await showMainMenu(player);
+  await showMainMenu(mobilePlayer);
 }
 void startGame();

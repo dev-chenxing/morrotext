@@ -1,5 +1,5 @@
 import { OBJECT_TYPE } from "../../constants.ts";
-import type { Creature } from "../../types.ts";
+import type { Creature, CreatureInstance } from "../../types.ts";
 import { CREATURES, type CreatureEntry } from "../../data/creatures.ts";
 import { createInventoryFromRecord } from "./inventory.ts";
 
@@ -31,12 +31,12 @@ export function createCreature(creature: CreatureEntry): Creature {
   };
 }
 
-export function createCreatureInstance(id: string): Creature {
+export function createCreatureInstance(id: string): CreatureInstance {
   const creature = CREATURES.find((entry) => entry.id === id);
 
   if (!creature) {
     throw new Error(`Unknown creature id: ${id}`);
   }
 
-  return createCreature(creature);
+  return createCreature(creature) as CreatureInstance;
 }

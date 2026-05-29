@@ -1,17 +1,16 @@
 import inquirer from "inquirer";
 import chalk from "chalk";
-import { Player } from "../../actors/Player.ts";
-import { getObject } from "../../gameState.ts";
+import type { MobilePlayer } from "../../../types.ts";
 import { useItem } from "../../systems/item.ts";
 
-export async function showInventoryMenu(player: Player): Promise<void> {
+export async function showInventoryMenu(player: MobilePlayer): Promise<void> {
   const inventoryList = Object.entries(player.inventory)
     .map(([id, count]) => {
-      const item = getObject(id);
+      const item = mt.getObject(id);
       if (!item) {
         return null;
       }
-      const isEquipped = player.isItemEquipped(id);
+      const isEquipped = player.object.hasItemEquipped(id);
       return { name: `${item.name}${isEquipped ? " (Equipped)" : ""} x${count}`, value: id };
     })
     .filter((item): item is { name: string; value: string } => Boolean(item));
@@ -30,7 +29,7 @@ export async function showInventoryMenu(player: Player): Promise<void> {
 
   if (!itemId) return;
 
-  const item = getObject(itemId);
+  const item = mt.getObject(itemId);
   if (item) {
     const result = await useItem(player, itemId);
     if (result) console.log(chalk.yellow(`\n${result}\n`));

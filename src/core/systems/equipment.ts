@@ -1,7 +1,7 @@
 import inquirer from "inquirer";
 import chalk from "chalk";
 import { SLOT, OBJECT_TYPE } from "../../constants.ts";
-import type { Item, Player, ValueOf } from "../../types.ts";
+import type { Item, MobilePlayer, ValueOf } from "../../types.ts";
 
 export function getSlotForItemType(
   itemOrObjectType: Item | ValueOf<typeof OBJECT_TYPE>,
@@ -23,8 +23,8 @@ export function isEquipmentItem(item: Item): boolean {
   return getSlotForItemType(item) !== null;
 }
 
-export async function handleEquipment(player: Player, item: Item) {
-  const isEquipped = player.isItemEquipped(item.id);
+export async function handleEquipment(player: MobilePlayer, item: Item) {
+  const isEquipped = player.object.hasItemEquipped(item.id);
 
   const choices: Array<{ name: string; value: string }> = [];
 
