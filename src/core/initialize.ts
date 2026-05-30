@@ -12,13 +12,20 @@ import {
   DIALOGUE,
 } from "../data/dialogues.ts";
 import { MISC_ITEMS } from "../data/misc.ts";
+import { BOOKS } from "../data/books.ts";
 import { NPC_REGISTRY } from "../data/npcs.ts";
 import { JOURNAL } from "../data/quests.ts";
 import { WEAPONS } from "../data/weapons.ts";
 import { createClass } from "./systems/class.ts";
 import { createCell } from "./systems/cell.ts";
 import { createCreature } from "./systems/creature.ts";
-import { createAlchemy, createArmor, createMisc, createWeapon } from "./systems/item.ts";
+import {
+  createAlchemy,
+  createArmor,
+  createMisc,
+  createWeapon,
+  createBook,
+} from "./systems/item.ts";
 import { createLeveledItems } from "./systems/leveledList.ts";
 import { createNPC } from "./systems/npc.ts";
 import { createQuest } from "./systems/quest.ts";
@@ -58,9 +65,10 @@ function createActions(): void {
 function createObjects(): void {
   mt.dataHandler.nonDynamicData.objects = [
     ...Object.values(ALCHEMY).map((entry) => createAlchemy(entry)),
-    ...Object.values(WEAPONS).map((entry) => createWeapon(entry)),
     ...Object.values(ARMORS).map((entry) => createArmor(entry)),
+    ...Object.values(BOOKS).map((entry) => createBook(entry)),
     ...Object.values(MISC_ITEMS).map((entry) => createMisc(entry)),
+    ...Object.values(WEAPONS).map((entry) => createWeapon(entry)),
   ];
 }
 
@@ -75,9 +83,7 @@ function createClasses(): void {
 }
 
 function createNPCs(): void {
-  mt.dataHandler.nonDynamicData.objects.push(
-    ...NPC_REGISTRY.map((entry) => createNPC(entry, mt.dataHandler.nonDynamicData.classes)),
-  );
+  mt.dataHandler.nonDynamicData.objects.push(...NPC_REGISTRY.map((entry) => createNPC(entry)));
 }
 
 function createDialogues(): void {

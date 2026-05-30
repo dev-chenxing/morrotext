@@ -42,8 +42,15 @@ export class Actor extends GameObject {
   endurance: Statistic;
   personality: Statistic;
 
-  constructor(id: string, name: string, level = 1, description = "", fight = 0) {
-    super(id, OBJECT_TYPE.ACTOR);
+  constructor(
+    objectType: ValueOf<typeof OBJECT_TYPE>,
+    id: string,
+    name: string,
+    level = 1,
+    description = "",
+    fight = 0,
+  ) {
+    super(id, objectType);
     this.name = name;
     this.level = level;
 

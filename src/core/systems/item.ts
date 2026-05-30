@@ -10,6 +10,7 @@ import type {
   Weapon,
   WeaponRegistryEntry,
 } from "../../types.ts";
+import type { BookRegistryEntry } from "../../data/books.ts";
 import { handleEquipment } from "./equipment.ts";
 
 export function createAlchemy(entry: AlchemyRegistryEntry): Alchemy {
@@ -25,6 +26,10 @@ export function createMisc(entry: MiscRegistryEntry): Misc {
 }
 
 export function createWeapon(entry: WeaponRegistryEntry): Weapon {
+  return { ...entry };
+}
+
+export function createBook(entry: BookRegistryEntry) {
   return { ...entry };
 }
 

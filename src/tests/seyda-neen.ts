@@ -7,7 +7,7 @@ import { initializeGameData } from "../core/initialize.ts";
 import { createNPCInstance } from "../core/systems/npc.ts";
 import { hasStartedQuest } from "../core/systems/quest.ts";
 
-describe("Prisoner Released opening", () => {
+describe("Seyda Neen opening and quest flow", () => {
   afterEach(() => {
     vi.restoreAllMocks();
     mt.player = null;
@@ -40,7 +40,7 @@ describe("Prisoner Released opening", () => {
   it("Sellus Gravius starts Report to Caius Cosades and grants the release items", async () => {
     initializeGameData();
 
-    const player = createPlayer("Tester", "warrior");
+    const player = createPlayer("Tester", "Warrior");
     const mobilePlayer = player.mobile as MobilePlayer;
     mt.player = player;
     mt.mobilePlayer = mobilePlayer;
@@ -56,6 +56,6 @@ describe("Prisoner Released opening", () => {
     expect(hasStartedQuest("A1_1_FindSpymaster")).toBe(true);
     expect(mobilePlayer.inventory.getItemCount("Gold_001")).toBe(87);
     expect(mobilePlayer.inventory.getItemCount("bk_A1_1_DirectionsCaiusCosades")).toBe(1);
-    expect(mobilePlayer.inventory.getItemCount("package_for_caius_cosades")).toBe(1);
+    expect(mobilePlayer.inventory.getItemCount("bk_a1_1_caiuspackage")).toBe(1);
   });
 });

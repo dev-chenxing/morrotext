@@ -13,9 +13,8 @@ export class Creature extends Actor {
     level = 1,
   ) {
     // Actor constructor handles description/fight defaults
-    super(id, name, level);
+    super(OBJECT_TYPE.CREATURE, id, name, level);
     this.type = type;
-    this.objectType = OBJECT_TYPE.CREATURE;
   }
 }
 

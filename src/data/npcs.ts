@@ -12,7 +12,7 @@ export const NPC_REGISTRY: NPCRegistryEntry[] = [
     id: "jiub",
     name: "Jiub",
     level: 3,
-    classId: "thief",
+    classId: "Thief",
     description: "A Dark Elf thief and fellow prisoner, alert-eyed even in the ship's dim hold.",
   },
   {

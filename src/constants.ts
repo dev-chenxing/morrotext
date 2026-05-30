@@ -180,20 +180,44 @@ export namespace ATTRIBUTES {
   export type LUCK = typeof ATTRIBUTES.LUCK;
 }
 
+export const SPECIALIZATION = { COMBAT: "combat", MAGIC: "magic", STEALTH: "stealth" } as const;
+
+export type SPECIALIZATION = (typeof SPECIALIZATION)[keyof typeof SPECIALIZATION];
+
+export namespace SPECIALIZATION {
+  export type COMBAT = typeof SPECIALIZATION.COMBAT;
+  export type MAGIC = typeof SPECIALIZATION.MAGIC;
+  export type STEALTH = typeof SPECIALIZATION.STEALTH;
+}
+
 export const SKILL = {
-  HEAVY_ARMOR: 0,
-  LONG_BLADE: 1,
-  AXE: 2,
-  DESTRUCTION: 3,
-  ALTERATION: 4,
-  ILLUSION: 5,
-  CONJURATION: 6,
-  RESTORATION: 7,
-  ALCHEMY: 8,
-  LIGHT_ARMOR: 9,
-  SHORT_BLADE: 10,
-  MARKSMAN: 11,
-  SPEECHCRAFT: 12,
+  BLOCK: 0,
+  ARMORER: 1,
+  MEDIUM_ARMOR: 2,
+  HEAVY_ARMOR: 3,
+  BLUNT_WEAPON: 4,
+  LONG_BLADE: 5,
+  AXE: 6,
+  SPEAR: 7,
+  ATHLETICS: 8,
+  ENCHANT: 9,
+  DESTRUCTION: 10,
+  ALTERATION: 11,
+  ILLUSION: 12,
+  CONJURATION: 13,
+  MYSTICISM: 14,
+  RESTORATION: 15,
+  ALCHEMY: 16,
+  UNARMORED: 17,
+  SECURITY: 18,
+  SNEAK: 19,
+  ACROBATICS: 20,
+  LIGHT_ARMOR: 21,
+  SHORT_BLADE: 22,
+  MARKSMAN: 23,
+  MERCANTILE: 24,
+  SPEECHCRAFT: 25,
+  HAND_TO_HAND: 26,
 } as const;
 
 export type SKILL = (typeof SKILL)[keyof typeof SKILL];

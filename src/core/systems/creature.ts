@@ -6,7 +6,7 @@ import { createInventoryFromRecord } from "./inventory.ts";
 export function createCreature(creature: CreatureEntry): Creature {
   return {
     id: creature.id,
-    objectType: OBJECT_TYPE.ACTOR,
+    objectType: OBJECT_TYPE.CREATURE,
     barterGold: 0,
     equipment: { weapon: null, armor: null },
     inventory: createInventoryFromRecord(creature.inventory ?? {}),

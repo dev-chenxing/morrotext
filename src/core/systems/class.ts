@@ -87,12 +87,11 @@ export function createClass(entry: ClassEntry, actionRegistry: Action[] = []): C
 
   return {
     id: entry.id,
-    objectType: OBJECT_TYPE.ACTOR,
+    objectType: OBJECT_TYPE.CLASS,
     name: entry.name,
     attributes: [...(entry.attributes ?? [])],
     majorSkills: [...(entry.majorSkills ?? [])],
     minorSkills: [...(entry.minorSkills ?? [])],
-    startingItems: entry.startingItems ?? [],
     actions: (entry.actions ?? [])
       .map((actionId) => actionRegistry.find((action) => action.id === actionId))
       .filter((action): action is Action => Boolean(action)),

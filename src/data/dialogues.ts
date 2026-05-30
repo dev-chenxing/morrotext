@@ -1,4 +1,4 @@
-import { Reference } from "../types.ts";
+import type { Reference } from "../types.ts";
 import { JOURNAL } from "./quests.ts";
 
 export type DialogueRegistryEntry = { id: string; info: DialogueInfoRegistryEntry[] };

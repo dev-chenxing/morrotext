@@ -1,19 +1,14 @@
 import type { NPCRegistryEntry } from "../../data/npcs.ts";
 import { ATTRIBUTES, OBJECT_TYPE, SLOT } from "../../constants.ts";
-import type { NPC, NPCInstance, Class } from "../../types.ts";
+import type { NPC, NPCInstance } from "../../types.ts";
 import { createClassActorProfile } from "./class.ts";
 import { cloneInventory, createInventoryFromRecord } from "./inventory.ts";
 
-function getNPCClass(classId: string, classes: Class[]): Class {
-  const npcClass = classes.find((gameClass) => gameClass.id === classId);
+export function createNPC(entry: NPCRegistryEntry): NPC {
+  const npcClass = mt.getClass(entry.classId);
   if (!npcClass) {
-    throw new Error(`Unknown NPC class: ${classId}`);
+    throw new Error(`Missing class for NPC ${entry.id}: ${entry.classId}`);
   }
-  return npcClass;
-}
-
-export function createNPC(entry: NPCRegistryEntry, classes: Class[]): NPC {
-  const npcClass = getNPCClass(entry.classId, classes);
   const classProfile = createClassActorProfile(npcClass);
 
   return {
@@ -58,7 +53,6 @@ function cloneNPC(npc: NPC): NPCInstance {
       attributes: [...npc.class.attributes],
       majorSkills: [...npc.class.majorSkills],
       minorSkills: [...npc.class.minorSkills],
-      startingItems: [...npc.class.startingItems],
       actions: [...npc.class.actions],
       barters: { ...npc.class.barters },
       offers: { ...npc.class.offers },

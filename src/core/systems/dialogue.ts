@@ -60,11 +60,6 @@ function matchesFilters(
     if (entry.cell.id !== reference.cell.id) return false;
   }
 
-  // Object type filter
-  if (entry.objectType) {
-    if (actor.objectType !== entry.objectType) return false;
-  }
-
   // NPC class filter
   if (entry.npcClass) {
     const actorClass = (actor as any).class;
@@ -103,7 +98,7 @@ function getMatchingEntry(
 ): DialogueInfo | null {
   const matchingEntries = entries
     .filter((entry) => matchesFilters(entry, actor, player, reference))
-    .sort((left, right) => (right.priority ?? 0) - (left.priority ?? 0));
+    .sort((left, right) => left.id.localeCompare(right.id));
 
   return matchingEntries[0] ?? null;
 }
@@ -138,11 +133,7 @@ function getMatchesForType(
       return entry ? { dialogue: item, entry } : null;
     })
     .filter((match): match is DialogueMatch => match !== null)
-    .sort((left, right) => {
-      const byPriority = (right.entry.priority ?? 0) - (left.entry.priority ?? 0);
-      if (byPriority !== 0) return byPriority;
-      return left.dialogue.id.localeCompare(right.dialogue.id);
-    });
+    .sort((left, right) => left.dialogue.id.localeCompare(right.dialogue.id));
 }
 
 async function runEntryScript(entry: DialogueInfo, reference: Reference): Promise<void> {

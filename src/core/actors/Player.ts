@@ -120,7 +120,8 @@ function createEquipHandlers(mobilePlayer: MobilePlayer) {
 }
 
 export function createPlayer(name: string, classId: string): Reference {
-  const selectedClass = mt.getClass(classId);
+  let selectedClass = mt.getClass(classId);
+
   if (!selectedClass) {
     throw new Error(`Unknown class: ${classId}`);
   }

@@ -8,7 +8,6 @@ export class NPC extends Actor {
   aiConfig: AiConfig;
   actions: Action[];
   skills: number[];
-  objectType: typeof OBJECT_TYPE.NPC;
 
   constructor(
     id: string,
@@ -19,8 +18,7 @@ export class NPC extends Actor {
     barterGold = 0,
     fight = 0,
   ) {
-    super(id, name, level, description, fight);
-    this.objectType = OBJECT_TYPE.NPC;
+    super(OBJECT_TYPE.NPC, id, name, level, description, fight);
 
     const selectedClass = mt.getClass(classId);
     if (!selectedClass) {

@@ -7,7 +7,7 @@ describe("player progression", () => {
   it("uses the shared actor default level for new players", () => {
     initializeGameData();
 
-    const player = createPlayer("Tester", "warrior").mobile as MobilePlayer;
+    const player = createPlayer("Tester", "Warrior").mobile as MobilePlayer;
 
     expect(player.object.level).toBe(1);
   });
@@ -15,7 +15,7 @@ describe("player progression", () => {
   it("increases max HP by 10% of Endurance on level up", () => {
     initializeGameData();
 
-    const player = createPlayer("Tester", "warrior").mobile as MobilePlayer;
+    const player = createPlayer("Tester", "Warrior").mobile as MobilePlayer;
     const previousHealthBase = player.health.base;
     const expectedGain = player.endurance.base / 10;
 

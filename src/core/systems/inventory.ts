@@ -100,6 +100,7 @@ class DefaultInventory implements Inventory {
       const consumed = this.consumed[id] ?? 0;
       return Math.max(0, restockAmount - consumed);
     }
+
     return Math.max(0, stack.count);
   }
 }

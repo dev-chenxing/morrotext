@@ -1,15 +1,15 @@
-import { MERCHANT_SERVICE, OBJECT_TYPE, ATTRIBUTES, SKILL } from "../constants.ts";
+import { MERCHANT_SERVICE, OBJECT_TYPE, ATTRIBUTES, SKILL, SPECIALIZATION } from "../constants.ts";
 import type { ValueOf } from "../types.ts";
 
 export type ClassEntry = {
   id: string;
   name: string;
   // two attribute IDs from ATTRIBUTES
-  attributes?: ValueOf<typeof ATTRIBUTES>[];
+  attributes: ValueOf<typeof ATTRIBUTES>[];
+  specialization: ValueOf<typeof SPECIALIZATION>;
   // major/minor skill IDs from SKILL
-  majorSkills?: ValueOf<typeof SKILL>[];
-  minorSkills?: ValueOf<typeof SKILL>[];
-  startingItems?: string[];
+  majorSkills: ValueOf<typeof SKILL>[];
+  minorSkills: ValueOf<typeof SKILL>[];
   actions?: string[];
   barters?: {
     [objectType in ValueOf<typeof OBJECT_TYPE>]?: boolean;
@@ -23,127 +23,111 @@ export type ClassEntry = {
 
 export const CLASSES: ClassEntry[] = [
   {
-    id: "warrior",
-    name: "Warrior",
-    playable: true,
-    description: "A strong and resilient fighter, skilled with weapons and armor.",
-    attributes: [ATTRIBUTES.STRENGTH, ATTRIBUTES.ENDURANCE],
-    majorSkills: [
-      SKILL.LONG_BLADE,
-      SKILL.AXE,
-      SKILL.HEAVY_ARMOR,
-      SKILL.SHORT_BLADE,
-      SKILL.MARKSMAN,
-    ],
-    minorSkills: [
-      SKILL.SPEECHCRAFT,
-      SKILL.LIGHT_ARMOR,
-      SKILL.ALCHEMY,
-      SKILL.DESTRUCTION,
-      SKILL.RESTORATION,
-    ],
-    startingItems: ["iron_sword", "leather_armor"],
-  },
-  {
-    id: "mage",
+    id: "Mage",
     name: "Mage",
     playable: true,
     attributes: [ATTRIBUTES.INTELLIGENCE, ATTRIBUTES.WILLPOWER],
     majorSkills: [
+      SKILL.MYSTICISM,
       SKILL.DESTRUCTION,
-      SKILL.ILLUSION,
-      SKILL.CONJURATION,
       SKILL.ALTERATION,
+      SKILL.ILLUSION,
       SKILL.RESTORATION,
     ],
     minorSkills: [
+      SKILL.ENCHANT,
       SKILL.ALCHEMY,
-      SKILL.MARKSMAN,
-      SKILL.SPEECHCRAFT,
+      SKILL.UNARMORED,
+      SKILL.SHORT_BLADE,
+      SKILL.CONJURATION,
+    ],
+    specialization: SPECIALIZATION.MAGIC,
+    description:
+      "Most mages claim to study magic for its intellectual rewards, but they also often profit from its practical applications. Varying widely in temperament and motivation, mages share but one thing in common - an avid love of spellcasting.",
+  },
+  {
+    id: "Warrior",
+    name: "Warrior",
+    attributes: [ATTRIBUTES.STRENGTH, ATTRIBUTES.ENDURANCE],
+    specialization: SPECIALIZATION.COMBAT,
+    playable: true,
+    description:
+      "Warriors are the professional men-at-arms, soldiers, mercenaries, and adventurers of the Empire, trained with various weapons and armor styles, conditioned by long marches, and hardened by ambush, skirmish, and battle.",
+    majorSkills: [
+      SKILL.LONG_BLADE,
+      SKILL.MEDIUM_ARMOR,
+      SKILL.HEAVY_ARMOR,
+      SKILL.ATHLETICS,
+      SKILL.BLOCK,
+    ],
+    minorSkills: [SKILL.ARMORER, SKILL.SPEAR, SKILL.MARKSMAN, SKILL.AXE, SKILL.BLUNT_WEAPON],
+  },
+  {
+    id: "Thief",
+    name: "Thief",
+    attributes: [ATTRIBUTES.SPEED, ATTRIBUTES.AGILITY],
+    specialization: SPECIALIZATION.STEALTH,
+    playable: true,
+    majorSkills: [
+      SKILL.SECURITY,
+      SKILL.SNEAK,
+      SKILL.ACROBATICS,
       SKILL.LIGHT_ARMOR,
       SKILL.SHORT_BLADE,
     ],
-    startingItems: ["oak_staff", "mana_potion", "cloth_robe"],
-    actions: ["fireball"],
-    description:
-      "A master of the arcane arts, wielding powerful spells at the cost of physical strength.",
-  },
-  {
-    id: "cleric",
-    name: "Cleric",
-    playable: true,
-    attributes: [ATTRIBUTES.WILLPOWER, ATTRIBUTES.PERSONALITY],
-    majorSkills: [
-      SKILL.RESTORATION,
-      SKILL.DESTRUCTION,
-      SKILL.SPEECHCRAFT,
-      SKILL.ALTERATION,
-      SKILL.CONJURATION,
-    ],
     minorSkills: [
-      SKILL.ALCHEMY,
-      SKILL.HEAVY_ARMOR,
-      SKILL.LONG_BLADE,
-      SKILL.LIGHT_ARMOR,
       SKILL.MARKSMAN,
+      SKILL.SPEECHCRAFT,
+      SKILL.HAND_TO_HAND,
+      SKILL.MERCANTILE,
+      SKILL.ATHLETICS,
     ],
-    startingItems: ["mace", "holy_symbol", "cloth_robe"],
-    actions: ["divineHeal"],
-    description: "A devoted healer, using divine magic to support allies and smite foes.",
-  },
-  {
-    id: "smith",
-    name: "Smith",
-    attributes: [ATTRIBUTES.STRENGTH, ATTRIBUTES.ENDURANCE],
-    barters: {
-      [OBJECT_TYPE.WEAPON]: true,
-      [OBJECT_TYPE.ARMOR]: true,
-      [OBJECT_TYPE.ACCESSORY]: true,
-    },
-    description: "A village smith; sells weapons and armor.",
-    playable: false,
-  },
-  {
-    id: "publican",
-    name: "Publican",
-    attributes: [ATTRIBUTES.PERSONALITY, ATTRIBUTES.LUCK],
-    barters: { [OBJECT_TYPE.ALCHEMY]: true },
-    description: "Publican and purveyor of potions.",
-    playable: false,
-  },
-  {
-    id: "prisoner",
-    name: "Prisoner",
-    attributes: [ATTRIBUTES.SPEED, ATTRIBUTES.PERSONALITY],
-    minorSkills: [SKILL.SPEECHCRAFT, SKILL.SHORT_BLADE],
-    description: "A weary prisoner learning to read the room before making a move.",
-    playable: false,
-  },
-  {
-    id: "thief",
-    name: "Thief",
-    attributes: [ATTRIBUTES.AGILITY, ATTRIBUTES.SPEED],
-    majorSkills: [SKILL.SHORT_BLADE, SKILL.MARKSMAN, SKILL.SPEECHCRAFT],
-    minorSkills: [SKILL.LIGHT_ARMOR, SKILL.ALCHEMY],
     description:
-      "A quick and slippery opportunist who survives by timing, charm, and a hidden blade.",
-    playable: false,
+      "Thieves are pickpockets and pilferers. Unlike robbers, who kill and loot, thieves typically choose stealth and subterfuge over violence, and often entertain romantic notions of their charm and cleverness in their acquisitive activities.",
   },
   {
     id: "Guard",
     name: "Guard",
     attributes: [ATTRIBUTES.STRENGTH, ATTRIBUTES.ENDURANCE],
-    majorSkills: [SKILL.LONG_BLADE, SKILL.HEAVY_ARMOR, SKILL.SPEECHCRAFT],
-    description: "A disciplined soldier of the Empire.",
+    majorSkills: [
+      SKILL.LONG_BLADE,
+      SKILL.BLUNT_WEAPON,
+      SKILL.BLOCK,
+      SKILL.HEAVY_ARMOR,
+      SKILL.MEDIUM_ARMOR,
+    ],
+    minorSkills: [
+      SKILL.ATHLETICS,
+      SKILL.HAND_TO_HAND,
+      SKILL.SPEECHCRAFT,
+      SKILL.ACROBATICS,
+      SKILL.SECURITY,
+    ],
+    specialization: SPECIALIZATION.COMBAT,
+    description: "These people maintain the law in Morrowind, by use of force if necessary. ",
     playable: false,
   },
   {
     id: "Agent",
     name: "Agent",
-    attributes: [ATTRIBUTES.INTELLIGENCE, ATTRIBUTES.PERSONALITY],
-    majorSkills: [SKILL.SPEECHCRAFT],
-    minorSkills: [SKILL.ALCHEMY],
-    description: "A paper-bound servant of the Empire.",
-    playable: false,
+    attributes: [ATTRIBUTES.PERSONALITY, ATTRIBUTES.AGILITY],
+    specialization: SPECIALIZATION.STEALTH,
+    majorSkills: [
+      SKILL.SPEECHCRAFT,
+      SKILL.SNEAK,
+      SKILL.ACROBATICS,
+      SKILL.LIGHT_ARMOR,
+      SKILL.SHORT_BLADE,
+    ],
+    minorSkills: [
+      SKILL.MERCANTILE,
+      SKILL.CONJURATION,
+      SKILL.BLOCK,
+      SKILL.UNARMORED,
+      SKILL.ILLUSION,
+    ],
+    description:
+      "Agents are operatives skilled in deception and avoidance, but trained in self-defense and the use of deadly force. Self-reliant and independent, agents devote themselves to personal goals, or to various patrons or causes.",
+    playable: true,
   },
 ];

@@ -297,7 +297,6 @@ export interface Class extends GameObject {
   // Major and minor skills for the class (maps to `SKILL`).
   majorSkills: ValueOf<typeof SKILL>[];
   minorSkills: ValueOf<typeof SKILL>[];
-  startingItems: string[];
   actions: Action[];
   barters: {
     [objectType in ValueOf<typeof OBJECT_TYPE>]: boolean;

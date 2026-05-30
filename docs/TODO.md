@@ -77,6 +77,7 @@
 - [ ] feat: add `mt.findQuest`
 - [ ] fix: `mt.updateJournal()` should return false if the journal entry of the given index doesn't exist
 - [ ] refactor: refactor `matchesFilters` in `systems/dialogue.ts`
+- [ ] feat: add `StartScript` type
 
 ### Dialogue Engine Refactor
 - [x] refactor: no NPC-specific code in dialogue engine
