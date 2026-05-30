@@ -33,7 +33,7 @@ export interface LeveledItem extends GameObject {
 export interface Actor extends GameObject {
   equipment: Equipment;
   inventory: Inventory;
-  objectType: OBJECT_TYPE.ACTOR | OBJECT_TYPE.NPC;
+  objectType: OBJECT_TYPE.NPC | OBJECT_TYPE.CREATURE;
   barterGold: number;
   hasItemEquipped: (item: string) => boolean;
   offersServices: (service: ValueOf<typeof MERCHANT_SERVICE>) => boolean;
@@ -59,10 +59,7 @@ export interface Statistic {
 
 export type JsonPrimitive = boolean | number | string | null;
 
-export type JsonValue =
-  | JsonPrimitive
-  | JsonValue[]
-  | { [key: string]: JsonValue };
+export type JsonValue = JsonPrimitive | JsonValue[] | { [key: string]: JsonValue };
 
 export type JsonRecord = Record<string, JsonValue>;
 
@@ -110,7 +107,7 @@ export interface ArmorRegistryEntry extends ItemRegistryEntry {
 }
 
 export interface MiscRegistryEntry extends ItemRegistryEntry {
-  objectType: OBJECT_TYPE.BOOK | OBJECT_TYPE.MISC;
+  objectType: OBJECT_TYPE.MISC_ITEM;
   value: number;
 }
 
@@ -330,44 +327,34 @@ export interface CellRegistryEntry {
   statics: string[];
 }
 
-export interface Cell extends Omit<
-  CellRegistryEntry,
-  "activators" | "actors" | "statics"
-> {
+export interface Cell extends Omit<CellRegistryEntry, "activators" | "actors" | "statics"> {
   activators: ReferenceList;
   actors: ReferenceList;
   statics: ReferenceList;
 }
 
-export interface DialogueExecutionResult {
-  effect?: () => void;
-  exit?: boolean;
-  message?: string;
-}
 export interface DialogueInfo {
   // The actor (speaker) this info is filtered for.
   actor?: Actor;
   // The cell (speaker's current cell) this info is filtered for.
   cell?: Cell;
+  // Speaker condition: if provided, the function must return true for this dialogue info to pass the filter.
+  condition?: () => boolean;
   // Quick access to whether the related quest is finished. Null for non-journal dialogues.
   isQuestFinished?: boolean | null;
-  // Id (e.g. a quest/journal id) this dialogue info relates to (for journal-based filters).
+  // A unique identifier for this dialogue info
   id: string;
   // Current journal index for quests; null for non-journal dialogues.
   journalIndex?: number | null;
   // The NPC's class this info is filtered for.
   npcClass?: Class;
   // Optional object type filter (if applicable).
-  objectType?: ValueOf<typeof OBJECT_TYPE>;
-  priority?: number;
-  // Optional runner executed when this dialogue info is chosen.
+  objectType?: OBJECT_TYPE.DIALOGUE_INFO;
   // Receives the `reference` the script should operate on.
   runScript?: (reference: Reference) => Promise<void> | void;
   // Display text for this dialogue choice / info.
   text: string;
 }
-
-export type DialogueEntry = DialogueInfo;
 
 export interface Dialogue extends GameObject {
   id: string;
@@ -409,14 +396,26 @@ export interface MtApi {
   mobilePlayer: MobilePlayer | null;
   dataHandler: DataHandler;
   worldController: WorldController;
+  addItem: (
+    target: Reference | MobileActor | Actor | null,
+    itemId: string,
+    count?: number,
+  ) => number;
+  addTopic: (topicId: string) => void;
+  findQuest: (journal?: Dialogue | string, name?: string) => Quest | undefined;
   getActions: (target: Reference | MobileActor | Actor) => Action[];
   getCell: (cellId: string) => Cell | undefined;
   getClass: (classId: string) => Class | undefined;
-  getDialogueInfo: (
-    dialogue: Dialogue | string,
-    id: string,
-  ) => DialogueInfo | null;
+  getDialogueInfo: (dialogue: Dialogue | string, id: string) => DialogueInfo | null;
+  getItemCount: (target: Reference | MobileActor | Actor | null, itemId: string) => number;
+  getJournalIndex: (id: Dialogue | string) => number | null;
   getObject: (objectId: string) => Item | undefined;
+  removeItem: (
+    target: Reference | MobileActor | Actor | null,
+    itemId: string,
+    count?: number,
+  ) => number;
+  updateJournal: (id: Dialogue | string, index: number, showMessage?: boolean) => boolean;
 }
 
 declare global {

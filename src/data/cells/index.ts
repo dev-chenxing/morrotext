@@ -19,17 +19,10 @@ function isCellRegistryEntry(value: unknown): value is CellRegistryEntry {
 
 async function loadCellRegistryEntries(): Promise<CellRegistryEntry[]> {
   const directoryPath = dirname(fileURLToPath(import.meta.url));
-  const directoryEntries = await readdir(directoryPath, {
-    withFileTypes: true,
-  });
+  const directoryEntries = await readdir(directoryPath, { withFileTypes: true });
 
   const modulePaths = directoryEntries
-    .filter(
-      (entry) =>
-        entry.isFile() &&
-        extname(entry.name) === ".ts" &&
-        entry.name !== "index.ts",
-    )
+    .filter((entry) => entry.isFile() && extname(entry.name) === ".ts" && entry.name !== "index.ts")
     .map((entry) => pathToFileURL(join(directoryPath, entry.name)).href);
 
   const loadedEntries = await Promise.all(
@@ -39,9 +32,7 @@ async function loadCellRegistryEntries(): Promise<CellRegistryEntry[]> {
     }),
   );
 
-  return loadedEntries.filter(
-    (entry): entry is CellRegistryEntry => entry !== null,
-  );
+  return loadedEntries.filter((entry): entry is CellRegistryEntry => entry !== null);
 }
 
 export const CELLS = await loadCellRegistryEntries();

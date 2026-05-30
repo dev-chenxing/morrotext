@@ -1,4 +1,3 @@
-import { OBJECT_TYPE } from "../constants.ts";
 import type {
   Actor,
   Cell,
@@ -6,7 +5,7 @@ import type {
   DataHandler,
   Dialogue,
   DialogueInfo,
-  GameObject,
+  Inventory,
   Item,
   MobileActor,
   MobilePlayer,
@@ -14,6 +13,7 @@ import type {
   Reference,
   WorldController,
 } from "../types.ts";
+import { findQuest, getJournalIndex, updateJournal } from "./systems/quest.ts";
 
 const state: {
   player: Reference | null;
@@ -22,13 +22,7 @@ const state: {
 } = {
   player: null,
   dataHandler: {
-    nonDynamicData: {
-      actions: [],
-      cells: [],
-      classes: [],
-      dialogues: [],
-      objects: [],
-    },
+    nonDynamicData: { actions: [], cells: [], classes: [], dialogues: [], objects: [] },
   },
   worldController: { allMobileActors: [], mobilePlayer: null, quests: [] },
 };
@@ -43,60 +37,73 @@ function getActions(target: Reference | MobileActor | Actor) {
   }
 
   // Default to an empty action list if no specific actions are found
-
   return [];
 }
 
 function getCell(cellId: string): Cell | undefined {
-  return state.dataHandler.nonDynamicData.cells.find(
-    (cell) => cell.id === cellId,
-  );
+  return state.dataHandler.nonDynamicData.cells.find((cell) => cell.id === cellId);
 }
 
 function getClass(classId: string): Class | undefined {
-  return state.dataHandler.nonDynamicData.classes.find(
-    (gameClass) => gameClass.id === classId,
-  );
+  return state.dataHandler.nonDynamicData.classes.find((gameClass) => gameClass.id === classId);
 }
 
-function isItemObject(object: GameObject): object is Item {
-  switch (object.objectType) {
-    case OBJECT_TYPE.ACCESSORY:
-    case OBJECT_TYPE.ALCHEMY:
-    case OBJECT_TYPE.ARMOR:
-    case OBJECT_TYPE.BOOK:
-    case OBJECT_TYPE.ITEM:
-    case OBJECT_TYPE.MISC:
-    case OBJECT_TYPE.WEAPON:
-      return true;
-    default:
-      return false;
+function getInventory(target: Reference | MobileActor | Actor | null): Inventory | null {
+  if (!target) return null;
+
+  if ("inventory" in target && target.inventory) {
+    return target.inventory;
   }
+
+  if ("mobile" in target && target.mobile && "inventory" in target.mobile) {
+    return target.mobile.inventory;
+  }
+
+  if ("object" in target && target.object && "inventory" in target.object) {
+    return target.object.inventory as Inventory;
+  }
+
+  return null;
 }
 
 // Locates and returns a Dialogue Info by a given id.
 // This involves file IO and is an expensive call. Results should be cached.
-function getDialogueInfo(
-  dialogue: Dialogue | string,
-  id: string,
-): DialogueInfo | null {
+function getDialogueInfo(dialogue: Dialogue | string, id: string): DialogueInfo | null {
   return (
     state.dataHandler.nonDynamicData.dialogues
-      .find(
-        (d) => d.id === (typeof dialogue === "string" ? dialogue : dialogue.id),
-      )
+      .find((d) => d.id === (typeof dialogue === "string" ? dialogue : dialogue.id))
       ?.info.find((info) => info.id === id) ?? null
   );
 }
 
 function getObject(objectId: string): Item | undefined {
-  const object = state.dataHandler.nonDynamicData.objects.find(
-    (obj) => obj.id === objectId,
-  );
-  if (object && isItemObject(object)) {
-    return object;
-  }
-  return undefined;
+  return state.dataHandler.nonDynamicData.objects.find((obj) => obj.id === objectId) as
+    | Item
+    | undefined;
+}
+
+function addItem(
+  target: Reference | MobileActor | Actor | null,
+  itemId: string,
+  count = 1,
+): number {
+  return getInventory(target)?.addItem(itemId, count) ?? 0;
+}
+
+function removeItem(
+  target: Reference | MobileActor | Actor | null,
+  itemId: string,
+  count = 1,
+): number {
+  return getInventory(target)?.removeItem(itemId, count) ?? 0;
+}
+
+function getItemCount(target: Reference | MobileActor | Actor | null, itemId: string): number {
+  return getInventory(target)?.getItemCount(itemId) ?? 0;
+}
+
+function addTopic(_topicId: string): void {
+  // Topics are currently sourced directly from initialized dialogue records.
 }
 
 export const mt: MtApi = {
@@ -114,11 +121,18 @@ export const mt: MtApi = {
   },
   dataHandler: state.dataHandler,
   worldController: state.worldController,
+  addItem,
+  addTopic,
+  findQuest,
   getActions,
   getCell,
   getClass,
   getDialogueInfo,
+  getItemCount,
+  getJournalIndex,
   getObject,
+  removeItem,
+  updateJournal,
 };
 
 export function attachMtGlobal(): MtApi {

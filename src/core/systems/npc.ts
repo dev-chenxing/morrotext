@@ -76,7 +76,10 @@ function cloneNPC(npc: NPC): NPCInstance {
 }
 
 export function createNPCInstance(npcId: string): NPCInstance {
-  const npc = mt.getObject(npcId) as NPC | null;
+  const npc =
+    mt.dataHandler.nonDynamicData.objects.find(
+      (object): object is NPC => object.objectType === OBJECT_TYPE.NPC && object.id === npcId,
+    ) ?? null;
   if (!npc) {
     throw new Error(`Missing NPC registry entry for: ${npcId}`);
   }

@@ -148,7 +148,7 @@ export async function startCombat(player: MobilePlayer, enemy: Creature) {
         break;
 
       default: {
-          const classAction = player.object.class.actions.find((a) => a.id === action);
+        const classAction = player.object.class.actions.find((a) => a.id === action);
         const result = classAction?.execute(player, enemy);
 
         if (typeof result === "number" && result > 0) {

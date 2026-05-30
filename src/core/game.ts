@@ -9,7 +9,7 @@ import { canTalkToActor, talkToNPC } from "./systems/dialogue.ts";
 import { useItem } from "./systems/item.ts";
 import { createNPCInstance } from "./systems/npc.ts";
 import { findQuest, getActiveQuests } from "./systems/quest.ts";
-import { resolveDynamic } from "./utils/dynamicUtils.ts";
+import { resolveDynamic } from "./utils/index.ts";
 import { showJournalMenu } from "./ui/menus/MenuJournal.ts";
 import { showStatsMenu } from "./ui/menus/MenuStat.ts";
 import { initializeGameData } from "./initialize.ts";
@@ -35,13 +35,7 @@ export async function showMainMenu(player: MobilePlayer) {
     type: "list",
     name: "action",
     message: "What would you like to do?",
-    choices: [
-      "Travel",
-      "Check Stats",
-      "View Inventory",
-      "View Quests",
-      "Exit Game",
-    ],
+    choices: ["Travel", "Check Stats", "View Inventory", "View Quests", "Exit Game"],
   });
 
   switch (action) {
@@ -114,10 +108,7 @@ export async function showQuests(player: MobilePlayer) {
     name: "questId",
     message: "Active Quests:",
     choices: [
-      ...activeQuests.map((quest) => ({
-        name: `${quest.id} [Started]`,
-        value: quest.id,
-      })),
+      ...activeQuests.map((quest) => ({ name: `${quest.id} [Started]`, value: quest.id })),
       { name: "Return", value: null },
     ],
   });
@@ -135,15 +126,12 @@ export async function showQuests(player: MobilePlayer) {
   const journalEntries =
     quest.dialogue.length > 0
       ? quest.dialogue.map((d: Dialogue) => {
-          if (d.info && d.info.length > 0)
-            return d.info[d.journalIndex ?? 0]?.text ?? d.id;
+          if (d.info && d.info.length > 0) return d.info[d.journalIndex ?? 0]?.text ?? d.id;
           return d.id;
         })
       : ["No journal entries yet."];
 
-  journalEntries.forEach((entry, index) =>
-    console.log(`${index + 1}. ${entry}`),
-  );
+  journalEntries.forEach((entry, index) => console.log(`${index + 1}. ${entry}`));
 
   await showQuests(player);
 }
@@ -171,8 +159,7 @@ function getRandomCreatureFromCell(cell: Cell) {
 
 export async function enterCell(player: MobilePlayer, cell: Cell) {
   const description = resolveDynamic(cell.description, player) ?? "";
-  const displayName =
-    resolveDynamic(cell.displayName, player) ?? cell.editorName;
+  const displayName = resolveDynamic(cell.displayName, player) ?? cell.editorName;
   let inCell = true;
   while (inCell && player.health.current > 0) {
     console.log(chalk.cyan(`\n=== ${displayName} ===`));
@@ -184,12 +171,8 @@ export async function enterCell(player: MobilePlayer, cell: Cell) {
       currentActorNode = currentActorNode.nextNode ?? null;
     }
 
-    const actorIds = actorNodes.map((node) =>
-      String((node.object as { id: string }).id),
-    );
-    const talkableActors = actorNodes.filter((node) =>
-      canTalkToActor(node, player),
-    );
+    const actorIds = actorNodes.map((node) => String((node.object as { id: string }).id));
+    const talkableActors = actorNodes.filter((node) => canTalkToActor(node, player));
     const creatureIds = actorIds.filter((id) => Boolean(mt.getObject(id)));
 
     const choices = [
@@ -262,9 +245,7 @@ async function showTravelMenu(player: MobilePlayer) {
 
   if (destination === "__cancel") return showMainMenu(player);
 
-  const selectedCell = mt.dataHandler.nonDynamicData.cells.find(
-    (loc) => loc.id === destination,
-  );
+  const selectedCell = mt.dataHandler.nonDynamicData.cells.find((loc) => loc.id === destination);
   if (!selectedCell) {
     console.log(chalk.red("Unknown destination selected."));
     return showMainMenu(player);
@@ -288,8 +269,7 @@ async function startGame() {
       type: "input",
       name: "name",
       message: "Enter your name:",
-      validate: (input: string) =>
-        input.trim() !== "" || "Name cannot be empty!",
+      validate: (input: string) => input.trim() !== "" || "Name cannot be empty!",
     });
     name = response.name.trim();
   }

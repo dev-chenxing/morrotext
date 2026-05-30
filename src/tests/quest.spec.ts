@@ -1,6 +1,5 @@
 import { describe, it, expect, afterEach } from "vitest";
 import { initializeGameData } from "../core/initialize.ts";
-import { startQuest, updateJournal } from "../core/systems/quest.ts";
 
 describe("Quest journal monotonicity", () => {
   afterEach(() => {
@@ -18,23 +17,30 @@ describe("Quest journal monotonicity", () => {
   it("initializes quest journal index at start and enforces monotonicity", () => {
     initializeGameData();
 
-    const quest = startQuest("Report to Caius Cosades");
-    expect(quest).not.toBeNull();
+    const wasStarted = mt.updateJournal("A1_1_FindSpymaster", 0);
+    expect(wasStarted).toBe(true);
+
+    const quest = mt.worldController.quests.find((entry) => entry.id === "A1_1_FindSpymaster");
+    expect(quest).toBeDefined();
     if (!quest) return;
+
+    expect(quest.isActive).toBe(true);
+    expect(quest.isStarted).toBe(true);
+    expect(quest.isFinished).toBe(false);
 
     // initial index
     expect(quest.dialogue[0].journalIndex).toBe(0);
 
     // advance to 1
-    expect(updateJournal("report_to_caius_cosades", 1, false)).toBe(true);
+    expect(mt.updateJournal("A1_1_FindSpymaster", 1, false)).toBe(true);
     expect(quest.dialogue[0].journalIndex).toBe(1);
 
     // skip forward to 3 (allowed)
-    expect(updateJournal("report_to_caius_cosades", 3, false)).toBe(true);
+    expect(mt.updateJournal("A1_1_FindSpymaster", 3, false)).toBe(true);
     expect(quest.dialogue[0].journalIndex).toBe(3);
 
     // attempt to go backwards (disallowed)
-    expect(updateJournal("report_to_caius_cosades", 2, false)).toBe(false);
+    expect(mt.updateJournal("A1_1_FindSpymaster", 2, false)).toBe(false);
     expect(quest.dialogue[0].journalIndex).toBe(3);
   });
 });

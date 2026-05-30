@@ -1,10 +1,4 @@
-import type {
-  Cell,
-  CellRegistryEntry,
-  GameObject,
-  Reference,
-  ReferenceList,
-} from "../../types.ts";
+import type { Cell, CellRegistryEntry, GameObject, Reference, ReferenceList } from "../../types.ts";
 
 function appendReference(list: ReferenceList, object: GameObject): Reference {
   const reference: Reference = {
@@ -32,10 +26,7 @@ function appendReference(list: ReferenceList, object: GameObject): Reference {
   return reference;
 }
 
-export function createReferenceList(
-  cell: Cell,
-  referenceList: string[],
-): ReferenceList {
+export function createReferenceList(cell: Cell, referenceList: string[]): ReferenceList {
   const list: ReferenceList = { cell, head: null, tail: null, size: 0 };
 
   referenceList.forEach((objectId) => {

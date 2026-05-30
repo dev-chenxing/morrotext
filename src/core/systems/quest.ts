@@ -1,18 +1,38 @@
 import chalk from "chalk";
-import { DIALOGUE_TYPE, OBJECT_TYPE } from "../../constants.ts";
-import { QUESTS } from "../../data/quests.ts";
+import { JOURNAL, type QuestRegistryEntry } from "../../data/quests.ts";
 import type { Dialogue, Quest } from "../../types.ts";
+import { DIALOGUE_TYPE, OBJECT_TYPE } from "../../constants.ts";
+import { hashString, stableSerialize } from "../utils/index.ts";
 
-function cloneQuestDialogue(questId: string) {
-  const questEntry = QUESTS.find((entry) => entry.id === questId);
-  return (
-    questEntry?.dialogue.map((dialogue) => ({
-      ...dialogue,
+function createDialogueInfoId(dialogueId: string, info: object): string {
+  const base = `${dialogueId}-${stableSerialize(info)}`;
+  return hashString(base);
+}
+
+export function createQuest(entry: QuestRegistryEntry): Quest {
+  return {
+    id: entry.dialogue[0]?.id ?? entry.id,
+    objectType: OBJECT_TYPE.QUEST,
+    dialogue: entry.dialogue.map((d) => ({
+      ...d,
       type: DIALOGUE_TYPE.JOURNAL,
       objectType: OBJECT_TYPE.DIALOGUE,
-      info: dialogue.info.map((info) => ({ ...info, id: questId })),
+      info: d.info.map((info) => ({ ...info, id: createDialogueInfoId(d.id, info) })),
       journalIndex: 0,
-    })) ?? []
+    })),
+    isActive: false,
+    isStarted: false,
+    isFinished: false,
+  };
+}
+
+function matchesQuestKey(quest: Quest, key: string): boolean {
+  return (
+    quest.id === key ||
+    quest.dialogue?.some((dialogue) => {
+      const questName = (dialogue as Dialogue & { questName?: string }).questName;
+      return dialogue.id === key || questName === key;
+    }) === true
   );
 }
 
@@ -28,18 +48,18 @@ export function findQuest(journal?: Dialogue | string, name?: string): Quest | u
       const byDialogueId = quests.find((quest) => quest.dialogue?.some((d) => d.id === journal.id));
       if (byDialogueId) return byDialogueId;
 
-      const byQuestId = quests.find((quest) => quest.id === journal.id);
+      const byQuestId = quests.find((quest) => matchesQuestKey(quest, journal.id));
       if (byQuestId) return byQuestId;
     } else {
-      const byJournal = quests.find((quest) => quest.dialogue?.some((d) => d.id === journal));
+      const byJournal = quests.find((quest) => matchesQuestKey(quest, journal));
       if (byJournal) return byJournal;
-      const byId = quests.find((quest) => quest.id === journal);
+      const byId = quests.find((quest) => matchesQuestKey(quest, journal));
       if (byId) return byId;
     }
   }
 
   if (name) {
-    const byId = quests.find((quest) => quest.id === name);
+    const byId = quests.find((quest) => matchesQuestKey(quest, name));
     if (byId) return byId;
   }
 
@@ -50,14 +70,14 @@ export function getJournalIndex(id: Dialogue | string): number | null {
   if (typeof id !== "string") {
     const quest = findQuest(id);
     if (quest && quest.dialogue) {
-      const idx = quest.dialogue.indexOf(id);
-      if (idx !== -1) return idx;
+      const target = quest.dialogue.find((entry) => entry === id || entry.id === id.id);
+      if (target) return target.journalIndex ?? 0;
     }
 
     const journalId = id.id;
-    for (const q of QUESTS) {
-      const idx = q.dialogue.findIndex((d) => d.id === journalId);
-      if (idx !== -1) return idx;
+    for (const q of JOURNAL) {
+      const target = q.dialogue.find((d) => d.id === journalId || d.questName === journalId);
+      if (target) return 0;
     }
 
     return null;
@@ -65,13 +85,16 @@ export function getJournalIndex(id: Dialogue | string): number | null {
 
   const quest = findQuest(id);
   if (quest && quest.dialogue) {
-    const idx = quest.dialogue.findIndex((d) => d.id === id);
-    if (idx !== -1) return idx;
+    const target = quest.dialogue.find(
+      (dialogue) =>
+        dialogue.id === id || (dialogue as Dialogue & { questName?: string }).questName === id,
+    );
+    if (target) return target.journalIndex ?? 0;
   }
 
-  for (const q of QUESTS) {
-    const idx = q.dialogue.findIndex((d) => d.id === id);
-    if (idx !== -1) return idx;
+  for (const q of JOURNAL) {
+    const target = q.dialogue.find((dialogue) => dialogue.id === id || dialogue.questName === id);
+    if (target) return 0;
   }
 
   return null;
@@ -95,25 +118,13 @@ export function isQuestAvailable(questId: string): boolean {
   return quest.isStarted !== true && quest.isFinished !== true;
 }
 
-export function startQuest(questId: string): Quest | null {
-  const quest = findQuest(undefined, questId);
-  if (!quest) return null;
-
-  if (quest.isStarted === true && quest.isFinished !== true) return null;
-
-  quest.isActive = true;
-  quest.isStarted = true;
-  quest.isFinished = false;
-  quest.dialogue = cloneQuestDialogue(questId);
-  console.log(`New quest started: "${questId}"`);
-  return quest;
-}
-
-export function updateJournal(id: Dialogue | string, index: number, showMessage = true) {
+export function updateJournal(id: Dialogue | string, index: number, showMessage: boolean = true) {
   const quest = findQuest(id);
   if (!quest) return false;
 
   quest.isActive = true;
+  quest.isStarted = true;
+  quest.isFinished = false;
 
   let target: Dialogue | undefined;
   if (typeof id === "string") {
@@ -147,14 +158,4 @@ export function updateJournal(id: Dialogue | string, index: number, showMessage 
   }
 
   return true;
-}
-
-export function completeQuest(questId: string) {
-  const quest = findQuest(undefined, questId);
-  if (!quest) return;
-
-  quest.isActive = false;
-  quest.isStarted = true;
-  quest.isFinished = true;
-  console.log(chalk.green(`\nQuest "${questId}" completed!`));
 }

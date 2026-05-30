@@ -1,15 +1,19 @@
 import { DIALOGUE_TYPE, OBJECT_TYPE } from "../constants.ts";
-import type { Dialogue, DialogueRecordSet } from "../types.ts";
+import type { Actor, Dialogue, DialogueInfo } from "../types.ts";
 import { ACTIONS } from "../data/actions.ts";
 import { ALCHEMY } from "../data/alchemy.ts";
 import { ARMORS } from "../data/armors.ts";
 import { CELLS } from "../data/cells/index.ts";
 import { CLASSES } from "../data/classes.ts";
 import { CREATURES } from "../data/creatures.ts";
-import dialogues from "../data/dialogues.ts";
+import {
+  type DialogueInfoRegistryEntry,
+  type DialogueRegistryEntry,
+  DIALOGUE,
+} from "../data/dialogues.ts";
 import { MISC_ITEMS } from "../data/misc.ts";
 import { NPC_REGISTRY } from "../data/npcs.ts";
-import { QUESTS } from "../data/quests.ts";
+import { JOURNAL } from "../data/quests.ts";
 import { WEAPONS } from "../data/weapons.ts";
 import { createClass } from "./systems/class.ts";
 import { createCell } from "./systems/cell.ts";
@@ -17,24 +21,34 @@ import { createCreature } from "./systems/creature.ts";
 import { createAlchemy, createArmor, createMisc, createWeapon } from "./systems/item.ts";
 import { createLeveledItems } from "./systems/leveledList.ts";
 import { createNPC } from "./systems/npc.ts";
+import { createQuest } from "./systems/quest.ts";
+import { hashString, stableSerialize } from "./utils/index.ts";
 import { attachMtGlobal, mt } from "./mt.ts";
 
-function cloneDialogueRecord(source: Record<string, Dialogue>): Record<string, any> {
-  return Object.fromEntries(
-    Object.entries(source).map(([id, dialogue]) => [
-      id,
-      { ...dialogue, info: dialogue.info.map((info) => ({ ...info })) },
-    ]),
-  );
+function createDialogueInfoId(dialogueId: string, info: DialogueInfoRegistryEntry): string {
+  // Create a unique ID for the dialogue info by hashing its content along with the parent dialogue ID
+  const baseString = `${dialogueId}-${stableSerialize(info)}`;
+  return hashString(baseString);
 }
 
-function cloneDialogues(source: DialogueRecordSet): any {
+function createDialogueInfo(dialogueId: string, info: DialogueInfoRegistryEntry): DialogueInfo {
   return {
-    greetings: cloneDialogueRecord(source.greetings),
-    journals: source.journals ? cloneDialogueRecord(source.journals) : undefined,
-    services: source.services ? cloneDialogueRecord(source.services) : undefined,
-    topics: cloneDialogueRecord(source.topics),
+    ...info,
+    actor: info.actor ? (mt.getObject(info.actor) as Actor | undefined) : undefined,
+    id: createDialogueInfoId(dialogueId, info),
   };
+}
+
+function createDialogueEntries(
+  entries: DialogueRegistryEntry[],
+  type: Dialogue["type"],
+): Dialogue[] {
+  return entries.map((entry) => ({
+    id: entry.id,
+    objectType: OBJECT_TYPE.DIALOGUE,
+    type,
+    info: entry.info.map((info) => createDialogueInfo(entry.id, info)),
+  }));
 }
 
 function createActions(): void {
@@ -67,24 +81,10 @@ function createNPCs(): void {
 }
 
 function createDialogues(): void {
-  const cloned = cloneDialogues(dialogues);
-  const arr: Dialogue[] = [];
-  Object.values(cloned.greetings).forEach((d) =>
-    arr.push(Object.assign({}, d, { type: DIALOGUE_TYPE.GREETING }) as Dialogue),
-  );
-  Object.values(cloned.topics).forEach((d) =>
-    arr.push(Object.assign({}, d, { type: DIALOGUE_TYPE.TOPIC }) as Dialogue),
-  );
-  if (cloned.services)
-    Object.values(cloned.services).forEach((d) =>
-      arr.push(Object.assign({}, d, { type: DIALOGUE_TYPE.SERVICE }) as Dialogue),
-    );
-  if (cloned.journals)
-    Object.values(cloned.journals).forEach((d) =>
-      arr.push(Object.assign({}, d, { type: DIALOGUE_TYPE.JOURNAL }) as Dialogue),
-    );
-
-  mt.dataHandler.nonDynamicData.dialogues = arr;
+  mt.dataHandler.nonDynamicData.dialogues = [
+    ...createDialogueEntries(DIALOGUE.GREETING, DIALOGUE_TYPE.GREETING),
+    ...createDialogueEntries(DIALOGUE.TOPIC, DIALOGUE_TYPE.TOPIC),
+  ];
 }
 
 function createCells(): void {
@@ -95,20 +95,7 @@ function createCells(): void {
 }
 
 function createQuests(): void {
-  mt.worldController.quests = QUESTS.map((quest) => ({
-    id: quest.id,
-    objectType: OBJECT_TYPE.QUEST,
-    dialogue: quest.dialogue.map((entry) => ({
-      ...entry,
-      type: DIALOGUE_TYPE.JOURNAL,
-      objectType: OBJECT_TYPE.DIALOGUE,
-      info: entry.info.map((info) => ({ ...info, id: quest.id })),
-      journalIndex: 0,
-    })),
-    isActive: false,
-    isStarted: false,
-    isFinished: false,
-  }));
+  mt.worldController.quests = JOURNAL.map((q) => createQuest(q));
 }
 
 export function initializeGameData() {

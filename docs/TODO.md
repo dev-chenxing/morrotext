@@ -71,8 +71,12 @@
   - [x] refactor: remove `activeQuests`, `completedQuests`, `storyFlags`, and `killCount` from `Player`
   - [x] fix: enforce stage monotonicity (can skip stages but can't go backwards)
 - [x] feat: add `worldController` to `gameState`
-- [ ] refactor: remove deprecated helper functions `startQuest()` from `systems/quest.ts`
+- [x] refactor: remove deprecated helper functions `startQuest()` from `systems/quest.ts`
 - [x] refactor: migrate dialogue content entries to include `script` fields where they should grant rewards or update journals
+- [ ] feat: add dialogue text dynamic insertion like `%Name`/`%PCName`/`%rank`/`%faction` and implement a simple parser to replace those with runtime values
+- [ ] feat: add `mt.findQuest`
+- [ ] fix: `mt.updateJournal()` should return false if the journal entry of the given index doesn't exist
+- [ ] refactor: refactor `matchesFilters` in `systems/dialogue.ts`
 
 ### Dialogue Engine Refactor
 - [x] refactor: no NPC-specific code in dialogue engine

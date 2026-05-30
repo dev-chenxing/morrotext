@@ -1,206 +1,81 @@
-import { DIALOGUE_TYPE, GOLD_ID, OBJECT_TYPE } from "../constants.ts";
-import { hasStartedQuest, startQuest } from "../core/systems/quest.ts";
+import { Reference } from "../types.ts";
+import { JOURNAL } from "./quests.ts";
 
-const createEntry = (
-  priority: number,
-  text: string,
-  filters?: any,
-  runScript?: (reference: any) => void,
-): any => {
-  const entry: any = { priority, text };
-  if (typeof filters === "string") {
-    entry.actor = { id: filters };
-  } else if (filters && typeof filters === "object") {
-    Object.assign(entry, filters);
-  }
+export type DialogueRegistryEntry = { id: string; info: DialogueInfoRegistryEntry[] };
 
-  if (runScript) entry.runScript = runScript;
-  return entry;
+export type DialogueInfoRegistryEntry = {
+  actor?: string;
+  condition?: () => boolean;
+  text: string;
+  runScript?: (reference: Reference) => void;
 };
 
-const dialogues: any = {
-  greetings: {
-    greeting_0: {
-      dialogueType: DIALOGUE_TYPE.GREETING,
-      id: "Greeting 0",
-      info: [
-        createEntry(
-          100,
-          'Jiub grins wearily. "Jiub. Last I checked, anyway. Better get moving before they decide to keep us both down here."',
-          "jiub",
-        ),
-        createEntry(
-          90,
-          "The guard eyes you for a moment. \"If you're meant to be processed, don't waste time standing around.\"",
-          "Imperial Guard",
-        ),
-        createEntry(
-          80,
-          'Socucius Ergalla shuffles a stack of papers. "State your business and we\'ll see you sorted."',
-          "chargen class",
-        ),
-        createEntry(
-          80,
-          "Sellus Gravius looks up from his desk. \"If you're here for your release, let's make this brief.\"",
-          "chargen captain",
-        ),
-      ],
-      objectType: OBJECT_TYPE.DIALOGUE,
-    },
+const GREETING: DialogueRegistryEntry[] = [
+  {
+    id: "Greeting 1",
+    info: [
+      {
+        actor: "chargen captain",
+        condition: () => mt.getItemCount(mt.player, "chargen statssheet") >= 1,
+        text: "First, let me take your identification papers. Thank you. Word of your arrival only reached me yesterday. I am %name. But my background is not important. I'm here to welcome you to Morrowind.",
+        runScript: (reference: Reference) => {
+          mt.removeItem(mt.player, "chargen statssheet", 1);
+          reference.data.state = -1;
+        },
+      },
+    ],
   },
-  topics: {
-    "Who are you?": {
-      dialogueType: DIALOGUE_TYPE.TOPIC,
-      id: "Who are you?",
-      info: [
-        createEntry(
-          100,
-          'Jiub grins wearily. "Jiub. Last I checked, anyway. Better get moving before they decide to keep us both down here."',
-          "jiub",
-        ),
-      ],
-      objectType: OBJECT_TYPE.DIALOGUE,
-    },
-    "Where are we?": {
-      dialogueType: DIALOGUE_TYPE.TOPIC,
-      id: "Where are we?",
-      info: [
-        createEntry(
-          100,
-          "\"On an Imperial prison ship. We've made port at Seyda Neen, on Vvardenfell. If this is your lucky day, you'll be off these boards soon.\"",
-          "jiub",
-        ),
-      ],
-      objectType: OBJECT_TYPE.DIALOGUE,
-    },
-    "I'm ready to get up.": {
-      dialogueType: DIALOGUE_TYPE.TOPIC,
-      id: "I'm ready to get up.",
-      info: [
-        createEntry(
-          100,
-          "Jiub steps aside and nods toward the stairs leading up to the deck.",
-          "jiub",
-          (reference: any) => {
-            (reference.tempData as Record<string, unknown>).__dialogue_exit = true;
-          },
-        ),
-      ],
-      objectType: OBJECT_TYPE.DIALOGUE,
-    },
-    "Where should I go?": {
-      dialogueType: DIALOGUE_TYPE.TOPIC,
-      id: "Where should I go?",
-      info: [
-        createEntry(
-          100,
-          "The guard gestures toward the nearby office. \"Report to the Census and Excise Office if you're meant to be processed. Don't loiter on the dock.\"",
-          "Imperial Guard",
-        ),
-      ],
-      objectType: OBJECT_TYPE.DIALOGUE,
-    },
-    "I'm just passing through.": {
-      dialogueType: DIALOGUE_TYPE.TOPIC,
-      id: "I'm just passing through.",
-      info: [
-        createEntry(
-          100,
-          '"Then move along. Seyda Neen is quiet, and we\'d like to keep it that way."',
-          "Imperial Guard",
-          (reference: any) => {
-            (reference.tempData as Record<string, unknown>).__dialogue_exit = true;
-          },
-        ),
-      ],
-      objectType: OBJECT_TYPE.DIALOGUE,
-    },
-    "I'm here for processing.": {
-      dialogueType: DIALOGUE_TYPE.TOPIC,
-      id: "I'm here for processing.",
-      info: [
-        createEntry(
-          100,
-          'Socucius Ergalla adjusts his papers. "Ah yes. Fresh off the boat. Everything seems to be in order. Speak to Sellus Gravius for your release papers."',
-          "chargen class",
-        ),
-      ],
-      objectType: OBJECT_TYPE.DIALOGUE,
-    },
-    "Tell me about Seyda Neen.": {
-      dialogueType: DIALOGUE_TYPE.TOPIC,
-      id: "Tell me about Seyda Neen.",
-      info: [
-        createEntry(
-          100,
-          '"Small town. Mudcrabs, marshes, and Imperial paperwork. If you have business elsewhere, Balmora is where your road truly begins."',
-          "chargen class",
-        ),
-      ],
-      objectType: OBJECT_TYPE.DIALOGUE,
-    },
-    "I'm ready for my release papers.": {
-      dialogueType: DIALOGUE_TYPE.TOPIC,
-      id: "I'm ready for my release papers.",
-      info: [
-        createEntry(
-          100,
-          "Sellus Gravius reaches for the release papers on his desk.",
-          "chargen captain",
-          (reference: any) => {
-            const player = mt.mobilePlayer;
-            const hasAlreadyBeenReleased = hasStartedQuest("Report to Caius Cosades");
-            if (player) {
-              if (!hasAlreadyBeenReleased) {
-                player.inventory.addItem(GOLD_ID, 87);
-                player.inventory.addItem("common_shirt", 1);
-                player.inventory.addItem("common_pants", 1);
-                player.inventory.addItem("common_shoes", 1);
-                player.inventory.addItem("directions_to_caius_cosades", 1);
-                player.inventory.addItem("package_for_caius_cosades", 1);
+];
 
-                const quest = startQuest("Report to Caius Cosades");
-                if (quest) {
-                  console.log(
-                    "Sellus Gravius hands over your release papers, a sealed package, and a few coins.",
-                  );
-                  console.log('Quest started: "Report to Caius Cosades"');
-                }
-              } else {
-                console.log(
-                  '"I\'ve already given you your papers. Take them to Caius Cosades in Balmora."',
-                );
-              }
-
-              console.log(
-                '"This package came with the Emperor\'s private instructions. Deliver it to Caius Cosades in Balmora, and do not lose it."',
-              );
-
-              (reference.tempData as Record<string, unknown>).__dialogue_exit = true;
-            }
-          },
-        ),
-      ],
-      objectType: OBJECT_TYPE.DIALOGUE,
-    },
-    "What am I supposed to do now?": {
-      dialogueType: DIALOGUE_TYPE.TOPIC,
-      id: "What am I supposed to do now?",
-      info: [
-        createEntry(
-          200,
-          '"Go to Balmora. Find Caius Cosades. Give him the package and the directions note. That\'s all you need to know for now."',
-          { actor: { id: "chargen captain" }, journalIndex: 1, id: "Report to Caius Cosades" },
-        ),
-        createEntry(
-          100,
-          '"First, let me finish your release. Then we\'ll discuss your orders."',
-          "chargen captain",
-        ),
-      ],
-      objectType: OBJECT_TYPE.DIALOGUE,
-    },
+const TOPIC: DialogueRegistryEntry[] = [
+  {
+    id: "Background",
+    info: [{ actor: "chargen captain", text: "I am %name, and %rank of the %faction." }],
   },
-};
+  {
+    id: "duties",
+    info: [
+      {
+        actor: "chargen captain",
+        condition: () => {
+          const journalIndex = mt.getJournalIndex("A1_1_FindSpymaster") ?? 0;
+          return journalIndex < 12 && journalIndex >= 1;
+        },
+        // Note: journal gets set to 12 when you give spymaster package.
+        text: "You know your duties. Take that package to Caius Cosades in Balmora.",
+      },
+      {
+        actor: "chargen captain",
+        condition: () => (mt.getJournalIndex("A1_1_FindSpymaster") ?? 0) === 0,
+        // Note: journal gets set to 12 when you give spymaster package.
+        text: "This package came with the news of your arrival. You are to take it to Caius Cosades, in the town of Balmora. Go to the South Wall Cornerclub, and ask for Caius Cosades -- they'll know where to find him. Serve him as you would serve the Emperor himself. I also have a letter for you, and a disbursal to your name.",
+        runScript: () => {
+          mt.updateJournal("A1_1_FindSpymaster", 1);
+          mt.addItem(mt.player, "bk_A1_1_DirectionsCaiusCosades", 1);
+          mt.addItem(mt.player, "bk_a1_1_caiuspackage", 1);
+          mt.addItem(mt.player, "Gold_001", 87);
+          mt.addTopic("Caius Cosades");
+          mt.addTopic("South Wall");
+          mt.addTopic("specific place");
+          mt.addTopic("someone in particular");
+          mt.addTopic("services");
+          mt.addTopic("my trade");
+          mt.addTopic("little secret");
+          mt.addTopic("latest rumors");
+          mt.addTopic("little advice");
+        },
+      },
+    ],
+  },
+  {
+    id: "Morrowind",
+    info: [
+      {
+        actor: "chargen captain",
+        text: "Yes. You're in Morrowind. I don't know why you're here. Or why you were released from prison and shipped here. But your authorization comes directly from Emperor Uriel Septim VII himself. And I don't need to know any more than that. When you leave this office, you are a free man. But before you go, I have instructions on your duties. Instructions from the Emperor. So pay careful attention.",
+      },
+    ],
+  },
+];
 
-export default dialogues;
+export const DIALOGUE = { TOPIC, GREETING, JOURNAL };

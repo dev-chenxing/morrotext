@@ -46,25 +46,16 @@ describe("Prisoner Released opening", () => {
     mt.mobilePlayer = mobilePlayer;
 
     const sellus = createNPCInstance("chargen captain");
-    const topic = mt.dataHandler.nonDynamicData.dialogues.find(
-      (d) => d.id === "I'm ready for my release papers.",
-    );
-    vi.spyOn(inquirer, "prompt").mockResolvedValue({
-      topicId: topic?.id ?? null,
-    } as any);
+    const topic = mt.dataHandler.nonDynamicData.dialogues.find((d) => d.id === "duties");
+    vi.spyOn(inquirer, "prompt")
+      .mockResolvedValueOnce({ topicId: topic?.id ?? null } as any)
+      .mockResolvedValueOnce({ topicId: null } as any);
 
     await talkToNPC(sellus, mobilePlayer);
 
-    expect(hasStartedQuest("Report to Caius Cosades")).toBe(true);
-    expect(mobilePlayer.inventory.getItemCount("gold")).toBe(87);
-    expect(mobilePlayer.inventory.getItemCount("common_shirt")).toBe(1);
-    expect(mobilePlayer.inventory.getItemCount("common_pants")).toBe(1);
-    expect(mobilePlayer.inventory.getItemCount("common_shoes")).toBe(1);
-    expect(
-      mobilePlayer.inventory.getItemCount("directions_to_caius_cosades"),
-    ).toBe(1);
-    expect(
-      mobilePlayer.inventory.getItemCount("package_for_caius_cosades"),
-    ).toBe(1);
+    expect(hasStartedQuest("A1_1_FindSpymaster")).toBe(true);
+    expect(mobilePlayer.inventory.getItemCount("Gold_001")).toBe(87);
+    expect(mobilePlayer.inventory.getItemCount("bk_A1_1_DirectionsCaiusCosades")).toBe(1);
+    expect(mobilePlayer.inventory.getItemCount("package_for_caius_cosades")).toBe(1);
   });
 });

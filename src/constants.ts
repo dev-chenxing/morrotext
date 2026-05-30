@@ -1,16 +1,44 @@
 const OBJECT_TYPES = {
-  ACCESSORY: "accessory",
-  ACTOR: "actor",
+  ACTION: "action",
+  ACTIVATOR: "activator",
   ALCHEMY: "alchemy",
+  AMMUNITION: "ammunition",
+  APPARATUS: "apparatus",
   ARMOR: "armor",
+  BIRTHSIGN: "birthsign",
   BOOK: "book",
+  CELL: "cell",
+  CLASS: "class",
+  CLOTHING: "clothing",
+  CONTAINER: "container",
   CREATURE: "creature",
   DIALOGUE: "dialogue",
-  ITEM: "item",
-  LEVELED_ITEM: "leveled_item",
-  MISC: "misc",
+  DIALOGUE_INFO: "dialogueInfo",
+  DOOR: "door",
+  ENCHANTMENT: "enchantment",
+  FACTION: "faction",
+  INGREDIENT: "ingredient",
+  LEVELED_CREATURE: "leveledCreature",
+  LEVELED_ITEM: "leveledItem",
+  LOCKPICK: "lockpick",
+  MAGIC_EFFECT: "magicEffect",
+  MISC_ITEM: "misc",
+  MOBILE_ACTOR: "mobileActor",
+  MOBILE_CREATURE: "mobileCreature",
+  MOBILE_NPC: "mobileNPC",
+  MOBILE_PLAYER: "mobilePlayer",
   NPC: "npc",
+  PROBE: "probe",
   QUEST: "quest",
+  RACE: "race",
+  REFERENCE: "reference",
+  REGION: "region",
+  REPAIR_ITEM: "repairItem",
+  SCRIPT: "script",
+  SKILL: "skill",
+  SOUND: "sound",
+  STARTSCRIPT: "startScript",
+  STATIC: "static",
   WEAPON: "weapon",
 } as const;
 
@@ -19,17 +47,27 @@ export const OBJECT_TYPE = OBJECT_TYPES;
 export type OBJECT_TYPE = (typeof OBJECT_TYPES)[keyof typeof OBJECT_TYPES];
 
 export namespace OBJECT_TYPE {
-  export type ACCESSORY = typeof OBJECT_TYPES.ACCESSORY;
-  export type ACTOR = typeof OBJECT_TYPES.ACTOR;
+  export type ACTION = typeof OBJECT_TYPES.ACTION;
+  export type ACTIVATOR = typeof OBJECT_TYPES.ACTIVATOR;
   export type ALCHEMY = typeof OBJECT_TYPES.ALCHEMY;
   export type ARMOR = typeof OBJECT_TYPES.ARMOR;
   export type BOOK = typeof OBJECT_TYPES.BOOK;
-  export type ITEM = typeof OBJECT_TYPES.ITEM;
+  export type DIALOGUE = typeof OBJECT_TYPES.DIALOGUE;
+  export type DIALOGUE_INFO = typeof OBJECT_TYPES.DIALOGUE_INFO;
+  export type CELL = typeof OBJECT_TYPES.CELL;
+  export type CLASS = typeof OBJECT_TYPES.CLASS;
+  export type CLOTHING = typeof OBJECT_TYPES.CLOTHING;
+  export type CONTAINER = typeof OBJECT_TYPES.CONTAINER;
+  export type CREATURE = typeof OBJECT_TYPES.CREATURE;
+  export type DOOR = typeof OBJECT_TYPES.DOOR;
+  export type ENCHANTMENT = typeof OBJECT_TYPES.ENCHANTMENT;
+  export type FACTION = typeof OBJECT_TYPES.FACTION;
+  export type INGREDIENT = typeof OBJECT_TYPES.INGREDIENT;
+  export type LEVELED_CREATURE = typeof OBJECT_TYPES.LEVELED_CREATURE;
   export type LEVELED_ITEM = typeof OBJECT_TYPES.LEVELED_ITEM;
-  export type MISC = typeof OBJECT_TYPES.MISC;
+  export type MISC_ITEM = typeof OBJECT_TYPES.MISC_ITEM;
   export type NPC = typeof OBJECT_TYPES.NPC;
   export type QUEST = typeof OBJECT_TYPES.QUEST;
-  export type DIALOGUE = typeof OBJECT_TYPES.DIALOGUE;
   export type WEAPON = typeof OBJECT_TYPES.WEAPON;
 }
 
@@ -104,7 +142,7 @@ export namespace ACTOR_TYPE {
   export type CREATURE = typeof ACTOR_TYPE_VALUES.CREATURE;
 }
 
-export const GOLD_ID = "gold";
+export const GOLD_ID = "Gold_001";
 
 export const SHOP_PRICES = { BUY_MULTIPLIER: 1.2, SELL_MULTIPLIER: 0.6 } as const;
 
