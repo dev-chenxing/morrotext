@@ -43,13 +43,13 @@ console.log(chalk.yellow(" ".repeat(Math.max(0, pad)) + subtitle));
 console.log(chalk.yellow(separatorChar.repeat(titleWidth)));
 console.log(chalk.bold.yellow(asciiTitle));
 
-export async function showMainMenu(): Promise<"new-game" | "exit"> {
-  const { action } = await inquirer.prompt<{ action: "new-game" | "exit" }>({
+export async function showMainMenu(): Promise<"new" | "exit"> {
+  const { action } = await inquirer.prompt<{ action: "new" | "exit" }>({
     type: "list",
     name: "action",
-    message: "What would you like to do?",
+    message: "",
     choices: [
-      { name: "New Game", value: "new-game" },
+      { name: "New", value: "new" },
       { name: "Exit", value: "exit" },
     ],
   });
