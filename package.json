@@ -15,7 +15,7 @@
   "type": "module",
   "dependencies": {
     "chalk": "^5.4.1",
-    "figlet": "^1.8.1",
+    "figlet": "^1.11.0",
     "inquirer": "^12.6.2"
   },
   "devDependencies": {

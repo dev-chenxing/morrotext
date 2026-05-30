@@ -8,9 +8,9 @@ const separatorChar = "─";
 
 function renderAsciiTitle(title: string): string {
   const groups = [
-    figlet.textSync(title[0], { font: "Big" }),
-    figlet.textSync(title.slice(1, -1), { font: "Small" }),
-    figlet.textSync(title[title.length - 1], { font: "Big" }),
+    figlet.textSync(title[0], { font: "Varsity" }),
+    figlet.textSync(title.slice(1, -1), { font: "Graceful" }),
+    figlet.textSync(title[title.length - 1], { font: "Varsity" }),
   ].map((raw) => {
     const lines = raw.split("\n").map((l) => l.trimEnd());
     while (lines.length > 0 && lines[lines.length - 1].trim() === "") {
@@ -41,7 +41,7 @@ const pad = Math.floor((titleWidth - subtitle.length) / 2);
 
 console.log(chalk.yellow(" ".repeat(Math.max(0, pad)) + subtitle));
 console.log(chalk.yellow(separatorChar.repeat(titleWidth)));
-console.log(chalk.yellow(asciiTitle));
+console.log(chalk.bold.yellow(asciiTitle));
 
 export async function showMainMenu(): Promise<"new-game" | "exit"> {
   const { action } = await inquirer.prompt<{ action: "new-game" | "exit" }>({
