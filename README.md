@@ -1,6 +1,6 @@
 # Morrotext - A Text-Based RPG
 
-<!-- ![Morrotext Demo](preview.png) -->
+![Morrotext Demo](preview.png)
 
 Morrotext is a command-line role-playing game built with Node.js and TypeScript that brings the Morrowind experience to your terminal. Featuring quests, turn-based combat, and a handcrafted world to explore.
 
