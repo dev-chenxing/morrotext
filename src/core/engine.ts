@@ -30,7 +30,6 @@ async function startGame() {
     let name = "";
     while (!name.trim()) {
       const response = await input<{ name: string }>({
-        name: "name",
         message: "Enter your name:",
         validate: (input: string) => input.trim() !== "" || "Name cannot be empty!",
       });

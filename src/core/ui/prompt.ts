@@ -1,19 +1,26 @@
-import inquirer from "inquirer";
+import * as inquirer from '@inquirer/prompts';
 
-export async function list<T = any>(opts: any): Promise<T> {
-  return (await inquirer.prompt([{ type: "list", ...opts }])) as T;
+type Choice<Value> = {
+    value: Value;
+    name?: string;
+    description?: string;
+    short?: string;
+    disabled?: boolean | string;
+    type?: never;
+};
+
+export async function select<T = any>(opts: {message: string, choices: Choice<T>[]}): Promise<T> {
+  return (await inquirer.select({ theme: {prefix: ""}, ...opts })) as T;
 }
 
-export async function input<T = any>(opts: any): Promise<T> {
-  return (await inquirer.prompt([{ type: "input", ...opts }])) as T;
+export async function input<T = any>(opts: {message: string, validate?: (input: string) => boolean | string}): Promise<T> {
+  return (await inquirer.input({ ...opts })) as T;
 }
 
-export async function confirm<T = any>(opts: any): Promise<T> {
-  return (await inquirer.prompt([{ type: "confirm", ...opts }])) as T;
+export async function confirm<T = any>(opts: {message: string}): Promise<T> {
+  return (await inquirer.confirm({ ...opts })) as T;
 }
 
-export async function number<T = any>(opts: any): Promise<T> {
-  return (await inquirer.prompt([{ type: "number", ...opts }])) as T;
+export async function number<T = any>(opts: {message: string}): Promise<T> {
+  return (await inquirer.number({ ...opts })) as T;
 }
-
-export default { list, input, confirm, number };

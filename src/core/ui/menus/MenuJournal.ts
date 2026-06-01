@@ -1,7 +1,7 @@
 import chalk from "chalk";
 import type { Dialogue } from "../../../types.ts";
 import { findQuest, getActiveQuests } from "../../systems/quest.ts";
-import { list } from "../prompt.ts";
+import { select } from "../prompt.ts";
 
 export async function showJournalMenu(): Promise<void> {
   const activeQuests = getActiveQuests();
@@ -11,12 +11,11 @@ export async function showJournalMenu(): Promise<void> {
     return;
   }
 
-  const { questId } = await list<{ questId: string | null }>({
-    name: "questId",
+  const { questId } = await select<{ questId: string | null }>({
     message: "Active Quests:",
     choices: [
-      ...activeQuests.map((quest) => ({ name: `${quest.id} [Started]`, value: quest.id })),
-      { name: "Return", value: null },
+      ...activeQuests.map((quest) => ({ name: `${quest.id} [Started]`, value: { questId: quest.id } })),
+      { name: "Return", value: { questId: null } },
     ],
   });
 

@@ -2,16 +2,16 @@ import chalk from "chalk";
 import { COMBAT_BALANCE, OBJECT_TYPE, GOLD_ID } from "../../constants.ts";
 import type { Creature, MobilePlayer } from "../../types.ts";
 import { useItem } from "./item.ts";
-import { list } from "../ui/prompt.ts";
+import { select } from "../ui/prompt.ts";
 
-function getActionChoices(player: MobilePlayer): Array<{ name: string; value: string }> {
+function getActionChoices(player: MobilePlayer): Array<{ name: string; value: { action: string } }> {
   const choices = [
-    { name: "Attack", value: "Attack" },
-    { name: "Use Item", value: "Use Item" },
+    { name: "Attack", value: { action: "Attack" } },
+    { name: "Use Item", value: { action: "Use Item" } },
   ];
 
   for (const action of player.object.class.actions) {
-    choices.push({ name: action.description, value: action.id });
+    choices.push({ name: action.description, value: { action: action.id } });
   }
 
   return choices;
@@ -94,9 +94,8 @@ export async function startCombat(player: MobilePlayer, enemy: Creature) {
   updateBattleDisplay(player, enemy);
 
   while ((player.health?.current ?? 0) > 0 && (enemy.health?.current ?? 0) > 0) {
-    const { action } = await list<{ action: string }>({
-      name: "action",
-      message: "Choose your action:",
+    const { action } = await select<{ action: string }>({
+        message: "Choose your action:",
       choices: getActionChoices(player),
     });
 
@@ -127,16 +126,15 @@ export async function startCombat(player: MobilePlayer, enemy: Creature) {
           .map((stack) => {
             const item = mt.getObject(stack.object.id);
             if (!item) return null;
-            return { name: `${item.name} x${stack.count}`, value: stack.object.id } as {
+            return { name: `${item.name} x${stack.count}`, value: { itemId: stack.object.id } } as {
               name: string;
-              value: string;
+              value: { itemId: string };
             } | null;
           })
-          .filter((item): item is { name: string; value: string } => Boolean(item));
-        const { itemId } = await list<{ itemId: string | null }>({
-          name: "itemId",
+          .filter((item): item is { name: string; value: { itemId: string } } => Boolean(item));
+        const { itemId } = await select<{ itemId: string | null }>({
           message: "Select item:",
-          choices: [...inventoryList, { name: "Cancel", value: null }],
+          choices: [...inventoryList, { name: "Cancel", value: { itemId: null } }],
         });
 
         if (itemId) {

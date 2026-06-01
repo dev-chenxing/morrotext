@@ -12,7 +12,7 @@ import { resolveDynamic } from "./utils/index.ts";
 import { showJournalMenu } from "./ui/menus/MenuJournal.ts";
 import { showStatsMenu } from "./ui/menus/MenuStat.ts";
 import { initializeGameData } from "./initialize.ts";
-import { input, list } from "./ui/prompt.ts";
+import { input, select } from "./ui/prompt.ts";
 
 process.on("uncaughtException", (error: unknown) => {
   if (error instanceof Error && error.name === "ExitPromptError") {
@@ -31,10 +31,15 @@ console.log(chalk.yellow(figlet.textSync("MORROTEXT")));
 
 // Main menu system
 export async function showMainMenu(player: MobilePlayer) {
-  const { action } = await list({
-    name: "action",
+  const { action } = await select({
     message: "What would you like to do?",
-    choices: ["Travel", "Check Stats", "View Inventory", "View Quests", "Exit Game"],
+    choices: [
+      { name: "Travel", value: { action: "Travel" } },
+      { name: "Check Stats", value: { action: "Check Stats" } },
+      { name: "View Inventory", value: { action: "View Inventory" } },
+      { name: "View Quests", value: { action: "View Quests" } },
+      { name: "Exit Game", value: { action: "Exit Game" } },
+    ],
   });
 
   switch (action) {
@@ -66,20 +71,19 @@ export async function showInventory(player: MobilePlayer) {
       const isEquipped = player.object.hasItemEquipped(id);
       return {
         name: `${item.name}${isEquipped ? " (Equipped)" : ""} x${String(count)}`,
-        value: id,
+        value: { itemId: id },
       };
     })
-    .filter((item): item is { name: string; value: string } => Boolean(item));
+    .filter((item): item is { name: string; value: { itemId: string } } => Boolean(item));
 
   if (inventoryList.length === 0) {
     console.log(chalk.red("\nYour inventory is empty!"));
     return showMainMenu(player);
   }
 
-  const { itemId } = await list<{ itemId: string | null }>({
-    name: "itemId",
+  const { itemId } = await select<{ itemId: string | null }>({
     message: "Inventory:",
-    choices: [...inventoryList, { name: "Return to Menu", value: null }],
+    choices: [...inventoryList, { name: "Return to Menu", value: { itemId: null } }],
   });
 
   if (!itemId) return showMainMenu(player);
@@ -101,12 +105,14 @@ export async function showQuests(player: MobilePlayer) {
     return showMainMenu(player);
   }
 
-  const { questId } = await list<{ questId: string | null }>({
-    name: "questId",
+  const { questId } = await select<{ questId: string | null }>({
     message: "Active Quests:",
     choices: [
-      ...activeQuests.map((quest) => ({ name: `${quest.id} [Started]`, value: quest.id })),
-      { name: "Return", value: null },
+      ...activeQuests.map((quest) => ({
+        name: `${quest.id} [Started]`,
+        value: { questId: quest.id },
+      })),
+      { name: "Return", value: { questId: null } },
     ],
   });
 
@@ -175,17 +181,16 @@ export async function enterCell(player: MobilePlayer, cell: Cell) {
     const choices = [
       ...talkableActors.map((actorRef) => ({
         name: `Talk to ${mt.getObject((actorRef.object as any).id)?.name || mt.getObject((actorRef.object as any).id)?.name || (actorRef.object as any).id}`,
-        value: `npc:${(actorRef.object as any).id}`,
+        value: { action: `npc:${(actorRef.object as any).id}` },
       })),
-      { name: "Return to Main Menu", value: "return" },
+      { name: "Return to Main Menu", value: { action: "return" } },
     ];
 
     if (creatureIds.length > 0) {
-      choices.unshift({ name: "Explore area", value: "explore" });
+      choices.unshift({ name: "Explore area", value: { action: "explore" } });
     }
 
-    const { action } = await list<{ action: string }>({
-      name: "action",
+    const { action } = await select<{ action: string }>({
       message: "What would you like to do?",
       choices,
     });
@@ -228,12 +233,11 @@ async function showTravelMenu(player: MobilePlayer) {
 
   const choices = availableCells.map((loc) => ({
     name: resolveDynamic(loc.displayName, player) ?? loc.editorName,
-    value: loc.id,
+    value: { action: loc.id },
   }));
-  choices.push({ name: "Cancel", value: "__cancel" });
+  choices.push({ name: "Cancel", value: { action: "__cancel" } });
 
-  const { destination } = await list<{ destination: string }>({
-    name: "destination",
+  const { action: destination } = await select<{ action: string }>({
     message: "Where would you like to travel?",
     choices,
   });
@@ -261,7 +265,6 @@ async function startGame() {
   let name = "";
   while (!name.trim()) {
     const response = await input<{ name: string }>({
-      name: "name",
       message: "Enter your name:",
       validate: (input: string) => input.trim() !== "" || "Name cannot be empty!",
     });
@@ -270,10 +273,9 @@ async function startGame() {
 
   const classChoices = mt.dataHandler.nonDynamicData.classes
     .filter((cls) => cls.playable)
-    .map((cls) => ({ name: cls.name, value: cls.id }));
+    .map((cls) => ({ name: cls.name, value: { action: cls.id } }));
 
-  const { className } = await list<{ className: string }>({
-    name: "className",
+  const { action: className } = await select<{ action: string }>({
     message: "Choose class:",
     choices: classChoices,
   });

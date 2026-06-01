@@ -3,7 +3,7 @@ import type { Cell, MobilePlayer, Reference } from "../../../types.ts";
 import { canTalkToActor, talkToNPC } from "../../systems/dialogue.ts";
 import { createNPCInstance } from "../../systems/npc.ts";
 import { resolveDynamic } from "../../utils/index.ts";
-import { list } from "../prompt.ts";
+import { select } from "../prompt.ts";
 
 export async function enterCell(player: MobilePlayer, cell: Cell): Promise<void> {
   const description = resolveDynamic(cell.description, player) ?? "";
@@ -24,13 +24,12 @@ export async function enterCell(player: MobilePlayer, cell: Cell): Promise<void>
     const choices = [
       ...talkableActors.map((actorRef) => ({
         name: `Talk to ${mt.getObject((actorRef.object as any).id)?.name || (actorRef.object as any).id}`,
-        value: `npc:${(actorRef.object as any).id}`,
+        value: { action: `npc:${(actorRef.object as any).id}` },
       })),
-      { name: "Return to Travel Menu", value: "return" },
+      { name: "Return to Travel Menu", value: { action: "return" } },
     ];
 
-    const { action } = await list<{ action: string }>({
-      name: "action",
+    const { action } = await select<{ action: string }>({
       message: "What would you like to do?",
       choices,
     });
@@ -69,17 +68,15 @@ export async function showServiceTravelMenu(player: MobilePlayer): Promise<void>
 
     const choices = availableCells.map((loc) => ({
       name: resolveDynamic(loc.displayName, player) ?? loc.editorName,
-      value: loc.id,
+      value: { destination: loc.id },
     }));
-    choices.push({ name: "Return to Main Menu", value: "__cancel" });
 
-    const { destination } = await list<{ destination: string }>({
-      name: "destination",
+    const { destination } = await select<{ destination: string | null }>({
       message: "Where would you like to travel?",
-      choices,
+      choices: [...choices, { name: "Return to Main Menu", value: { destination: null } }],
     });
 
-    if (destination === "__cancel") return;
+    if (destination === null) return;
 
     const selectedCell = mt.dataHandler.nonDynamicData.cells.find((loc) => loc.id === destination);
     if (!selectedCell) {

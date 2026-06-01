@@ -9,7 +9,7 @@ import type {
 } from "../../types.ts";
 import { DIALOGUE_TYPE } from "../../constants.ts";
 import { hasStartedQuest, hasCompletedQuest } from "../systems/quest.ts";
-import { list } from "../ui/prompt.ts";
+import { select } from "../ui/prompt.ts";
 
 type DialogueMatch = { dialogue: Dialogue; entry: DialogueInfo };
 
@@ -194,12 +194,11 @@ export async function talkToActor(actorOrRef: Actor | Reference, player: MobileP
       return;
     }
 
-    const { topicId } = await list<{ topicId: string | null }>({
-      name: "topicId",
+    const { action: topicId } = await select<{ action: string | null }>({
       message: `Ask ${actor.name} about:`,
       choices: [
-        ...topics.map((topic) => ({ name: topic.dialogue.id, value: topic.dialogue.id })),
-        { name: "Goodbye", value: null },
+        ...topics.map((topic) => ({ name: topic.dialogue.id, value: { action: topic.dialogue.id } })),
+        { name: "Goodbye", value: { action: null } },
       ],
     });
 

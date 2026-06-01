@@ -1,7 +1,7 @@
 import chalk from "chalk";
 import type { MobilePlayer } from "../../../types.ts";
 import { useItem } from "../../systems/item.ts";
-import { list } from "../prompt.ts";
+import { select } from "../prompt.ts";
 
 export async function showInventoryMenu(player: MobilePlayer): Promise<void> {
   const inventoryList = Object.entries(player.inventory)
@@ -11,19 +11,18 @@ export async function showInventoryMenu(player: MobilePlayer): Promise<void> {
         return null;
       }
       const isEquipped = player.object.hasItemEquipped(id);
-      return { name: `${item.name}${isEquipped ? " (Equipped)" : ""} x${count}`, value: id };
+      return { name: `${item.name}${isEquipped ? " (Equipped)" : ""} x${count}`, value: { itemId: id } };
     })
-    .filter((item): item is { name: string; value: string } => Boolean(item));
+    .filter((item): item is { name: string; value: { itemId: string } } => Boolean(item));
 
   if (inventoryList.length === 0) {
     console.log(chalk.red("\nYour inventory is empty!"));
     return;
   }
 
-  const { itemId } = await list<{ itemId: string | null }>({
-    name: "itemId",
+  const { itemId } = await select<{ itemId: string | null }>({
     message: "Inventory:",
-    choices: [...inventoryList, { name: "Return to Menu", value: null }],
+    choices: [...inventoryList, { name: "Return to Menu", value: { itemId: null } }],
   });
 
   if (!itemId) return;

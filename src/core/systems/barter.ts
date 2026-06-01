@@ -1,7 +1,7 @@
   import chalk from "chalk";
 import { SHOP_PRICES, GOLD_ID } from "../../constants.ts";
 import type { Alchemy, Armor, Item, MobilePlayer, NPC, Weapon } from "../../types.ts";
-import { input, list } from "../ui/prompt.ts";
+import { input, select } from "../ui/prompt.ts";
 
 type ValuedItem = Alchemy | Armor | Weapon;
 
@@ -23,10 +23,9 @@ export async function barter(player: MobilePlayer, actor: NPC) {
 
   let shopping = true;
   while (shopping) {
-    const { action } = await list<{ action: string }>({
-      name: "action",
+    const { action } = await select<{ action: string }>({
       message: "Barter Menu:",
-      choices: ["Buy Items", "Sell Items", "Exit"],
+      choices: [{ name: "Buy Items", value: { action: "Buy Items" } }, { name: "Sell Items", value: { action: "Sell Items" } }, { name: "Exit", value: { action: "Exit" } }],
     });
 
     switch (action) {
@@ -48,20 +47,19 @@ async function buyItems(player: MobilePlayer, actor: NPC, availableItems: string
     return;
   }
 
-  const choices: Array<{ name: string; value: string | null }> = availableItems.map((itemId) => {
+  const choices: Array<{ name: string; value: { itemId: string } | { itemId: null } }> = availableItems.map((itemId) => {
     const item = mt.getObject(itemId);
     if (!isValuedItem(item)) {
-      return { name: `${itemId} - unavailable`, value: null };
+      return { name: `${itemId} - unavailable`, value: { itemId: null } };
     }
 
     const price = Math.ceil(item.value * SHOP_PRICES.BUY_MULTIPLIER);
-    return { name: `${item.name} - ${price} gold`, value: itemId };
+    return { name: `${item.name} - ${price} gold`, value: { itemId } };
   });
 
-  choices.push({ name: "Cancel", value: null });
+  choices.push({ name: "Cancel", value: { itemId: null } });
 
-  const { itemId } = await list<{ itemId: string | null }>({
-    name: "itemId",
+  const { itemId } = await select<{ itemId: string | null }>({  
     message: "Select item to buy:",
     choices,
   });
@@ -93,7 +91,7 @@ async function buyItems(player: MobilePlayer, actor: NPC, availableItems: string
 
 async function sellItems(player: MobilePlayer, actor: NPC) {
   const sellableItems = player.inventory.items.reduce<
-    Array<{ name: string; value: string | null }>
+    Array<{ name: string; value: { itemId: string } | { itemId: null } }>
   >((choices, stack) => {
     const id = stack.object.id;
     const count = stack.count < 0 ? Math.abs(stack.count) : stack.count;
@@ -108,7 +106,7 @@ async function sellItems(player: MobilePlayer, actor: NPC) {
     }
 
     const value = Math.floor(item.value * SHOP_PRICES.SELL_MULTIPLIER);
-    choices.push({ name: `${item.name} x${count} - ${value} gold each`, value: id });
+    choices.push({ name: `${item.name} x${count} - ${value} gold each`, value: { itemId: id } });
 
     return choices;
   }, []);
@@ -118,10 +116,9 @@ async function sellItems(player: MobilePlayer, actor: NPC) {
     return;
   }
 
-  sellableItems.push({ name: "Cancel", value: null });
+  sellableItems.push({ name: "Cancel", value: { itemId: null } });
 
-  const { itemId } = await list<{ itemId: string | null }>({
-    name: "itemId",
+  const { itemId } = await select<{ itemId: string | null }>({
     message: "Select item to sell:",
     choices: sellableItems,
   });
@@ -139,7 +136,6 @@ async function sellItems(player: MobilePlayer, actor: NPC) {
 
     const value = Math.floor(item.value * SHOP_PRICES.SELL_MULTIPLIER);
     const { quantity } = await input<{ quantity: string }>({
-      name: "quantity",
       message: `How many to sell? (Max: ${player.inventory.getItemCount(itemId)})`,
       validate: (input: string) => {
         const num = parseInt(input);

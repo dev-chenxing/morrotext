@@ -47,7 +47,7 @@ describe("Seyda Neen opening and quest flow", () => {
 
     const sellus = createNPCInstance("chargen captain");
     const topic = mt.dataHandler.nonDynamicData.dialogues.find((d) => d.id === "duties");
-    vi.spyOn(prompt, "list")
+    vi.spyOn(prompt, "select")
       .mockResolvedValueOnce({ topicId: topic?.id ?? null } as any)
       .mockResolvedValueOnce({ topicId: null } as any);
 

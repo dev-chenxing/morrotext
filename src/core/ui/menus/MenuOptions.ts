@@ -1,6 +1,6 @@
 import chalk from "chalk";
 import figlet from "figlet";
-import { list } from "../prompt.ts";
+import { select } from "../prompt.ts";
 
 const title = "MORROTEXT";
 const subtitle = "Morrowind but Text-Based RPG";
@@ -40,17 +40,17 @@ const titleWidth = Math.max(...asciiTitle.split("\n").map((l) => l.length));
 const pad = Math.floor((titleWidth - subtitle.length) / 2);
 
 console.clear();
+console.log();
 console.log(chalk.yellow(" ".repeat(Math.max(0, pad)) + subtitle));
 console.log(chalk.yellow(separatorChar.repeat(titleWidth)));
 console.log(chalk.bold.yellow(asciiTitle));
 
 export async function showMainMenu(): Promise<"new" | "exit"> {
-  const { action } = await list<{ action: "new" | "exit" }>({
-    name: "action",
+  const { action } = await select<{ action: "new" | "exit" }>({
     message: "",
     choices: [
-      { name: "New", value: "new" },
-      { name: "Exit", value: "exit" },
+      { name: "New", value: { action: "new" } },
+      { name: "Exit", value: { action: "exit" } },
     ],
   });
 

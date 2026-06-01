@@ -1,7 +1,7 @@
 import chalk from "chalk";
 import { SLOT, OBJECT_TYPE } from "../../constants.ts";
 import type { Item, MobilePlayer, ValueOf } from "../../types.ts";
-import { list } from "../ui/prompt.ts";
+import { select } from "../ui/prompt.ts";
 
 export function getSlotForItemType(
   itemOrObjectType: Item | ValueOf<typeof OBJECT_TYPE>,
@@ -26,18 +26,17 @@ export function isEquipmentItem(item: Item): boolean {
 export async function handleEquipment(player: MobilePlayer, item: Item) {
   const isEquipped = player.object.hasItemEquipped(item.id);
 
-  const choices: Array<{ name: string; value: string }> = [];
+  const choices: Array<{ name: string; value: { action: string } }> = [];
 
   if (isEquipped) {
-    choices.push({ name: "Unequip", value: "unequip" });
+    choices.push({ name: "Unequip", value: { action: "unequip" } });
   } else if (isEquipmentItem(item)) {
-    choices.push({ name: "Equip", value: "equip" });
+    choices.push({ name: "Equip", value: { action: "equip" } });
   }
 
-  choices.push({ name: "Inspect", value: "inspect" }, { name: "Cancel", value: "cancel" });
+  choices.push({ name: "Inspect", value: { action: "inspect" } }, { name: "Cancel", value: { action: "cancel" } });
 
-  const { action } = await list<{ action: string }>({
-    name: "action",
+  const { action } = await select<{ action: string }>({
     message: `What to do with ${item.name}?`,
     choices,
   });
