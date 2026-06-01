@@ -1,7 +1,7 @@
-import inquirer from "inquirer";
 import chalk from "chalk";
 import type { MobilePlayer } from "../../../types.ts";
 import { useItem } from "../../systems/item.ts";
+import { list } from "../prompt.ts";
 
 export async function showInventoryMenu(player: MobilePlayer): Promise<void> {
   const inventoryList = Object.entries(player.inventory)
@@ -20,8 +20,7 @@ export async function showInventoryMenu(player: MobilePlayer): Promise<void> {
     return;
   }
 
-  const { itemId } = await inquirer.prompt<{ itemId: string | null }>({
-    type: "list",
+  const { itemId } = await list<{ itemId: string | null }>({
     name: "itemId",
     message: "Inventory:",
     choices: [...inventoryList, { name: "Return to Menu", value: null }],

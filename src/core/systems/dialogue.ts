@@ -1,4 +1,3 @@
-import inquirer from "inquirer";
 import chalk from "chalk";
 import type {
   Actor,
@@ -10,6 +9,7 @@ import type {
 } from "../../types.ts";
 import { DIALOGUE_TYPE } from "../../constants.ts";
 import { hasStartedQuest, hasCompletedQuest } from "../systems/quest.ts";
+import { list } from "../ui/prompt.ts";
 
 type DialogueMatch = { dialogue: Dialogue; entry: DialogueInfo };
 
@@ -194,8 +194,7 @@ export async function talkToActor(actorOrRef: Actor | Reference, player: MobileP
       return;
     }
 
-    const { topicId } = await inquirer.prompt<{ topicId: string | null }>({
-      type: "list",
+    const { topicId } = await list<{ topicId: string | null }>({
       name: "topicId",
       message: `Ask ${actor.name} about:`,
       choices: [

@@ -1,8 +1,8 @@
 import chalk from "chalk";
-import inquirer from "inquirer";
 import { COMBAT_BALANCE, OBJECT_TYPE, GOLD_ID } from "../../constants.ts";
 import type { Creature, MobilePlayer } from "../../types.ts";
 import { useItem } from "./item.ts";
+import { list } from "../ui/prompt.ts";
 
 function getActionChoices(player: MobilePlayer): Array<{ name: string; value: string }> {
   const choices = [
@@ -94,8 +94,7 @@ export async function startCombat(player: MobilePlayer, enemy: Creature) {
   updateBattleDisplay(player, enemy);
 
   while ((player.health?.current ?? 0) > 0 && (enemy.health?.current ?? 0) > 0) {
-    const { action } = await inquirer.prompt({
-      type: "list",
+    const { action } = await list<{ action: string }>({
       name: "action",
       message: "Choose your action:",
       choices: getActionChoices(player),
@@ -134,8 +133,7 @@ export async function startCombat(player: MobilePlayer, enemy: Creature) {
             } | null;
           })
           .filter((item): item is { name: string; value: string } => Boolean(item));
-        const { itemId } = await inquirer.prompt({
-          type: "list",
+        const { itemId } = await list<{ itemId: string | null }>({
           name: "itemId",
           message: "Select item:",
           choices: [...inventoryList, { name: "Cancel", value: null }],

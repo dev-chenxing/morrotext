@@ -1,11 +1,11 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
-import inquirer from "inquirer";
 import { createPlayer } from "../core/actors/Player.ts";
 import type { MobilePlayer } from "../types.ts";
 import { talkToNPC } from "../core/systems/dialogue.ts";
 import { initializeGameData } from "../core/initialize.ts";
 import { createNPCInstance } from "../core/systems/npc.ts";
 import { hasStartedQuest } from "../core/systems/quest.ts";
+import * as prompt from "../core/ui/prompt.ts";
 
 describe("Seyda Neen opening and quest flow", () => {
   afterEach(() => {
@@ -47,7 +47,7 @@ describe("Seyda Neen opening and quest flow", () => {
 
     const sellus = createNPCInstance("chargen captain");
     const topic = mt.dataHandler.nonDynamicData.dialogues.find((d) => d.id === "duties");
-    vi.spyOn(inquirer, "prompt")
+    vi.spyOn(prompt, "list")
       .mockResolvedValueOnce({ topicId: topic?.id ?? null } as any)
       .mockResolvedValueOnce({ topicId: null } as any);
 

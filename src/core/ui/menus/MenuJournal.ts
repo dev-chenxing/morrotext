@@ -1,7 +1,7 @@
-import inquirer from "inquirer";
 import chalk from "chalk";
 import type { Dialogue } from "../../../types.ts";
 import { findQuest, getActiveQuests } from "../../systems/quest.ts";
+import { list } from "../prompt.ts";
 
 export async function showJournalMenu(): Promise<void> {
   const activeQuests = getActiveQuests();
@@ -11,8 +11,7 @@ export async function showJournalMenu(): Promise<void> {
     return;
   }
 
-  const { questId } = await inquirer.prompt<{ questId: string | null }>({
-    type: "list",
+  const { questId } = await list<{ questId: string | null }>({
     name: "questId",
     message: "Active Quests:",
     choices: [

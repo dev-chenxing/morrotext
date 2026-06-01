@@ -1,4 +1,3 @@
-import inquirer from "inquirer";
 import type { MobilePlayer } from "../types.ts";
 import { createPlayer } from "./actors/Player.ts";
 import { runDataScript } from "./systems/script.ts";
@@ -6,6 +5,7 @@ import { showChooseClassMenu } from "./ui/menus/MenuChooseClass.ts";
 import { showMainMenu } from "./ui/menus/MenuOptions.ts";
 import { showServiceTravelMenu } from "./ui/menus/MenuServiceTravel.ts";
 import { initializeGameData } from "./initialize.ts";
+import { input } from "./ui/prompt.ts";
 
 process.on("uncaughtException", (error: unknown) => {
   if (error instanceof Error && error.name === "ExitPromptError") {
@@ -29,8 +29,7 @@ async function startGame() {
 
     let name = "";
     while (!name.trim()) {
-      const response = await inquirer.prompt<{ name: string }>({
-        type: "input",
+      const response = await input<{ name: string }>({
         name: "name",
         message: "Enter your name:",
         validate: (input: string) => input.trim() !== "" || "Name cannot be empty!",

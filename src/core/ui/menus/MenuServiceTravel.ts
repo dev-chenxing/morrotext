@@ -1,9 +1,9 @@
-import inquirer from "inquirer";
 import chalk from "chalk";
 import type { Cell, MobilePlayer, Reference } from "../../../types.ts";
 import { canTalkToActor, talkToNPC } from "../../systems/dialogue.ts";
 import { createNPCInstance } from "../../systems/npc.ts";
 import { resolveDynamic } from "../../utils/index.ts";
+import { list } from "../prompt.ts";
 
 export async function enterCell(player: MobilePlayer, cell: Cell): Promise<void> {
   const description = resolveDynamic(cell.description, player) ?? "";
@@ -29,8 +29,7 @@ export async function enterCell(player: MobilePlayer, cell: Cell): Promise<void>
       { name: "Return to Travel Menu", value: "return" },
     ];
 
-    const { action } = await inquirer.prompt({
-      type: "list",
+    const { action } = await list<{ action: string }>({
       name: "action",
       message: "What would you like to do?",
       choices,
@@ -74,8 +73,7 @@ export async function showServiceTravelMenu(player: MobilePlayer): Promise<void>
     }));
     choices.push({ name: "Return to Main Menu", value: "__cancel" });
 
-    const { destination } = await inquirer.prompt<{ destination: string }>({
-      type: "list",
+    const { destination } = await list<{ destination: string }>({
       name: "destination",
       message: "Where would you like to travel?",
       choices,

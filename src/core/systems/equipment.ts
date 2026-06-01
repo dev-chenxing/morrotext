@@ -1,7 +1,7 @@
-import inquirer from "inquirer";
 import chalk from "chalk";
 import { SLOT, OBJECT_TYPE } from "../../constants.ts";
 import type { Item, MobilePlayer, ValueOf } from "../../types.ts";
+import { list } from "../ui/prompt.ts";
 
 export function getSlotForItemType(
   itemOrObjectType: Item | ValueOf<typeof OBJECT_TYPE>,
@@ -36,8 +36,7 @@ export async function handleEquipment(player: MobilePlayer, item: Item) {
 
   choices.push({ name: "Inspect", value: "inspect" }, { name: "Cancel", value: "cancel" });
 
-  const { action } = await inquirer.prompt({
-    type: "list",
+  const { action } = await list<{ action: string }>({
     name: "action",
     message: `What to do with ${item.name}?`,
     choices,

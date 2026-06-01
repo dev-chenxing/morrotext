@@ -1,7 +1,7 @@
-import inquirer from "inquirer";
-import chalk from "chalk";
+  import chalk from "chalk";
 import { SHOP_PRICES, GOLD_ID } from "../../constants.ts";
 import type { Alchemy, Armor, Item, MobilePlayer, NPC, Weapon } from "../../types.ts";
+import { input, list } from "../ui/prompt.ts";
 
 type ValuedItem = Alchemy | Armor | Weapon;
 
@@ -23,8 +23,7 @@ export async function barter(player: MobilePlayer, actor: NPC) {
 
   let shopping = true;
   while (shopping) {
-    const { action } = await inquirer.prompt({
-      type: "list",
+    const { action } = await list<{ action: string }>({
       name: "action",
       message: "Barter Menu:",
       choices: ["Buy Items", "Sell Items", "Exit"],
@@ -61,8 +60,7 @@ async function buyItems(player: MobilePlayer, actor: NPC, availableItems: string
 
   choices.push({ name: "Cancel", value: null });
 
-  const { itemId } = await inquirer.prompt({
-    type: "list",
+  const { itemId } = await list<{ itemId: string | null }>({
     name: "itemId",
     message: "Select item to buy:",
     choices,
@@ -122,8 +120,7 @@ async function sellItems(player: MobilePlayer, actor: NPC) {
 
   sellableItems.push({ name: "Cancel", value: null });
 
-  const { itemId } = await inquirer.prompt({
-    type: "list",
+  const { itemId } = await list<{ itemId: string | null }>({
     name: "itemId",
     message: "Select item to sell:",
     choices: sellableItems,
@@ -141,11 +138,10 @@ async function sellItems(player: MobilePlayer, actor: NPC) {
     }
 
     const value = Math.floor(item.value * SHOP_PRICES.SELL_MULTIPLIER);
-    const { quantity } = await inquirer.prompt({
-      type: "input",
+    const { quantity } = await input<{ quantity: string }>({
       name: "quantity",
       message: `How many to sell? (Max: ${player.inventory.getItemCount(itemId)})`,
-      validate: (input) => {
+      validate: (input: string) => {
         const num = parseInt(input);
         return (num > 0 && num <= player.inventory.getItemCount(itemId)) || "Invalid quantity";
       },

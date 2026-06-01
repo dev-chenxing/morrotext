@@ -1,4 +1,3 @@
-import inquirer from "inquirer";
 import chalk from "chalk";
 import figlet from "figlet";
 import type { Cell, Dialogue, MobilePlayer, Reference } from "../types.ts";
@@ -13,6 +12,7 @@ import { resolveDynamic } from "./utils/index.ts";
 import { showJournalMenu } from "./ui/menus/MenuJournal.ts";
 import { showStatsMenu } from "./ui/menus/MenuStat.ts";
 import { initializeGameData } from "./initialize.ts";
+import { input, list } from "./ui/prompt.ts";
 
 process.on("uncaughtException", (error: unknown) => {
   if (error instanceof Error && error.name === "ExitPromptError") {
@@ -31,8 +31,7 @@ console.log(chalk.yellow(figlet.textSync("MORROTEXT")));
 
 // Main menu system
 export async function showMainMenu(player: MobilePlayer) {
-  const { action } = await inquirer.prompt({
-    type: "list",
+  const { action } = await list({
     name: "action",
     message: "What would you like to do?",
     choices: ["Travel", "Check Stats", "View Inventory", "View Quests", "Exit Game"],
@@ -77,8 +76,7 @@ export async function showInventory(player: MobilePlayer) {
     return showMainMenu(player);
   }
 
-  const { itemId } = await inquirer.prompt<{ itemId: string | null }>({
-    type: "list",
+  const { itemId } = await list<{ itemId: string | null }>({
     name: "itemId",
     message: "Inventory:",
     choices: [...inventoryList, { name: "Return to Menu", value: null }],
@@ -103,8 +101,7 @@ export async function showQuests(player: MobilePlayer) {
     return showMainMenu(player);
   }
 
-  const { questId } = await inquirer.prompt<{ questId: string | null }>({
-    type: "list",
+  const { questId } = await list<{ questId: string | null }>({
     name: "questId",
     message: "Active Quests:",
     choices: [
@@ -187,8 +184,7 @@ export async function enterCell(player: MobilePlayer, cell: Cell) {
       choices.unshift({ name: "Explore area", value: "explore" });
     }
 
-    const { action } = await inquirer.prompt({
-      type: "list",
+    const { action } = await list<{ action: string }>({
       name: "action",
       message: "What would you like to do?",
       choices,
@@ -236,8 +232,7 @@ async function showTravelMenu(player: MobilePlayer) {
   }));
   choices.push({ name: "Cancel", value: "__cancel" });
 
-  const { destination } = await inquirer.prompt<{ destination: string }>({
-    type: "list",
+  const { destination } = await list<{ destination: string }>({
     name: "destination",
     message: "Where would you like to travel?",
     choices,
@@ -265,8 +260,7 @@ async function startGame() {
 
   let name = "";
   while (!name.trim()) {
-    const response = await inquirer.prompt<{ name: string }>({
-      type: "input",
+    const response = await input<{ name: string }>({
       name: "name",
       message: "Enter your name:",
       validate: (input: string) => input.trim() !== "" || "Name cannot be empty!",
@@ -278,8 +272,7 @@ async function startGame() {
     .filter((cls) => cls.playable)
     .map((cls) => ({ name: cls.name, value: cls.id }));
 
-  const { className } = await inquirer.prompt<{ className: string }>({
-    type: "list",
+  const { className } = await list<{ className: string }>({
     name: "className",
     message: "Choose class:",
     choices: classChoices,

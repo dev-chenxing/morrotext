@@ -1,4 +1,4 @@
-import inquirer from "inquirer";
+import { list } from "../prompt.ts";
 
 export async function showChooseClassMenu(): Promise<string> {
   const classChoices = mt.dataHandler.nonDynamicData.classes
@@ -9,8 +9,7 @@ export async function showChooseClassMenu(): Promise<string> {
       short: gameClass.name,
     }));
 
-  const { classId } = await inquirer.prompt<{ classId: string }>({
-    type: "list",
+  const { classId } = await list<{ classId: string }>({
     name: "classId",
     message: "Choose your class:",
     choices: classChoices,
