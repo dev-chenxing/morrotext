@@ -44,7 +44,8 @@
 - [x] docs: audit outdated claims in README against current code
   - [x] docs: fix overstated or mistated features (e.g., "procedural world", "dynamic dialogues", "multi-stage quests")
 - [x] chore: rename `text-rpg` to `morrotext` across the codebase and documentation 
-- [ ] feat: add a demo PNG and GIF to the README showcasing gameplay
+- [x] docs: add a preview PNG to the README showcasing the game title
+- [ ] docs: add a demo GIF to the README showcasing gameplay
 
 ### "So a leveled item is an 'object'"
 - [x] refactor: rename `loot.ts` to `leveledItems.ts`, rename `generateLoot` to `pickFromLeveledItems`

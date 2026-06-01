@@ -3,8 +3,6 @@ import { initializeGameData } from "../core/initialize.ts";
 
 describe("Quest journal monotonicity", () => {
   afterEach(() => {
-    mt.player = null;
-    mt.mobilePlayer = null;
     mt.worldController.allMobileActors.length = 0;
     mt.worldController.quests.forEach((q) => {
       q.isActive = false;

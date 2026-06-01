@@ -8,6 +8,7 @@ export type NPCRegistryEntry = {
 };
 
 export const NPC_REGISTRY: NPCRegistryEntry[] = [
+  { id: "player", name: "Player", classId: "Thief" },
   {
     id: "jiub",
     name: "Jiub",

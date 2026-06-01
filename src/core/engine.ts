@@ -1,6 +1,7 @@
-import type { MobilePlayer } from "../types.ts";
+import chalk from "chalk";
+import type { Class, MobilePlayer } from "../types.ts";
 import { createPlayer } from "./actors/Player.ts";
-import { runDataScript } from "./systems/script.ts";
+import { runScript } from "./systems/script.ts";
 import { showChooseClassMenu } from "./ui/menus/MenuChooseClass.ts";
 import { showMainMenu } from "./ui/menus/MenuOptions.ts";
 import { showServiceTravelMenu } from "./ui/menus/MenuServiceTravel.ts";
@@ -9,7 +10,7 @@ import { input } from "./ui/prompt.ts";
 
 process.on("uncaughtException", (error: unknown) => {
   if (error instanceof Error && error.name === "ExitPromptError") {
-    console.log("❌ Game Exit");
+    console.log(chalk.yellow("\nExit"));
     process.exit();
   } else {
     // Rethrow unknown errors
@@ -27,6 +28,15 @@ async function startGame() {
       process.exit();
     }
 
+    const playerReference = createPlayer();
+    const mobilePlayer = playerReference.mobile as MobilePlayer;
+    mt.player = playerReference;
+    mt.mobilePlayer = mobilePlayer;
+    mt.worldController.allMobileActors.length = 0;
+    mt.worldController.allMobileActors.push(mobilePlayer);
+
+    await runScript("StartScript");
+
     let name = "";
     while (!name.trim()) {
       const response = await input<{ name: string }>({
@@ -37,15 +47,7 @@ async function startGame() {
     }
 
     const classId = await showChooseClassMenu();
-
-    const playerReference = createPlayer(name, classId);
-    const mobilePlayer = playerReference.mobile as MobilePlayer;
-    mt.player = playerReference;
-    mt.mobilePlayer = mobilePlayer;
-    mt.worldController.allMobileActors.length = 0;
-    mt.worldController.allMobileActors.push(mobilePlayer);
-
-    await runDataScript("StartScript", { player: mobilePlayer });
+    mt.player.object.class = mt.getClass(classId) as Class;
 
     await showServiceTravelMenu(mobilePlayer);
   }

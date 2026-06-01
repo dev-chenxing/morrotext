@@ -1,13 +1,13 @@
 import { readdir } from "node:fs/promises";
 import { dirname, extname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import type { DataScript, DataScriptRegistryEntry } from "../../core/systems/script.ts";
+import type { Script, ScriptRegistryEntry } from "../../core/systems/script.ts";
 
-function isDataScriptRegistryEntry(value: unknown): value is DataScriptRegistryEntry {
+function isScriptRegistryEntry(value: unknown): value is ScriptRegistryEntry {
   return typeof value === "object" && value !== null && "id" in value && "run" in value;
 }
 
-async function loadDataScriptEntries(): Promise<DataScriptRegistryEntry[]> {
+async function loadScriptEntries(): Promise<ScriptRegistryEntry[]> {
   const directoryPath = dirname(fileURLToPath(import.meta.url));
   const directoryEntries = await readdir(directoryPath, { withFileTypes: true });
 
@@ -18,15 +18,15 @@ async function loadDataScriptEntries(): Promise<DataScriptRegistryEntry[]> {
   const loadedEntries = await Promise.all(
     modulePaths.map(async (modulePath) => {
       const imported = await import(modulePath);
-      return isDataScriptRegistryEntry(imported.default) ? imported.default : null;
+      return isScriptRegistryEntry(imported.default) ? imported.default : null;
     }),
   );
 
-  return loadedEntries.filter((entry): entry is DataScriptRegistryEntry => entry !== null);
+  return loadedEntries.filter((entry): entry is ScriptRegistryEntry => entry !== null);
 }
 
-export const DATA_SCRIPT_ENTRIES = await loadDataScriptEntries();
+export const SCRIPT_ENTRIES = await loadScriptEntries();
 
-export const DATA_SCRIPTS: Record<string, DataScript> = Object.fromEntries(
-  DATA_SCRIPT_ENTRIES.map((entry) => [entry.id, entry.run]),
+export const SCRIPTS: Record<string, Script> = Object.fromEntries(
+  SCRIPT_ENTRIES.map((entry) => [entry.id, entry.run]),
 );

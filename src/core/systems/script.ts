@@ -1,17 +1,14 @@
-import type { MobilePlayer } from "../../types.ts";
-import { DATA_SCRIPTS } from "../../data/scripts/index.ts";
+import { SCRIPTS } from "../../data/scripts/index.ts";
 
-export type DataScriptContext = { player: MobilePlayer };
+export type Script = () => Promise<void> | void;
 
-export type DataScript = (context: DataScriptContext) => Promise<void> | void;
+export type ScriptRegistryEntry = { id: string; run: Script };
 
-export type DataScriptRegistryEntry = { id: string; run: DataScript };
-
-export async function runDataScript(scriptId: string, context: DataScriptContext): Promise<void> {
-  const script = DATA_SCRIPTS[scriptId];
+export async function runScript(scriptId: string): Promise<void> {
+  const script = SCRIPTS[scriptId];
   if (!script) {
-    throw new Error(`Unknown data script: ${scriptId}`);
+    throw new Error(`Unknown script: ${scriptId}`);
   }
 
-  await script(context);
+  await script();
 }

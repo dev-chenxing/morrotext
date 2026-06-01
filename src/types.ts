@@ -59,7 +59,10 @@ export interface Statistic {
 
 export type JsonPrimitive = boolean | number | string | null;
 
-export type JsonValue = JsonPrimitive | JsonValue[] | { [key: string]: JsonValue };
+export type JsonValue =
+  | JsonPrimitive
+  | JsonValue[]
+  | { [key: string]: JsonValue };
 
 export type JsonRecord = Record<string, JsonValue>;
 
@@ -181,10 +184,15 @@ export interface Quest extends GameObject {
   isFinished?: boolean;
 }
 
-export interface Reference extends GameObject {
+export interface Reference<
+  T extends GameObject = GameObject,
+> extends GameObject {
   data: JsonRecord;
   tempData: Record<string, unknown>;
-  object: GameObject;
+  /**
+   * The referenced object. This is the main way to access the underlying game object and its properties/methods. For actors, this will be a `CreatureInstance` or `NPCInstance`. For items, this will be an `Alchemy`, `Armor`, `Misc`, or `Weapon`.
+   */
+  object: T;
   mobile?: MobileCreature | MobileNPC | MobilePlayer | null;
   cell: Cell | null;
   previousNode?: Reference | null;
@@ -326,7 +334,10 @@ export interface CellRegistryEntry {
   statics: string[];
 }
 
-export interface Cell extends Omit<CellRegistryEntry, "activators" | "actors" | "statics"> {
+export interface Cell extends Omit<
+  CellRegistryEntry,
+  "activators" | "actors" | "statics"
+> {
   activators: ReferenceList;
   actors: ReferenceList;
   statics: ReferenceList;
@@ -391,8 +402,8 @@ export interface WorldController {
 }
 
 export interface MtApi {
-  player: Reference | null;
-  mobilePlayer: MobilePlayer | null;
+  player: Reference<NPCInstance>;
+  mobilePlayer: MobilePlayer;
   dataHandler: DataHandler;
   worldController: WorldController;
   addItem: (
@@ -405,8 +416,14 @@ export interface MtApi {
   getActions: (target: Reference | MobileActor | Actor) => Action[];
   getCell: (cellId: string) => Cell | undefined;
   getClass: (classId: string) => Class | undefined;
-  getDialogueInfo: (dialogue: Dialogue | string, id: string) => DialogueInfo | null;
-  getItemCount: (target: Reference | MobileActor | Actor | null, itemId: string) => number;
+  getDialogueInfo: (
+    dialogue: Dialogue | string,
+    id: string,
+  ) => DialogueInfo | null;
+  getItemCount: (
+    target: Reference | MobileActor | Actor | null,
+    itemId: string,
+  ) => number;
   getJournalIndex: (id: Dialogue | string) => number | null;
   getObject: (objectId: string) => Item | undefined;
   removeItem: (
@@ -414,7 +431,11 @@ export interface MtApi {
     itemId: string,
     count?: number,
   ) => number;
-  updateJournal: (id: Dialogue | string, index: number, showMessage?: boolean) => boolean;
+  updateJournal: (
+    id: Dialogue | string,
+    index: number,
+    showMessage?: boolean,
+  ) => boolean;
 }
 
 declare global {

@@ -170,8 +170,6 @@ export async function startCombat(player: MobilePlayer, enemy: Creature) {
   if ((player.health?.current ?? 0) > 0) {
     console.log(chalk.green("Victory!"));
     transferCreatureLootToPlayer(player, enemy);
-
-    // Cell-based procedural loot is deprecated: creatures now carry leveled items
   } else {
     console.log(chalk.red("\nGAME OVER"));
     process.exit();

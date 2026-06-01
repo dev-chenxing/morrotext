@@ -10,13 +10,14 @@ import type {
   MobileActor,
   MobilePlayer,
   MtApi,
+  NPCInstance,
   Reference,
   WorldController,
 } from "../types.ts";
 import { findQuest, getJournalIndex, updateJournal } from "./systems/quest.ts";
 
 const state: {
-  player: Reference | null;
+  player: Reference<NPCInstance> | null;
   dataHandler: DataHandler;
   worldController: WorldController;
 } = {
@@ -108,15 +109,21 @@ function addTopic(_topicId: string): void {
 
 export const mt: MtApi = {
   get player() {
+    if (!state.player) {
+      throw new Error("mt.player is not set");
+    }
     return state.player;
   },
-  set player(player: Reference | null) {
+  set player(player: Reference<NPCInstance>) {
     state.player = player;
   },
   get mobilePlayer() {
+    if (!state.worldController.mobilePlayer) {
+      throw new Error("mt.mobilePlayer is not set");
+    }
     return state.worldController.mobilePlayer;
   },
-  set mobilePlayer(player: MobilePlayer | null) {
+  set mobilePlayer(player: MobilePlayer) {
     state.worldController.mobilePlayer = player;
   },
   dataHandler: state.dataHandler,

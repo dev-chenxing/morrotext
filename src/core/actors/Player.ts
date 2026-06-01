@@ -1,71 +1,22 @@
 import chalk from "chalk";
-import { ACTOR_TYPE, ATTRIBUTES, MERCHANT_SERVICE, OBJECT_TYPE, SLOT } from "../../constants.ts";
+import { ACTOR_TYPE, OBJECT_TYPE, SLOT } from "../../constants.ts";
 import type {
-  AiConfig,
-  Class,
-  Equipment,
   Item,
   MobilePlayer,
-  NPCInstance,
   Reference,
   Statistic,
   ValueOf,
   Weapon,
   Armor,
   Alchemy,
+  NPC,
+  NPCInstance,
 } from "../../types.ts";
-import { createInventory } from "../systems/inventory.ts";
-import { createClassActorProfile } from "../systems/class.ts";
 import { getSlotForItemType } from "../systems/equipment.ts";
 import * as math from "../utils/math.ts";
 
 function cloneStatistic(statistic: Statistic): Statistic {
   return { ...statistic };
-}
-
-function createPlayerObject(name: string, gameClass: Class): NPCInstance {
-  const classProfile = createClassActorProfile(gameClass);
-  const inventory = createInventory();
-  const equipment: Equipment = { [SLOT.WEAPON]: null, [SLOT.ARMOR]: null };
-
-  return {
-    id: "player",
-    objectType: OBJECT_TYPE.NPC,
-    barterGold: 0,
-    name,
-    description: "",
-    fight: 0,
-    level: 1,
-    class: gameClass,
-    equipment,
-    inventory,
-    health: cloneStatistic(classProfile.health),
-    magicka: cloneStatistic(classProfile.magicka),
-    luck: cloneStatistic(classProfile.attributes[ATTRIBUTES.LUCK]),
-    strength: cloneStatistic(classProfile.attributes[ATTRIBUTES.STRENGTH]),
-    intelligence: cloneStatistic(classProfile.attributes[ATTRIBUTES.INTELLIGENCE]),
-    willpower: cloneStatistic(classProfile.attributes[ATTRIBUTES.WILLPOWER]),
-    agility: cloneStatistic(classProfile.attributes[ATTRIBUTES.AGILITY]),
-    speed: cloneStatistic(classProfile.attributes[ATTRIBUTES.SPEED]),
-    endurance: cloneStatistic(classProfile.attributes[ATTRIBUTES.ENDURANCE]),
-    personality: cloneStatistic(classProfile.attributes[ATTRIBUTES.PERSONALITY]),
-    skills: [...classProfile.skills],
-    aiConfig: {
-      barters: { ...gameClass.barters },
-      offers: { ...gameClass.offers },
-      fight: 0,
-    } as AiConfig,
-    actions: [...gameClass.actions],
-    hasItemEquipped(itemId: string) {
-      return equipment.weapon?.id === itemId || equipment.armor?.id === itemId;
-    },
-    offersServices(service: ValueOf<typeof MERCHANT_SERVICE>) {
-      return Boolean(this.aiConfig.offers[service]);
-    },
-    tradesItemType(objectType: ValueOf<typeof OBJECT_TYPE>) {
-      return Boolean(this.aiConfig.barters[objectType]);
-    },
-  };
 }
 
 function createEquipHandlers(mobilePlayer: MobilePlayer) {
@@ -119,18 +70,8 @@ function createEquipHandlers(mobilePlayer: MobilePlayer) {
   };
 }
 
-export function createPlayer(name: string, classId: string): Reference {
-  let selectedClass = mt.getClass(classId);
-
-  if (!selectedClass) {
-    throw new Error(`Unknown class: ${classId}`);
-  }
-
-  if (!selectedClass.playable) {
-    throw new Error(`Class is not playable: ${classId}`);
-  }
-
-  const playerObject = createPlayerObject(name, selectedClass);
+export function createPlayer(): Reference<NPCInstance> {
+  const playerObject = mt.getObject("player") as NPC;
 
   const mobilePlayer = {
     actorType: ACTOR_TYPE.PLAYER,
@@ -166,7 +107,9 @@ export function createPlayer(name: string, classId: string): Reference {
       mobilePlayer.health.base + mobilePlayer.endurance.base / 10,
     );
     mobilePlayer.health.current = mobilePlayer.health.base;
-    console.log(chalk.yellow(`\n=== LEVEL UP! (${mobilePlayer.object.level}) ===`));
+    console.log(
+      chalk.yellow(`\n=== LEVEL UP! (${mobilePlayer.object.level}) ===`),
+    );
     console.log(`Max HP increased to ${mobilePlayer.health.base}`);
   };
   mobilePlayer.addExperience = (xp: number) => {
@@ -180,7 +123,7 @@ export function createPlayer(name: string, classId: string): Reference {
 
   createEquipHandlers(mobilePlayer);
 
-  const playerReference: Reference = {
+  const playerReference: Reference<NPCInstance> = {
     id: "player",
     objectType: OBJECT_TYPE.NPC,
     data: {},

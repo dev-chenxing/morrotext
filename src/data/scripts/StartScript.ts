@@ -1,34 +1,32 @@
 import chalk from "chalk";
 import { enterCell } from "../../core/ui/menus/MenuServiceTravel.ts";
-import type { DataScript, DataScriptRegistryEntry } from "../../core/systems/script.ts";
+import type { Script, ScriptRegistryEntry } from "../../core/systems/script.ts";
+import type { Cell } from "../../types.ts";
+import { pressToContinue } from "../../core/ui/prompt.ts";
 
-function narrateAzuraIntro(): void {
+function intro(): void {
   const lines = [
-    "You have been chosen.",
-    "Born on a certain day to uncertain parents.",
-    "Beneath the sun and sky, outlander, the Emperor sends you to Morrowind.",
-    "First by carriage and now by boat, you have come to the island of Vvardenfell.",
-    "I have watched you, and I will watch over the course of your destiny.",
+    "They have taken you from the Imperial City's prison, ",
+    "first by carriage and now by boat, ",
+    "to the east, ",
+    "to Morrowind. ",
+    "Fear not, for I am watchful. ",
+    "You have been chosen. ",
   ];
 
-  console.log("");
   for (const line of lines) {
-    console.log(chalk.magenta(line));
+    console.log(chalk.red(line));
   }
-  console.log("");
 }
 
-const run: DataScript = async ({ player }) => {
-  narrateAzuraIntro();
+const run: Script = async () => {
+  intro();
+  await pressToContinue();
 
-  const prisonShip = mt.getCell("Imperial Prison Ship");
-  if (!prisonShip) {
-    throw new Error('Missing start cell: "Imperial Prison Ship"');
-  }
-
-  await enterCell(player, prisonShip);
+  const prisonShip = mt.getCell("Imperial Prison Ship") as Cell;
+  await enterCell(mt.mobilePlayer, prisonShip);
 };
 
-const StartScript: DataScriptRegistryEntry = { id: "StartScript", run };
+const StartScript: ScriptRegistryEntry = { id: "StartScript", run };
 
 export default StartScript;

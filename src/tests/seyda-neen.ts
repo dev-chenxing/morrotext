@@ -10,8 +10,6 @@ import * as prompt from "../core/ui/prompt.ts";
 describe("Seyda Neen opening and quest flow", () => {
   afterEach(() => {
     vi.restoreAllMocks();
-    mt.player = null;
-    mt.mobilePlayer = null;
     mt.worldController.allMobileActors.length = 0;
     mt.worldController.quests.forEach((quest) => {
       quest.isActive = false;
@@ -40,7 +38,7 @@ describe("Seyda Neen opening and quest flow", () => {
   it("Sellus Gravius starts Report to Caius Cosades and grants the release items", async () => {
     initializeGameData();
 
-    const player = createPlayer("Tester", "Warrior");
+    const player = createPlayer();
     const mobilePlayer = player.mobile as MobilePlayer;
     mt.player = player;
     mt.mobilePlayer = mobilePlayer;
