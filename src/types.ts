@@ -9,6 +9,7 @@ import {
   SKILL,
 } from "./constants.ts";
 import type { MobManager } from "./core/systems/mob.ts";
+import type { Script } from "./core/systems/script.ts";
 
 export type ValueOf<T> = T[keyof T];
 
@@ -290,6 +291,7 @@ export interface Action {
 export type MobilePlayer = Omit<MobileNPC, "actorType"> & {
   actorType: ACTOR_TYPE.PLAYER;
   bounty: number;
+  controlsDisabled: boolean;
   levelUpProgress: number;
   reference: Reference;
   addExperience: (xp: number) => void;
@@ -401,6 +403,10 @@ export interface MtApi {
   mobilePlayer: MobilePlayer;
   dataHandler: DataHandler;
   worldController: WorldController;
+  runScript: (opts: {
+    script: Script | string;
+    reference?: Reference | MobileActor | string;
+  }) => Promise<void>;
   addItem: (
     target: Reference | MobileActor | Actor | null,
     itemId: string,

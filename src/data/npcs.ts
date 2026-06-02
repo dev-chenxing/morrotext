@@ -10,18 +10,19 @@ export type NPCRegistryEntry = {
 export const NPC_REGISTRY: NPCRegistryEntry[] = [
   { id: "player", name: "Player", classId: "Thief" },
   {
-    id: "jiub",
+    id: "chargen name",
     name: "Jiub",
     level: 3,
     classId: "Thief",
     description: "A Dark Elf thief and fellow prisoner, alert-eyed even in the ship's dim hold.",
   },
   {
-    id: "Imperial Guard",
-    name: "Guard",
-    level: 20,
+    id: "chargen door guard",
+    name: "Ganciele Douar",
+    level: 15,
     classId: "Guard",
-    description: "An Imperial guard keeping the dock under watch.",
+    description:
+      "An Imperial Spearman stationed at the Census and Excise Office, overseeing prisoner processing and security.",
   },
   {
     id: "chargen class",

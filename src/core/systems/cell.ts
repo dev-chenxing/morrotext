@@ -94,7 +94,40 @@ export function createCell(entry: CellRegistryEntry): Cell {
   return cell;
 }
 
+function getActorNodes(cell: Cell): Reference[] {
+  const actorNodes: Reference[] = [];
+  let currentActorNode = cell.actors?.head ?? null;
+
+  while (currentActorNode) {
+    actorNodes.push(currentActorNode);
+    currentActorNode = currentActorNode.nextNode ?? null;
+  }
+
+  return actorNodes;
+}
+
+function findActorReference(cell: Cell, npcKey: string): Reference | undefined {
+  let node = cell.actors?.head ?? null;
+  while (node) {
+    const obj: any = node.object as any;
+    if (obj && typeof obj.id === "string" && obj.id === npcKey) {
+      return node;
+    }
+    node = node.nextNode ?? null;
+  }
+
+  return undefined;
+}
+
 export async function enterCell(player: MobilePlayer, cell: Cell): Promise<void> {
+  if (!cell) {
+    throw new Error("Missing cell data: cannot enter undefined cell.");
+  }
+
+  player.reference.cell = cell;
+}
+
+export async function runCellInteractionLoop(player: MobilePlayer, cell: Cell): Promise<void> {
   if (!cell) {
     throw new Error("Missing cell data: cannot enter undefined cell.");
   }
@@ -102,16 +135,11 @@ export async function enterCell(player: MobilePlayer, cell: Cell): Promise<void>
   const description = cell.description || "";
   const displayName = cell.displayName ?? cell.editorName;
   let inCell = true; // Loop control flag for the cell interaction menu
+
   while (inCell && player.health.current > 0) {
     console.log(chalk.cyan(`\n=== ${displayName} ===`));
     console.log(chalk.red(description));
-    const actorNodes: Reference[] = [];
-    let currentActorNode = cell.actors?.head ?? null;
-    while (currentActorNode) {
-      actorNodes.push(currentActorNode);
-      currentActorNode = currentActorNode.nextNode ?? null;
-    }
-
+    const actorNodes = getActorNodes(cell);
     const talkableActors = actorNodes.filter((node) => canTalkToActor(node, player));
 
     const choices = [
@@ -129,17 +157,7 @@ export async function enterCell(player: MobilePlayer, cell: Cell): Promise<void>
 
     if (action.startsWith("npc:")) {
       const npcKey = action.split(":")[1];
-
-      let node = cell.actors?.head ?? null;
-      let foundRef: Reference | undefined;
-      while (node) {
-        const obj: any = node.object as any;
-        if (obj && typeof obj.id === "string" && obj.id === npcKey) {
-          foundRef = node;
-          break;
-        }
-        node = node.nextNode ?? null;
-      }
+      const foundRef = findActorReference(cell, npcKey);
 
       if (foundRef) {
         await talkToNPC(foundRef, player);
@@ -147,8 +165,7 @@ export async function enterCell(player: MobilePlayer, cell: Cell): Promise<void>
         await talkToNPC(createNPCInstance(npcKey), player);
       }
 
-      await enterCell(player, cell);
-      return;
+      continue;
     }
 
     inCell = false; // Player chose to leave the cell, exit the loop

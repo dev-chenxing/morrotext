@@ -14,7 +14,8 @@ import type {
   Reference,
   WorldController,
 } from "../types.ts";
-import { appendReferenceToCell, enterCell } from "./systems/cell.ts";
+import { runScript } from "./systems/script.ts";
+import { appendReferenceToCell, enterCell, runCellInteractionLoop } from "./systems/cell.ts";
 import { resolveReference } from "./systems/reference.ts";
 import { MobManager } from "./systems/mob.ts";
 import { findQuest, getJournalIndex, updateJournal } from "./systems/quest.ts";
@@ -28,19 +29,9 @@ const state: {
   player: null,
   mobilePlayer: null,
   dataHandler: {
-    nonDynamicData: {
-      actions: [],
-      cells: [],
-      classes: [],
-      dialogues: [],
-      objects: [],
-    },
+    nonDynamicData: { actions: [], cells: [], classes: [], dialogues: [], objects: [] },
   },
-  worldController: {
-    allMobileActors: [],
-    mobManager: new MobManager(),
-    quests: [],
-  },
+  worldController: { allMobileActors: [], mobManager: new MobManager(), quests: [] },
 };
 
 function getActions(target: Reference | MobileActor | Actor) {
@@ -57,20 +48,14 @@ function getActions(target: Reference | MobileActor | Actor) {
 }
 
 function getCell(cellId: string): Cell | undefined {
-  return state.dataHandler.nonDynamicData.cells.find(
-    (cell) => cell.id === cellId,
-  );
+  return state.dataHandler.nonDynamicData.cells.find((cell) => cell.id === cellId);
 }
 
 function getClass(classId: string): Class | undefined {
-  return state.dataHandler.nonDynamicData.classes.find(
-    (gameClass) => gameClass.id === classId,
-  );
+  return state.dataHandler.nonDynamicData.classes.find((gameClass) => gameClass.id === classId);
 }
 
-function getInventory(
-  target: Reference | MobileActor | Actor | null,
-): Inventory | null {
+function getInventory(target: Reference | MobileActor | Actor | null): Inventory | null {
   if (!target) return null;
 
   if ("inventory" in target && target.inventory) {
@@ -90,23 +75,18 @@ function getInventory(
 
 // Locates and returns a Dialogue Info by a given id.
 // This involves file IO and is an expensive call. Results should be cached.
-function getDialogueInfo(
-  dialogue: Dialogue | string,
-  id: string,
-): DialogueInfo | null {
+function getDialogueInfo(dialogue: Dialogue | string, id: string): DialogueInfo | null {
   return (
     state.dataHandler.nonDynamicData.dialogues
-      .find(
-        (d) => d.id === (typeof dialogue === "string" ? dialogue : dialogue.id),
-      )
+      .find((d) => d.id === (typeof dialogue === "string" ? dialogue : dialogue.id))
       ?.info.find((info) => info.id === id) ?? null
   );
 }
 
 function getObject(objectId: string): Item | undefined {
-  return state.dataHandler.nonDynamicData.objects.find(
-    (obj) => obj.id === objectId,
-  ) as Item | undefined;
+  return state.dataHandler.nonDynamicData.objects.find((obj) => obj.id === objectId) as
+    | Item
+    | undefined;
 }
 
 function addItem(
@@ -125,10 +105,7 @@ function removeItem(
   return getInventory(target)?.removeItem(itemId, count) ?? 0;
 }
 
-function getItemCount(
-  target: Reference | MobileActor | Actor | null,
-  itemId: string,
-): number {
+function getItemCount(target: Reference | MobileActor | Actor | null, itemId: string): number {
   return getInventory(target)?.getItemCount(itemId) ?? 0;
 }
 
@@ -147,6 +124,9 @@ async function positionCell(opts: {
 
   if (!opts.reference) {
     await enterCell(mt.mobilePlayer, cell);
+    if (!mt.mobilePlayer.controlsDisabled) {
+      await runCellInteractionLoop(mt.mobilePlayer, cell);
+    }
     return true;
   }
   const resolvedReference = resolveReference(opts.reference);
@@ -189,6 +169,7 @@ export const mt: MtApi = {
   getItemCount,
   getJournalIndex,
   getObject,
+  runScript,
   positionCell,
   removeItem,
   updateJournal,

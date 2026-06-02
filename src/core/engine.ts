@@ -1,12 +1,9 @@
 import chalk from "chalk";
-import type { Class, MobilePlayer } from "../types.ts";
+import type { MobilePlayer } from "../types.ts";
 import { createPlayer } from "./actors/Player.ts";
-import { runScript } from "./systems/script.ts";
-import { showChooseClassMenu } from "./ui/menus/MenuChooseClass.ts";
 import { showMainMenu } from "./ui/menus/MenuOptions.ts";
 import { showServiceTravelMenu } from "./ui/menus/MenuServiceTravel.ts";
 import { initializeGameData } from "./initialize.ts";
-import { input } from "./ui/prompt.ts";
 
 process.on("uncaughtException", (error: unknown) => {
   if (error instanceof Error && error.name === "ExitPromptError") {
@@ -35,19 +32,7 @@ async function startGame() {
     mt.worldController.allMobileActors.length = 0;
     mt.worldController.allMobileActors.push(mobilePlayer);
 
-    await runScript("StartScript");
-
-    let name = "";
-    while (!name.trim()) {
-      const response = await input<{ name: string }>({
-        message: "Enter your name:",
-        validate: (input: string) => input.trim() !== "" || "Name cannot be empty!",
-      });
-      name = response.name.trim();
-    }
-
-    const classId = await showChooseClassMenu();
-    mt.player.object.class = mt.getClass(classId) as Class;
+    await mt.runScript({ script: "StartScript" });
 
     await showServiceTravelMenu(mobilePlayer);
   }

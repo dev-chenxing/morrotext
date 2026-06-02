@@ -35,7 +35,11 @@ async function intro(): Promise<void> {
 const run: Script = async () => {
   await intro();
 
+  mt.mobilePlayer.controlsDisabled = true;
+
   await mt.positionCell({ cell: "Imperial Prison Ship" });
+
+  await mt.runScript({ script: "CharGen" });
 };
 
 const StartScript: ScriptRegistryEntry = { id: "StartScript", run };

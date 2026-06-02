@@ -93,6 +93,7 @@ export function createPlayer(): Reference<NPCInstance> {
     object: playerObject,
     skills: [...playerObject.skills],
     bounty: 0,
+    controlsDisabled: false,
     levelUpProgress: 0,
     reference: null as unknown as Reference,
     equip: () => false,
