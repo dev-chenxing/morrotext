@@ -34,7 +34,10 @@ export async function handleEquipment(player: MobilePlayer, item: Item) {
     choices.push({ name: "Equip", value: { action: "equip" } });
   }
 
-  choices.push({ name: "Inspect", value: { action: "inspect" } }, { name: "Cancel", value: { action: "cancel" } });
+  choices.push(
+    { name: "Inspect", value: { action: "inspect" } },
+    { name: "Cancel", value: { action: "cancel" } },
+  );
 
   const { action } = await select<{ action: string }>({
     message: `What to do with ${item.name}?`,

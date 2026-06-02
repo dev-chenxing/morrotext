@@ -8,6 +8,7 @@ import {
   ATTRIBUTES,
   SKILL,
 } from "./constants.ts";
+import type { MobManager } from "./core/systems/mob.ts";
 
 export type ValueOf<T> = T[keyof T];
 
@@ -59,10 +60,7 @@ export interface Statistic {
 
 export type JsonPrimitive = boolean | number | string | null;
 
-export type JsonValue =
-  | JsonPrimitive
-  | JsonValue[]
-  | { [key: string]: JsonValue };
+export type JsonValue = JsonPrimitive | JsonValue[] | { [key: string]: JsonValue };
 
 export type JsonRecord = Record<string, JsonValue>;
 
@@ -184,9 +182,7 @@ export interface Quest extends GameObject {
   isFinished?: boolean;
 }
 
-export interface Reference<
-  T extends GameObject = GameObject,
-> extends GameObject {
+export interface Reference<T extends GameObject = GameObject> extends GameObject {
   data: JsonRecord;
   tempData: Record<string, unknown>;
   /**
@@ -209,6 +205,8 @@ export interface ReferenceList {
 
 export interface MobileActor {
   activeMagicEffectList: unknown[];
+  /** Access to the reference object for the mobile, if any. */
+  reference?: Reference | null;
   actorType: ValueOf<typeof ACTOR_TYPE>;
   health: Statistic;
   magicka: Statistic;
@@ -320,7 +318,7 @@ export type DynamicValue<T> = T | ((player: MobilePlayer) => T);
 
 export interface CellRegistryEntry {
   // In-game display name. For unnamed exterior cells this should be the region name.
-  displayName: DynamicValue<string>;
+  displayName: string;
   // Editor-facing name. For exterior cells include coordinates.
   editorName: string;
   id: string;
@@ -328,16 +326,13 @@ export interface CellRegistryEntry {
   isInterior?: boolean;
   // Interior cell name. Only present for interior cells.
   name?: string;
-  description: DynamicValue<string>;
+  description?: string;
   activators: string[];
   actors: string[];
   statics: string[];
 }
 
-export interface Cell extends Omit<
-  CellRegistryEntry,
-  "activators" | "actors" | "statics"
-> {
+export interface Cell extends Omit<CellRegistryEntry, "activators" | "actors" | "statics"> {
   activators: ReferenceList;
   actors: ReferenceList;
   statics: ReferenceList;
@@ -397,7 +392,7 @@ export interface DataHandler {
 
 export interface WorldController {
   allMobileActors: MobileActor[];
-  mobilePlayer: MobilePlayer | null;
+  mobManager: MobManager;
   quests: Quest[];
 }
 
@@ -416,26 +411,20 @@ export interface MtApi {
   getActions: (target: Reference | MobileActor | Actor) => Action[];
   getCell: (cellId: string) => Cell | undefined;
   getClass: (classId: string) => Class | undefined;
-  getDialogueInfo: (
-    dialogue: Dialogue | string,
-    id: string,
-  ) => DialogueInfo | null;
-  getItemCount: (
-    target: Reference | MobileActor | Actor | null,
-    itemId: string,
-  ) => number;
+  getDialogueInfo: (dialogue: Dialogue | string, id: string) => DialogueInfo | null;
+  getItemCount: (target: Reference | MobileActor | Actor | null, itemId: string) => number;
   getJournalIndex: (id: Dialogue | string) => number | null;
   getObject: (objectId: string) => Item | undefined;
+  positionCell: (opts: {
+    reference?: Reference | MobileActor | string;
+    cell: Cell | string;
+  }) => Promise<boolean>;
   removeItem: (
     target: Reference | MobileActor | Actor | null,
     itemId: string,
     count?: number,
   ) => number;
-  updateJournal: (
-    id: Dialogue | string,
-    index: number,
-    showMessage?: boolean,
-  ) => boolean;
+  updateJournal: (id: Dialogue | string, index: number, showMessage?: boolean) => boolean;
 }
 
 declare global {

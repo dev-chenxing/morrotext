@@ -197,7 +197,10 @@ export async function talkToActor(actorOrRef: Actor | Reference, player: MobileP
     const { action: topicId } = await select<{ action: string | null }>({
       message: `Ask ${actor.name} about:`,
       choices: [
-        ...topics.map((topic) => ({ name: topic.dialogue.id, value: { action: topic.dialogue.id } })),
+        ...topics.map((topic) => ({
+          name: topic.dialogue.id,
+          value: { action: topic.dialogue.id },
+        })),
         { name: "Goodbye", value: { action: null } },
       ],
     });

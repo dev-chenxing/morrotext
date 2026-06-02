@@ -4,7 +4,9 @@ import type { Creature, MobilePlayer } from "../../types.ts";
 import { useItem } from "./item.ts";
 import { select } from "../ui/prompt.ts";
 
-function getActionChoices(player: MobilePlayer): Array<{ name: string; value: { action: string } }> {
+function getActionChoices(
+  player: MobilePlayer,
+): Array<{ name: string; value: { action: string } }> {
   const choices = [
     { name: "Attack", value: { action: "Attack" } },
     { name: "Use Item", value: { action: "Use Item" } },
@@ -95,7 +97,7 @@ export async function startCombat(player: MobilePlayer, enemy: Creature) {
 
   while ((player.health?.current ?? 0) > 0 && (enemy.health?.current ?? 0) > 0) {
     const { action } = await select<{ action: string }>({
-        message: "Choose your action:",
+      message: "Choose your action:",
       choices: getActionChoices(player),
     });
 

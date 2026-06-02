@@ -16,9 +16,7 @@ function renderAsciiTitle(title: string): string {
     while (lines.length > 0 && lines[lines.length - 1].trim() === "") {
       lines.pop();
     }
-    const minIndent = Math.min(
-      ...lines.filter((l) => l.trim() !== "").map((l) => l.search(/\S/)),
-    );
+    const minIndent = Math.min(...lines.filter((l) => l.trim() !== "").map((l) => l.search(/\S/)));
     return minIndent > 0 ? lines.map((l) => l.slice(minIndent)) : lines;
   });
 

@@ -11,7 +11,10 @@ export async function showInventoryMenu(player: MobilePlayer): Promise<void> {
         return null;
       }
       const isEquipped = player.object.hasItemEquipped(id);
-      return { name: `${item.name}${isEquipped ? " (Equipped)" : ""} x${count}`, value: { itemId: id } };
+      return {
+        name: `${item.name}${isEquipped ? " (Equipped)" : ""} x${count}`,
+        value: { itemId: id },
+      };
     })
     .filter((item): item is { name: string; value: { itemId: string } } => Boolean(item));
 

@@ -4,16 +4,23 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import type { CellRegistryEntry } from "../../types.ts";
 
 function isCellRegistryEntry(value: unknown): value is CellRegistryEntry {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+
+  const candidate = value as Partial<CellRegistryEntry>;
+
   return (
-    typeof value === "object" &&
-    value !== null &&
-    "id" in value &&
-    "editorName" in value &&
-    "displayName" in value &&
-    "description" in value &&
-    "activators" in value &&
-    "actors" in value &&
-    "statics" in value
+    typeof candidate.id === "string" &&
+    typeof candidate.editorName === "string" &&
+    typeof candidate.displayName === "string" &&
+    (candidate.description === undefined || typeof candidate.description === "string") &&
+    Array.isArray(candidate.activators) &&
+    candidate.activators.every((entry) => typeof entry === "string") &&
+    Array.isArray(candidate.actors) &&
+    candidate.actors.every((entry) => typeof entry === "string") &&
+    Array.isArray(candidate.statics) &&
+    candidate.statics.every((entry) => typeof entry === "string")
   );
 }
 

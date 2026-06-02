@@ -18,10 +18,7 @@ const theme = {
   },
 };
 
-export async function select<T = any>(opts: {
-  message: string;
-  choices: Choice<T>[];
-}): Promise<T> {
+export async function select<T = any>(opts: { message: string; choices: Choice<T>[] }): Promise<T> {
   return (await inquirer.select({ theme, ...opts })) as T;
 }
 
@@ -40,18 +37,28 @@ export async function number<T = any>(opts: { message: string }): Promise<T> {
   return (await inquirer.number({ theme, ...opts })) as T;
 }
 
+// export async function pressToContinue(): Promise<void> {
+//   const message = "Press Enter to continue...";
+//   await inquirer.input({
+//     theme: {
+//       ...theme,
+//       prefix: "⏎",
+//       style: { ...theme.style, message: (text: string) => chalk.gray(text) },
+//     },
+//     message,
+//     transformer: () => "",
+//   });
+// }
+
 export async function pressToContinue(): Promise<void> {
   const message = "Press Enter to continue...";
-  await inquirer.input({
+  await inquirer.select({
     theme: {
       ...theme,
-      prefix: "⏎",
-      style: {
-        ...theme.style,
-        message: (text: string) => chalk.gray(text),
-      },
+      icon: { cursor: chalk.gray("⏎") },
+      style: { ...theme.style, answer: () => "", keysHelpTip: () => undefined },
     },
-    message,
-    transformer: () => "",
+    message: "",
+    choices: [{ value: null, name: message, short: "" }],
   });
 }

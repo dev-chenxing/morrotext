@@ -14,7 +14,10 @@ export async function showJournalMenu(): Promise<void> {
   const { questId } = await select<{ questId: string | null }>({
     message: "Active Quests:",
     choices: [
-      ...activeQuests.map((quest) => ({ name: `${quest.id} [Started]`, value: { questId: quest.id } })),
+      ...activeQuests.map((quest) => ({
+        name: `${quest.id} [Started]`,
+        value: { questId: quest.id },
+      })),
       { name: "Return", value: { questId: null } },
     ],
   });

@@ -1,4 +1,4 @@
-  import chalk from "chalk";
+import chalk from "chalk";
 import { SHOP_PRICES, GOLD_ID } from "../../constants.ts";
 import type { Alchemy, Armor, Item, MobilePlayer, NPC, Weapon } from "../../types.ts";
 import { input, select } from "../ui/prompt.ts";
@@ -25,7 +25,11 @@ export async function barter(player: MobilePlayer, actor: NPC) {
   while (shopping) {
     const { action } = await select<{ action: string }>({
       message: "Barter Menu:",
-      choices: [{ name: "Buy Items", value: { action: "Buy Items" } }, { name: "Sell Items", value: { action: "Sell Items" } }, { name: "Exit", value: { action: "Exit" } }],
+      choices: [
+        { name: "Buy Items", value: { action: "Buy Items" } },
+        { name: "Sell Items", value: { action: "Sell Items" } },
+        { name: "Exit", value: { action: "Exit" } },
+      ],
     });
 
     switch (action) {
@@ -47,19 +51,20 @@ async function buyItems(player: MobilePlayer, actor: NPC, availableItems: string
     return;
   }
 
-  const choices: Array<{ name: string; value: { itemId: string } | { itemId: null } }> = availableItems.map((itemId) => {
-    const item = mt.getObject(itemId);
-    if (!isValuedItem(item)) {
-      return { name: `${itemId} - unavailable`, value: { itemId: null } };
-    }
+  const choices: Array<{ name: string; value: { itemId: string } | { itemId: null } }> =
+    availableItems.map((itemId) => {
+      const item = mt.getObject(itemId);
+      if (!isValuedItem(item)) {
+        return { name: `${itemId} - unavailable`, value: { itemId: null } };
+      }
 
-    const price = Math.ceil(item.value * SHOP_PRICES.BUY_MULTIPLIER);
-    return { name: `${item.name} - ${price} gold`, value: { itemId } };
-  });
+      const price = Math.ceil(item.value * SHOP_PRICES.BUY_MULTIPLIER);
+      return { name: `${item.name} - ${price} gold`, value: { itemId } };
+    });
 
   choices.push({ name: "Cancel", value: { itemId: null } });
 
-  const { itemId } = await select<{ itemId: string | null }>({  
+  const { itemId } = await select<{ itemId: string | null }>({
     message: "Select item to buy:",
     choices,
   });

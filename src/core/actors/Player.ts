@@ -107,9 +107,7 @@ export function createPlayer(): Reference<NPCInstance> {
       mobilePlayer.health.base + mobilePlayer.endurance.base / 10,
     );
     mobilePlayer.health.current = mobilePlayer.health.base;
-    console.log(
-      chalk.yellow(`\n=== LEVEL UP! (${mobilePlayer.object.level}) ===`),
-    );
+    console.log(chalk.yellow(`\n=== LEVEL UP! (${mobilePlayer.object.level}) ===`));
     console.log(`Max HP increased to ${mobilePlayer.health.base}`);
   };
   mobilePlayer.addExperience = (xp: number) => {
