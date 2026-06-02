@@ -45,7 +45,18 @@
   - [x] docs: fix overstated or mistated features (e.g., "procedural world", "dynamic dialogues", "multi-stage quests")
 - [x] chore: rename `text-rpg` to `morrotext` across the codebase and documentation 
 - [x] docs: add a preview PNG to the README showcasing the game title
-- [ ] docs: add a demo GIF to the README showcasing gameplay
+- [ ] docs: add a demo GIF to the README showcasing (11-step) gameplay
+  - [x] 1. `npm start`
+  - [x] 2. `New`
+  - [x] 3. Azura intro
+  - [x] 4. Jiub intro
+  - [ ] 5. What's your name?
+  - [ ] 6. You finally arrived, but our records don't show from where.
+  - [ ] 7. There are a few ways we can do this, and the choice is yours.
+  - [ ] 8. you were born under a certain sign. And what would that be?
+  - [ ] 9. Now before I stamp these papers, make sure this information is correct.
+  - [ ] 10. Continue through to the next building, and talk to Sellus Gravius.
+  - [ ] 11. Your papers, please.
 
 ### Cell Controller Refactor
 - [ ] feat: add `isDead` flag to `MobileActor` and use it in `enterCell()` to exit loop
