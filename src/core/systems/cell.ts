@@ -1,4 +1,3 @@
-import chalk from "chalk";
 import type {
   Cell,
   CellRegistryEntry,
@@ -8,9 +7,6 @@ import type {
   ReferenceList,
   ValueOf,
 } from "../../types.ts";
-import { canTalkToActor, talkToNPC } from "./dialogue.ts";
-import { createNPCInstance } from "./npc.ts";
-import { select } from "../ui/prompt.ts";
 import { OBJECT_TYPE } from "../../constants.ts";
 
 export function appendReferenceToCell(reference: Reference, cell: Cell): void {
@@ -94,85 +90,10 @@ export function createCell(entry: CellRegistryEntry): Cell {
   return cell;
 }
 
-function getActorNodes(cell: Cell): Reference[] {
-  const actorNodes: Reference[] = [];
-  let currentActorNode = cell.actors?.head ?? null;
-
-  while (currentActorNode) {
-    actorNodes.push(currentActorNode);
-    currentActorNode = currentActorNode.nextNode ?? null;
-  }
-
-  return actorNodes;
-}
-
-function findActorReference(cell: Cell, npcKey: string): Reference | undefined {
-  let node = cell.actors?.head ?? null;
-  while (node) {
-    const obj: any = node.object as any;
-    if (obj && typeof obj.id === "string" && obj.id === npcKey) {
-      return node;
-    }
-    node = node.nextNode ?? null;
-  }
-
-  return undefined;
-}
-
 export async function enterCell(player: MobilePlayer, cell: Cell): Promise<void> {
   if (!cell) {
     throw new Error("Missing cell data: cannot enter undefined cell.");
   }
 
   player.reference.cell = cell;
-
-  await runCellInteractionLoop(mt.mobilePlayer, cell);
-}
-
-export async function runCellInteractionLoop(player: MobilePlayer, cell: Cell): Promise<void> {
-  if (!cell) {
-    throw new Error("Missing cell data: cannot enter undefined cell.");
-  }
-
-  const description = cell.description || "";
-  const displayName = cell.displayName ?? cell.editorName;
-  let inCell = true; // Loop control flag for the cell interaction menu
-
-  while (inCell && player.health.current > 0) {
-    console.log(chalk.cyan(`=== ${displayName} ===`));
-    console.log(chalk.red(description));
-    if (mt.mobilePlayer.controlsDisabled) {
-      break; // Exit the loop if controls are disabled (e.g., during dialogue)
-    }
-    const actorNodes = getActorNodes(cell);
-    const talkableActors = actorNodes.filter((node) => canTalkToActor(node, player));
-
-    const choices = [
-      ...talkableActors.map((actorRef) => ({
-        name: `Talk to ${mt.getObject((actorRef.object as any).id)?.name || (actorRef.object as any).id}`,
-        value: { action: `npc:${(actorRef.object as any).id}` },
-      })),
-      { name: "Return to Travel Menu", value: { action: "return" } },
-    ];
-
-    const { action } = await select<{ action: string }>({
-      message: "What would you like to do?",
-      choices,
-    });
-
-    if (action.startsWith("npc:")) {
-      const npcKey = action.split(":")[1];
-      const foundRef = findActorReference(cell, npcKey);
-
-      if (foundRef) {
-        await talkToNPC(foundRef, player);
-      } else {
-        await talkToNPC(createNPCInstance(npcKey), player);
-      }
-
-      continue;
-    }
-
-    inCell = false; // Player chose to leave the cell, exit the loop
-  }
 }

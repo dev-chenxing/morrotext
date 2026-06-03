@@ -14,6 +14,7 @@ const run: Script = async () => {
     required: true,
   });
   mt.player.object.name = name;
+  mt.mobilePlayer.controlsDisabled = false;
 };
 
 const CharGen: ScriptRegistryEntry = { id: "CharGen", run };

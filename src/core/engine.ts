@@ -1,8 +1,8 @@
 import chalk from "chalk";
 import type { MobilePlayer } from "../types.ts";
 import { createPlayer } from "./actors/Player.ts";
+import { showActionMenu } from "./ui/menus/MenuAction.ts";
 import { showMainMenu } from "./ui/menus/MenuOptions.ts";
-import { showServiceTravelMenu } from "./ui/menus/MenuServiceTravel.ts";
 import { initializeGameData } from "./initialize.ts";
 
 process.on("uncaughtException", (error: unknown) => {
@@ -34,7 +34,7 @@ async function startGame() {
 
     await mt.runScript({ script: "StartScript" });
 
-    await showServiceTravelMenu(mobilePlayer);
+    await showActionMenu();
   }
 }
 void startGame();

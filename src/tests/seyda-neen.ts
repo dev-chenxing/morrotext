@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
 import { createPlayer } from "../core/actors/Player.ts";
 import type { MobilePlayer } from "../types.ts";
-import { talkToNPC } from "../core/systems/dialogue.ts";
+import { talkToActor } from "../core/systems/dialogue.ts";
 import { initializeGameData } from "../core/initialize.ts";
 import { createNPCInstance } from "../core/systems/npc.ts";
 import { hasStartedQuest } from "../core/systems/quest.ts";
@@ -46,10 +46,9 @@ describe("Seyda Neen opening and quest flow", () => {
     const sellus = createNPCInstance("chargen captain");
     const topic = mt.dataHandler.nonDynamicData.dialogues.find((d) => d.id === "duties");
     vi.spyOn(prompt, "select")
-      .mockResolvedValueOnce({ topicId: topic?.id ?? null } as any)
-      .mockResolvedValueOnce({ topicId: null } as any);
-
-    await talkToNPC(sellus, mobilePlayer);
+      .mockResolvedValueOnce({ action: topic?.id ?? null } as any)
+      .mockResolvedValueOnce({ action: null } as any);
+    await talkToActor(sellus);
 
     expect(hasStartedQuest("A1_1_FindSpymaster")).toBe(true);
     expect(mobilePlayer.inventory.getItemCount("Gold_001")).toBe(87);

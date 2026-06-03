@@ -7,7 +7,7 @@ const SeydaNeenCell: CellRegistryEntry = {
   description:
     "A sleepy swamp town on the Bitter Coast. Marsh water laps against the dock while Imperial authority watches every arrival.",
   activators: [],
-  actors: ["Imperial Guard"],
+  actors: ["chargen door guard"],
   statics: [],
 };
 

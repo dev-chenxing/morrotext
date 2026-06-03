@@ -6,7 +6,7 @@ const ImperialPrisonShipCell: CellRegistryEntry = {
   displayName: "Imperial Prison Ship",
   isInterior: true,
   activators: [],
-  actors: ["jiub"],
+  actors: ["chargen name"],
   statics: [],
 };
 

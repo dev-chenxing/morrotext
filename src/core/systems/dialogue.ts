@@ -159,25 +159,28 @@ function printEntryText(text: string): void {
   console.log(chalk.yellow(`\n${text}`));
 }
 
-export function canTalkToActor(actorOrRef: Actor | Reference, player: MobilePlayer): boolean {
+export function canTalkToActor(actorOrRef: Actor | Reference): boolean {
   const { actor, reference } = resolveActorReference(actorOrRef);
   return (
-    getGreetingMatch(actor, player, reference) !== null ||
-    getTopicMatches(actor, player, reference).length > 0
+    getGreetingMatch(actor, mt.mobilePlayer, reference) !== null ||
+    getTopicMatches(actor, mt.mobilePlayer, reference).length > 0
   );
 }
 
-export async function talkToActor(actorOrRef: Actor | Reference, player: MobilePlayer) {
+export async function talkToActor(actorOrRef: Actor | Reference) {
   const { actor, reference } = resolveActorReference(actorOrRef);
 
-  if (!canTalkToActor(actorOrRef, player)) {
+  if (
+    getGreetingMatch(actor, mt.mobilePlayer, reference) === null &&
+    getTopicMatches(actor, mt.mobilePlayer, reference).length === 0
+  ) {
     console.log(chalk.yellow(`${actor.name} has nothing to say.`));
     return;
   }
 
   console.log(chalk.cyan(`\n=== ${actor.name} ===`));
 
-  const greeting = getGreetingMatch(actor, player, reference);
+  const greeting = getGreetingMatch(actor, mt.mobilePlayer, reference);
   if (greeting) {
     printEntryText(greeting.entry.text);
     await runEntryScript(greeting.entry, reference);
@@ -187,7 +190,7 @@ export async function talkToActor(actorOrRef: Actor | Reference, player: MobileP
   }
 
   while (true) {
-    const topics = getTopicMatches(actor, player, reference);
+    const topics = getTopicMatches(actor, mt.mobilePlayer, reference);
 
     if (topics.length === 0) {
       console.log(chalk.yellow("There are no topics to discuss."));
@@ -222,8 +225,6 @@ export async function talkToActor(actorOrRef: Actor | Reference, player: MobileP
     }
   }
 }
-
-export const talkToNPC = talkToActor;
 
 export function getNPCName(npcKey: string) {
   return mt.getObject(npcKey)?.name ?? npcKey;

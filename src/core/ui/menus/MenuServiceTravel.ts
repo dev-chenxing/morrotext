@@ -1,6 +1,6 @@
 import chalk from "chalk";
 import type { MobilePlayer } from "../../../types.ts";
-import { enterCell, runCellInteractionLoop } from "../../systems/cell.ts";
+import { enterCell } from "../../systems/cell.ts";
 import { select } from "../prompt.ts";
 
 export async function showServiceTravelMenu(player: MobilePlayer): Promise<void> {
@@ -29,6 +29,5 @@ export async function showServiceTravelMenu(player: MobilePlayer): Promise<void>
       chalk.yellow(`\nTraveling to ${selectedCell.displayName ?? selectedCell.editorName}...`),
     );
     await enterCell(player, selectedCell);
-    await runCellInteractionLoop(player, selectedCell);
   }
 }

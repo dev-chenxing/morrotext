@@ -50,7 +50,7 @@
   - [x] 2. `New`
   - [x] 3. Azura intro
   - [x] 4. Jiub intro
-  - [ ] 5. What's your name?
+  - [x] 5. What's your name?
   - [ ] 6. You finally arrived, but our records don't show from where.
   - [ ] 7. There are a few ways we can do this, and the choice is yours.
   - [ ] 8. you were born under a certain sign. And what would that be?

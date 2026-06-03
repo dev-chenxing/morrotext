@@ -2,7 +2,7 @@ import * as inquirer from "@inquirer/prompts";
 import { createPrompt, useKeypress, useState, type Status } from "@inquirer/core";
 import chalk from "chalk";
 
-type Choice<Value> = {
+export type Choice<Value> = {
   value: Value;
   name?: string;
   description?: string;
@@ -63,6 +63,14 @@ export async function pressToContinue(): Promise<void> {
   await _pressToContinue({});
 }
 
-export async function select<T = any>(opts: { message: string; choices: Choice<T>[] }): Promise<T> {
-  return (await inquirer.select({ theme, ...opts })) as T;
+export async function select<T = any>(opts: {
+  prefix?: string;
+  message?: string;
+  choices: Choice<T>[];
+}): Promise<T> {
+  return (await inquirer.select({
+    theme: opts.prefix ? { ...theme, prefix: chalk.blue(opts.prefix) } : theme,
+    message: opts.message ?? "",
+    choices: opts.choices,
+  })) as T;
 }
