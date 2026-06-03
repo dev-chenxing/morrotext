@@ -1,4 +1,5 @@
 import * as inquirer from "@inquirer/prompts";
+import { createPrompt, useKeypress, useState, type Status } from "@inquirer/core";
 import chalk from "chalk";
 
 type Choice<Value> = {
@@ -11,15 +12,29 @@ type Choice<Value> = {
 };
 
 const theme = {
-  prefix: "",
   style: {
+    message: (text: string) => chalk.black(text),
     answer: (text: string) => chalk.yellow(text),
     highlight: (text: string) => chalk.yellow(text),
   },
 };
 
-export async function select<T = any>(opts: { message: string; choices: Choice<T>[] }): Promise<T> {
-  return (await inquirer.select({ theme, ...opts })) as T;
+export async function ask<T = any>(opts: {
+  actor: string;
+  message: string;
+  default?: string;
+  required?: boolean;
+}): Promise<T> {
+  return (await inquirer.input({
+    theme: { ...theme, prefix: chalk.bold.blue(opts.actor) + ":" },
+    message: chalk.bold(opts.message),
+    default: opts.default,
+    required: opts.required,
+  })) as T;
+}
+
+export async function confirm<T = any>(opts: { message: string }): Promise<T> {
+  return (await inquirer.confirm({ theme, ...opts })) as T;
 }
 
 export async function input<T = any>(opts: {
@@ -29,36 +44,25 @@ export async function input<T = any>(opts: {
   return (await inquirer.input({ theme, ...opts })) as T;
 }
 
-export async function confirm<T = any>(opts: { message: string }): Promise<T> {
-  return (await inquirer.confirm({ theme, ...opts })) as T;
-}
-
 export async function number<T = any>(opts: { message: string }): Promise<T> {
   return (await inquirer.number({ theme, ...opts })) as T;
 }
 
-// export async function pressToContinue(): Promise<void> {
-//   const message = "Press Enter to continue...";
-//   await inquirer.input({
-//     theme: {
-//       ...theme,
-//       prefix: "⏎",
-//       style: { ...theme.style, message: (text: string) => chalk.gray(text) },
-//     },
-//     message,
-//     transformer: () => "",
-//   });
-// }
+const _pressToContinue = createPrompt((_config, done) => {
+  const [status, setStatus] = useState<Status>("idle");
+
+  useKeypress(() => {
+    setStatus("done");
+    done("");
+  });
+
+  return status === "done" ? "" : chalk.gray("⏎ Press Enter to continue...");
+});
 
 export async function pressToContinue(): Promise<void> {
-  const message = "Press Enter to continue...";
-  await inquirer.select({
-    theme: {
-      ...theme,
-      icon: { cursor: chalk.gray("⏎") },
-      style: { ...theme.style, answer: () => "", keysHelpTip: () => undefined },
-    },
-    message: "",
-    choices: [{ value: null, name: message, short: "" }],
-  });
+  await _pressToContinue({});
+}
+
+export async function select<T = any>(opts: { message: string; choices: Choice<T>[] }): Promise<T> {
+  return (await inquirer.select({ theme, ...opts })) as T;
 }

@@ -125,6 +125,8 @@ export async function enterCell(player: MobilePlayer, cell: Cell): Promise<void>
   }
 
   player.reference.cell = cell;
+
+  await runCellInteractionLoop(mt.mobilePlayer, cell);
 }
 
 export async function runCellInteractionLoop(player: MobilePlayer, cell: Cell): Promise<void> {
@@ -137,8 +139,11 @@ export async function runCellInteractionLoop(player: MobilePlayer, cell: Cell): 
   let inCell = true; // Loop control flag for the cell interaction menu
 
   while (inCell && player.health.current > 0) {
-    console.log(chalk.cyan(`\n=== ${displayName} ===`));
+    console.log(chalk.cyan(`=== ${displayName} ===`));
     console.log(chalk.red(description));
+    if (mt.mobilePlayer.controlsDisabled) {
+      break; // Exit the loop if controls are disabled (e.g., during dialogue)
+    }
     const actorNodes = getActorNodes(cell);
     const talkableActors = actorNodes.filter((node) => canTalkToActor(node, player));
 

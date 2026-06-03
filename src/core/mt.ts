@@ -15,7 +15,7 @@ import type {
   WorldController,
 } from "../types.ts";
 import { runScript } from "./systems/script.ts";
-import { appendReferenceToCell, enterCell, runCellInteractionLoop } from "./systems/cell.ts";
+import { appendReferenceToCell, enterCell } from "./systems/cell.ts";
 import { resolveReference } from "./systems/reference.ts";
 import { MobManager } from "./systems/mob.ts";
 import { findQuest, getJournalIndex, updateJournal } from "./systems/quest.ts";
@@ -33,6 +33,18 @@ const state: {
   },
   worldController: { allMobileActors: [], mobManager: new MobManager(), quests: [] },
 };
+
+function addItem(
+  target: Reference | MobileActor | Actor | null,
+  itemId: string,
+  count = 1,
+): number {
+  return getInventory(target)?.addItem(itemId, count) ?? 0;
+}
+
+function addTopic(_topicId: string): void {
+  // Topics are currently sourced directly from initialized dialogue records.
+}
 
 function getActions(target: Reference | MobileActor | Actor) {
   // If the target is a Reference, use its object for action retrieval
@@ -55,6 +67,16 @@ function getClass(classId: string): Class | undefined {
   return state.dataHandler.nonDynamicData.classes.find((gameClass) => gameClass.id === classId);
 }
 
+// Locates and returns a Dialogue Info by a given id.
+// This involves file IO and is an expensive call. Results should be cached.
+function getDialogueInfo(dialogue: Dialogue | string, id: string): DialogueInfo | null {
+  return (
+    state.dataHandler.nonDynamicData.dialogues
+      .find((d) => d.id === (typeof dialogue === "string" ? dialogue : dialogue.id))
+      ?.info.find((info) => info.id === id) ?? null
+  );
+}
+
 function getInventory(target: Reference | MobileActor | Actor | null): Inventory | null {
   if (!target) return null;
 
@@ -73,44 +95,14 @@ function getInventory(target: Reference | MobileActor | Actor | null): Inventory
   return null;
 }
 
-// Locates and returns a Dialogue Info by a given id.
-// This involves file IO and is an expensive call. Results should be cached.
-function getDialogueInfo(dialogue: Dialogue | string, id: string): DialogueInfo | null {
-  return (
-    state.dataHandler.nonDynamicData.dialogues
-      .find((d) => d.id === (typeof dialogue === "string" ? dialogue : dialogue.id))
-      ?.info.find((info) => info.id === id) ?? null
-  );
+function getItemCount(target: Reference | MobileActor | Actor | null, itemId: string): number {
+  return getInventory(target)?.getItemCount(itemId) ?? 0;
 }
 
 function getObject(objectId: string): Item | undefined {
   return state.dataHandler.nonDynamicData.objects.find((obj) => obj.id === objectId) as
     | Item
     | undefined;
-}
-
-function addItem(
-  target: Reference | MobileActor | Actor | null,
-  itemId: string,
-  count = 1,
-): number {
-  return getInventory(target)?.addItem(itemId, count) ?? 0;
-}
-
-function removeItem(
-  target: Reference | MobileActor | Actor | null,
-  itemId: string,
-  count = 1,
-): number {
-  return getInventory(target)?.removeItem(itemId, count) ?? 0;
-}
-
-function getItemCount(target: Reference | MobileActor | Actor | null, itemId: string): number {
-  return getInventory(target)?.getItemCount(itemId) ?? 0;
-}
-
-function addTopic(_topicId: string): void {
-  // Topics are currently sourced directly from initialized dialogue records.
 }
 
 async function positionCell(opts: {
@@ -124,9 +116,6 @@ async function positionCell(opts: {
 
   if (!opts.reference) {
     await enterCell(mt.mobilePlayer, cell);
-    if (!mt.mobilePlayer.controlsDisabled) {
-      await runCellInteractionLoop(mt.mobilePlayer, cell);
-    }
     return true;
   }
   const resolvedReference = resolveReference(opts.reference);
@@ -136,6 +125,14 @@ async function positionCell(opts: {
   }
 
   return false;
+}
+
+function removeItem(
+  target: Reference | MobileActor | Actor | null,
+  itemId: string,
+  count = 1,
+): number {
+  return getInventory(target)?.removeItem(itemId, count) ?? 0;
 }
 
 export const mt: MtApi = {

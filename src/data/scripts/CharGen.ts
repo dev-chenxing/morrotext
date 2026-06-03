@@ -1,23 +1,19 @@
 import chalk from "chalk";
-import type { Reference } from "../../types.ts";
 import type { Script, ScriptRegistryEntry } from "../../core/systems/script.ts";
-import { input } from "../../core/ui/prompt.ts";
+import { ask } from "../../core/ui/prompt.ts";
 
-async function intro(reference?: Reference): Promise<void> {
-  if (reference) {
-    reference.tempData.__chargen = true;
-  }
-
+const run: Script = async () => {
   console.log(
     chalk.blue("Jiub") + ": " + chalk.white("Stand up... there you go. You were dreaming."),
   );
 
-  const name = await input({ message: chalk.white("What's your name?") });
+  const name = await ask({
+    actor: "Jiub",
+    message: "What's your name?",
+    default: mt.player.object.name,
+    required: true,
+  });
   mt.player.object.name = name;
-}
-
-const run: Script = async (reference?: Reference) => {
-  await intro(reference);
 };
 
 const CharGen: ScriptRegistryEntry = { id: "CharGen", run };
